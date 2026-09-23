@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Interface5</class>
+ <widget class="QDialog" name="Interface5">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>591</width>
+    <height>417</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QGroupBox" name="groupBoxActivitesTempsLibre">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>200</y>
+     <width>571</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Activité temps libre </string>
+   </property>
+   <widget class="QLineEdit" name="lineEditActivitesTempsLibre1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>531</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditActivitesTempsLibre2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>531</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxDifficultesPendantLoisirs">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>290</y>
+     <width>551</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Difficulté pendant les loisirs : </string>
+   </property>
+   <widget class="QLineEdit" name="lineEditDifficultesPendantLoisirs">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>113</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxAmenagementsScolaires">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>571</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Aménagements scolaire </string>
+   </property>
+   <widget class="QCheckBox" name="checkBoxAESH">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>AESH</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxOrdinateur">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ordinateur </string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxMiseEnPlacePAP">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>321</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mise en place d'un PAP</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxMiseEnPlacePPS">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>20</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mise en place d'un PPS</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxMiseEnPlacePPRE">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>40</y>
+      <width>271</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mise en place d'un PPRE</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxTierTemps">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>20</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tiers temps </string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxPolycopiesDonnes">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>60</y>
+      <width>231</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Polycopiés donnés </string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxMoinsExercices">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>40</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Moins d'exercice </string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBoxDicterTrous">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>60</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dictée à trou </string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBoxActivitesExtraScolaires">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>100</y>
+     <width>571</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Activité extra-scolaire </string>
+   </property>
+   <widget class="QLineEdit" name="lineEditActivitesExtraScolaires1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>531</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEditActivitesExtraScolaires2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>531</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButtonSuivant">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>380</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Suivant </string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

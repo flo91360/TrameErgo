@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Interface4_4</class>
+ <widget class="QDialog" name="Interface4_4">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1250</width>
+    <height>836</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="gridLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>40</y>
+     <width>621</width>
+     <height>732</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="7" column="0">
+     <widget class="QLabel" name="labelTracerCarre">
+      <property name="text">
+       <string>Tracer un carré</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="labelUtiliserCompas">
+      <property name="text">
+       <string>Utiliser un compas</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QGroupBox" name="groupBox_57">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_37">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTraitRegleAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTraitRegleDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTraitRegleGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QGroupBox" name="groupBox_60">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_40">
+       <item>
+        <widget class="QRadioButton" name="radioButtonPoserQuestionAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonPoserQuestionDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonPoserQuestionGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="labelTracerTraitRegle">
+      <property name="text">
+       <string>Tracer un trait à la règle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="labelGommer">
+      <property name="text">
+       <string>Gommer</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QGroupBox" name="groupBox_59">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_39">
+       <item>
+        <widget class="QRadioButton" name="radioButtonCompterAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonCompterDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonCompterGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="8" column="0">
+     <widget class="QLabel" name="labelTracerRond">
+      <property name="text">
+       <string>Tracer un rond</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="labelSouligner">
+      <property name="text">
+       <string>Souligner</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QGroupBox" name="groupBox_58">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_38">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserPinceauAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserPinceauDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserPinceauGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <widget class="QGroupBox" name="groupBox_63">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_43">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTriangleAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTriangleDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerTriangleGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="labelPoserQuestion">
+      <property name="text">
+       <string>Poser une question</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <widget class="QGroupBox" name="groupBox_62">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_42">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerRondAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerRondDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerRondGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="7" column="1">
+     <widget class="QGroupBox" name="groupBox_61">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_41">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerCarreAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerCarreDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTracerCarreGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="labelCompter">
+      <property name="text">
+       <string>Compter</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QGroupBox" name="groupBox_64">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_44">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCompasAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCompasDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCompasGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <widget class="QLabel" name="labelTracerTriangle">
+      <property name="text">
+       <string>Tracer un triangle</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="labelUtiliserPinceau">
+      <property name="text">
+       <string>Utiliser un pinceau </string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox_54">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_34">
+       <item>
+        <widget class="QRadioButton" name="radioButtonGommerAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonGommerDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonGommerGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_55">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_35">
+       <item>
+        <widget class="QRadioButton" name="radioButtonSoulignerAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSoulignerDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSoulignerGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="labelTaillerCrayon">
+      <property name="text">
+       <string>Tailler mes crayons</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QGroupBox" name="groupBox_56">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_36">
+       <item>
+        <widget class="QRadioButton" name="radioButtonTaillerCrayonAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTaillerCrayonDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonTaillerCrayonGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>40</y>
+     <width>565</width>
+     <height>732</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="8" column="0">
+     <widget class="QLabel" name="labelSavoirQuoiApprendre">
+      <property name="text">
+       <string>Savoir quoi apprendre </string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QGroupBox" name="groupBox_41">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_21">
+       <item>
+        <widget class="QRadioButton" name="radioButtonEcrireDevoirsAgendaAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonEcrireDevoirsAgendaDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonEcrireDevoirsAgendaGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="9" column="0">
+     <widget class="QLabel" name="labelUtiliserOrdinateurMaison">
+      <property name="text">
+       <string>Utiliser l'ordinateur à la maison</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="labelUtiliserRapporteur">
+      <property name="text">
+       <string>Utiliser un rapporteur </string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QGroupBox" name="groupBox_40">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_20">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCalculatriceAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCalculatriceDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserCalculatriceGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QGroupBox" name="groupBox_48">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_28">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurClasseEvaluationAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurClasseEvaluationDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurClasseEvaluationGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QGroupBox" name="groupBox_44">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_24">
+       <item>
+        <widget class="QRadioButton" name="radioButtonPreparerCartableAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonPreparerCartableDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonPreparerCartableGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="8" column="1">
+     <widget class="QGroupBox" name="groupBox_46">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_26">
+       <item>
+        <widget class="QRadioButton" name="radioButtonSavoirQuoiApprendreAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSavoirQuoiApprendreDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonSavoirQuoiApprendreGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="groupBox_38">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_18">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserEquerreAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserEquerreDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserEquerreGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="labePreparerCartable">
+      <property name="text">
+       <string>Préparer mon cartable</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QGroupBox" name="groupBox_42">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_22">
+       <item>
+        <widget class="QRadioButton" name="radioButtonFaireExercicesAutonomnieAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonFaireExercicesAutonomnieDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonFaireExercicesAutonomnieGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QGroupBox" name="groupBox_43">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_23">
+       <item>
+        <widget class="QRadioButton" name="radioButtonOrganiserDevoirsAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonOrganiserDevoirsDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonOrganiserDevoirsGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="labelFaireExercicesAutonomnie">
+      <property name="text">
+       <string>Faire mes exercices en autonomie</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="1">
+     <widget class="QGroupBox" name="groupBox_45">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_25">
+       <item>
+        <widget class="QRadioButton" name="radioButtonRelireCoursAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonRelireCoursDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonRelireCoursGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <widget class="QGroupBox" name="groupBox_47">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_27">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurMaisonAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurMaisonDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserOrdinateurMaisonGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="labelEcrireDevoirsAgenda">
+      <property name="text">
+       <string>Ecrire mes devoirs dans mon agenda</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="labelOrganiserDevoirs">
+      <property name="text">
+       <string>M'organiser pour faire mes devoirs</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="labelUtiliserEquerre">
+      <property name="text">
+       <string>Utiliser une équerre</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="labelUtiliserCalculatrice">
+      <property name="text">
+       <string>Utiliser une calculatrice</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="labelUtiliserOrdinateurClasseEvaluation">
+      <property name="text">
+       <string>Utiliser l'ordinateur en classe/ évaluation</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="labelRelireCours">
+      <property name="text">
+       <string>Relire mes cours</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QGroupBox" name="groupBox_39">
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_19">
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserRapporteurAide">
+         <property name="text">
+          <string>Avec aide</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserRapporteurDifficulte">
+         <property name="text">
+          <string>Avec difficulté</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButtonUtiliserRapporteurGrandeDifficulte">
+         <property name="text">
+          <string>Avec grande difficulté</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="labelTitre">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>10</y>
+     <width>221</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Activité de vie scolaire : page 2</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonSuivant">
+   <property name="geometry">
+    <rect>
+     <x>1140</x>
+     <y>790</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Suivant </string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
