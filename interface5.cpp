@@ -16,10 +16,10 @@ Interface5::~Interface5()
 
 void Interface5::on_pushButtonSuivant_clicked()
 {
-    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/Interface5/interface5.docx", Word::filePathToSave);
+    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/interface5/interface5.docx", Word::filePathToSave);
 
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
 

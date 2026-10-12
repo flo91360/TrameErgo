@@ -16,7 +16,7 @@ Interface1::Interface1(QWidget *parent)
     qDebug() << typeBilan;
 
     Word::wordApp = new QAxObject("Word.Application");
-    if (!Word::wordApp->isNull()) {
+    if (Word::wordApp && !Word::wordApp->isNull()) {
         Word::documents = Word::wordApp->querySubObject("Documents");
     }
 }
@@ -57,8 +57,8 @@ void Interface1::on_pushButtonSuivant_clicked()
 
     qDebug() << "filePathToSave";
 
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
         Word::replaceText("i_prenom",ui->lineEditPrenom->text());

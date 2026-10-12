@@ -19,8 +19,8 @@ Interface2_2::~Interface2_2()
 
 void Interface2_2::on_pushButtonSuivant_clicked()
 {
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
         if(ui->checkBoxAucun->checkState() == Qt::Checked)

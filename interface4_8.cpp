@@ -89,8 +89,8 @@ void Interface4_8::on_pushButtonSuivant_clicked()
 
     // qDebug() << "filePathToSave";
 
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
 

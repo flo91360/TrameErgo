@@ -3,6 +3,12 @@ QT += axcontainer
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets uitools
 
 CONFIG += c++17
+
+# Version de l'application (exe Windows, installateur et Release GitHub).
+# Chaque livraison l'augmente ; une nouvelle version publie la Release v<VERSION>.
+VERSION = 1.0.0
+QMAKE_TARGET_PRODUCT = TrameErgo
+QMAKE_TARGET_DESCRIPTION = "Bilans d'ergothérapie"
 DISTFILES += arborescence/**/*.docx
 
 # You can make your code fail to compile if it uses deprecated APIs.
