@@ -1,5 +1,8 @@
 #include "word.h"
 
+#include <QFileInfo>
+#include <QMessageBox>
+
 Word::Word() {}
 
 QAxObject* Word::wordApp = nullptr;
@@ -9,92 +12,109 @@ QAxObject* Word::selection = nullptr;
 QString Word::filePathToSave = nullptr;
 QString Word::pathToArbo = nullptr;
 
+// Word ou un modèle absent laissait des pointeurs nuls et faisait planter
+// l'application : on prévient l'utilisateur et on interrompt l'étape.
+static bool signaler(const QString &message)
+{
+    QMessageBox::critical(nullptr, "TrameErgo", message);
+    return false;
+}
+
+static bool disponible(const QString &sourceFile)
+{
+    if (!Word::wordApp || Word::wordApp->isNull() || !Word::documents)
+        return signaler("Microsoft Word est introuvable ou n'a pas pu être lancé.");
+    if (!QFileInfo::exists(sourceFile))
+        return signaler("Modèle Word introuvable :\n" + QDir::toNativeSeparators(sourceFile)
+                        + "\n\nRéinstallez TrameErgo pour restaurer les modèles.");
+    return true;
+}
+
+QAxObject* Word::ouvrir(const QString &file)
+{
+    if (!documents || !QFileInfo::exists(file)) {
+        signaler("Document introuvable :\n" + QDir::toNativeSeparators(file));
+        return nullptr;
+    }
+    QAxObject* opened = documents->querySubObject("Open(const QString&)", QDir::toNativeSeparators(file));
+    if (!opened || opened->isNull()) {
+        signaler("Word n'a pas pu ouvrir :\n" + QDir::toNativeSeparators(file));
+        return nullptr;
+    }
+    return opened;
+}
+
 void Word::copieColle(QString sourceFile, QString destFile)
 {
-    qDebug() << "coucou";
-    // Ouvrir le document source à partir duquel vous souhaitez copier le texte
-    QAxObject* sourceDocument = documents->querySubObject("Open(const QString&)", sourceFile);
-        qDebug() << "coucou2";
-    if (!sourceDocument->isNull()) {
-                qDebug() << "coucou3";
-        QAxObject* sourceSelection = wordApp->querySubObject("Selection");
-                    qDebug() << "coucou4";
-        if (!sourceSelection->isNull()) {
-                            qDebug() << "coucou5";
-            // Sélectionner tout le contenu du document source
-            sourceSelection->dynamicCall("WholeStory()");
-            // Copier le texte sélectionné
-            sourceSelection->dynamicCall("Copy()");
-                qDebug() << "coucou6";
-        }
+    if (!disponible(sourceFile))
+        return;
+    // Copier tout le contenu du modèle
+    QAxObject* sourceDocument = ouvrir(sourceFile);
+    if (!sourceDocument)
+        return;
+    QAxObject* sourceSelection = wordApp->querySubObject("Selection");
+    if (sourceSelection && !sourceSelection->isNull()) {
+        sourceSelection->dynamicCall("WholeStory()");
+        sourceSelection->dynamicCall("Copy()");
     }
 
-    // Ouvrir le document cible dans lequel vous souhaitez coller le texte
-    QAxObject* destDocument = documents->querySubObject("Open(const QString&)", destFile);
-    if (!destDocument->isNull()) {
-        // Sélectionner le contenu du nouveau document
+    // Le coller à la fin du bilan, après un saut de page
+    QAxObject* destDocument = ouvrir(destFile);
+    if (destDocument) {
         QAxObject* selection = wordApp->querySubObject("Selection");
-        if (!selection->isNull()) {
-            selection->dynamicCall("EndKey(int)", 6); // Se déplacer à la fin du document
-            selection->dynamicCall("InsertBreak(int)", 7); // Insérer un saut de page
-            // Coller le texte copié du document source
+        if (selection && !selection->isNull()) {
+            selection->dynamicCall("EndKey(int)", 6); // Fin du document
+            selection->dynamicCall("InsertBreak(int)", 7); // Saut de page
             selection->dynamicCall("Paste()");
         }
     }
-    // Fermer le document source
     sourceDocument->dynamicCall("Close()");
-    destDocument->dynamicCall("Save()");
-    destDocument->dynamicCall("Close()");
+    if (destDocument) {
+        destDocument->dynamicCall("Save()");
+        destDocument->dynamicCall("Close()");
+    }
 }
 
 void Word::copieCree(QString sourceFile, QString destFile)
 {
-    qDebug() << "coucou";
-    qDebug() << sourceFile;
-    // Ouvrir le document source à partir duquel vous souhaitez copier le texte
-    QAxObject* sourceDocument = documents->querySubObject("Open(const QString&)", sourceFile);
-    qDebug() << "coucou1";
-    if (!sourceDocument->isNull()) {
-        qDebug() << "coucou2";
-        QAxObject* sourceSelection = wordApp->querySubObject("Selection");
-        if (!sourceSelection->isNull()) {
-            // Sélectionner tout le contenu du document source
-            sourceSelection->dynamicCall("WholeStory()");
-            // Copier le texte sélectionné
-            sourceSelection->dynamicCall("Copy()");
-        }
+    if (!disponible(sourceFile))
+        return;
+    // Copier tout le contenu du modèle
+    QAxObject* sourceDocument = ouvrir(sourceFile);
+    if (!sourceDocument)
+        return;
+    QAxObject* sourceSelection = wordApp->querySubObject("Selection");
+    if (sourceSelection && !sourceSelection->isNull()) {
+        sourceSelection->dynamicCall("WholeStory()");
+        sourceSelection->dynamicCall("Copy()");
     }
 
-    // Ouvrir le document cible dans lequel vous souhaitez coller le texte
+    // Créer le bilan dans un nouveau document (dossier créé si besoin)
+    QDir().mkpath(QFileInfo(destFile).absolutePath());
     QAxObject* destDocument = documents->querySubObject("Add()");
-    if (!destDocument->isNull()) {
-        // Sélectionner le contenu du nouveau document
+    if (destDocument && !destDocument->isNull()) {
         QAxObject* selection = wordApp->querySubObject("Selection");
-        if (!selection->isNull()) {
-            // Coller le texte copié du document source
+        if (selection && !selection->isNull()) {
             selection->dynamicCall("Paste()");
         }
-        // Enregistrer les modifications apportées au document cible
-        destDocument->dynamicCall("SaveAs(const QString&)", destFile);
-
-        // Fermer le document cible
+        destDocument->dynamicCall("SaveAs(const QString&)", QDir::toNativeSeparators(destFile));
         destDocument->dynamicCall("Close()");
+    } else {
+        signaler("Word n'a pas pu créer le bilan.");
     }
-
-    // Fermer le document source
     sourceDocument->dynamicCall("Close()");
 }
 
 
 void Word::replaceText(QString originText, QString newText)
 {
-    if (!selection->isNull()) {
+    if (selection && !selection->isNull()) {
 
         qDebug() << "Text to replace:" << originText << "with" << newText;
 
         QAxObject* find = selection->querySubObject("Find");
         selection->dynamicCall("HomeKey(int)", 6); // Move to start of document
-        if (!find->isNull()) {
+        if (find && !find->isNull()) {
             qDebug() << "find non null";
             find->dynamicCall("ClearFormatting()");
             find->setProperty("Text", originText);
@@ -110,7 +130,7 @@ void Word::replaceText(QString originText, QString newText)
             while (find->dynamicCall("Execute()").toBool()) {
                 qDebug() << "Text trouve";
                 QAxObject* range = selection->querySubObject("Range");
-                if (!range->isNull()) {
+                if (range && !range->isNull()) {
                     qDebug() << "On remplace";
                     range->dynamicCall("Text", newText);
                 }
@@ -122,8 +142,8 @@ void Word::replaceText(QString originText, QString newText)
 
 void Word::replaceTextFromZoneText(QString originText, QString newText)
 {
-    QAxObject* shapes = document->querySubObject("Shapes");
-    if (!shapes->isNull()) {
+    QAxObject* shapes = document ? document->querySubObject("Shapes") : nullptr;
+    if (shapes && !shapes->isNull()) {
         int shapeCount = shapes->dynamicCall("Count()").toInt();
         for (int i = 1; i <= shapeCount; ++i) {
             QAxObject* shape = shapes->querySubObject("Item(int)", i);

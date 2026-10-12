@@ -23,7 +23,7 @@ Interface1::Interface1(QWidget *parent)
     qDebug() << typeBilan;
 
     Word::wordApp = new QAxObject("Word.Application");
-    if (!Word::wordApp->isNull()) {
+    if (Word::wordApp && !Word::wordApp->isNull()) {
         Word::documents = Word::wordApp->querySubObject("Documents");
     }
 }
@@ -67,14 +67,14 @@ void Interface1::on_pushButtonSuivant_clicked()
     qDebug() <<  Word::filePathToSave;
     qDebug() << QDir::currentPath();
     // out << Word::filePathToSave  +"\n";
-    Word::copieCree(Word::pathToArbo + "/arborescence/Femme/Enfant/Interface1/interface1.docx", Word::filePathToSave);
+    Word::copieCree(Word::pathToArbo + "/arborescence/Femme/Enfant/interface1/interface1_femme_enfant.docx", Word::filePathToSave);
 
     qDebug() << "filePathToSave";
 
     Patient::prenomPatient = ui->lineEditPrenom->text();
 
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
         Word::replaceText("i_prenom",Patient::prenomPatient);

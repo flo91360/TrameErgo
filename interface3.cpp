@@ -18,12 +18,12 @@ Interface3::~Interface3()
 
 void Interface3::on_pushButtonSuivant_clicked()
 {
-    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/Interface3/interface3.docx", Word::filePathToSave);
+    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/interface3/interface3.docx", Word::filePathToSave);
 
     qDebug() << "filePathToSave";
 
-    Word::document = Word::documents->querySubObject("Open(const QString&)",  Word::filePathToSave);
-    if (!Word::document->isNull()) {
+    Word::document = Word::ouvrir(Word::filePathToSave);
+    if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
 
