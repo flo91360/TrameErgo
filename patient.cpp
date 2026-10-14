@@ -22,15 +22,14 @@ QStringList Patient::objectfisAVLPatient;
 QStringList Patient::objectfisFinauxPatients;
 
 QString Patient:: calculerAge(QDate dateNaissance) {
-    // Obtenez la date actuelle
+    // Âge en années et mois révolus à la date du jour. Le calcul en jours
+    // (365 et 30 jours) se décalait : 10 ans et 11 mois devenaient 11 ans et 0 mois.
     QDate dateDuJour = QDate::currentDate();
+    int mois = (dateDuJour.year() - dateNaissance.year()) * 12
+               + dateDuJour.month() - dateNaissance.month();
+    if (dateDuJour.day() < dateNaissance.day())
+        --mois; // Le mois en cours n'est pas encore révolu
+    int ans = mois / 12;
 
-    // Calculez la différence entre la date actuelle et la date de naissance
-    int years = dateNaissance.daysTo(dateDuJour) / 365;
-    int months = (dateNaissance.daysTo(dateDuJour) % 365) / 30;
-
-    // Créez la chaîne de caractères représentant l'âge
-    QString ageString = QString("%1 ans et %2 mois").arg(years).arg(months);
-
-    return ageString;
+    return QString("%1 %2 et %3 mois").arg(ans).arg(ans > 1 ? "ans" : "an").arg(mois % 12);
 }

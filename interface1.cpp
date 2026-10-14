@@ -16,11 +16,11 @@ Interface1::Interface1(QWidget *parent)
     // out << "Trying to access folder: ALED\n";
 
 
-    this->sexe = Patient::sexePatient;
-    this->typeBilan = Patient::typeBilan;
-
-    qDebug() << sexe;
-    qDebug() << typeBilan;
+    // Le texte du modèle accorde la latéralité : « i_prenom est i_lateralite ».
+    if (Patient::sexePatient == "Homme") {
+        ui->comboBoxLateralite->setItemText(0, "droitier");
+        ui->comboBoxLateralite->setItemText(1, "gaucher");
+    }
 
     Word::wordApp = new QAxObject("Word.Application");
     if (Word::wordApp && !Word::wordApp->isNull()) {
@@ -67,7 +67,7 @@ void Interface1::on_pushButtonSuivant_clicked()
     qDebug() <<  Word::filePathToSave;
     qDebug() << QDir::currentPath();
     // out << Word::filePathToSave  +"\n";
-    Word::copieCree(Word::pathToArbo + "/arborescence/Femme/Enfant/interface1/interface1_femme_enfant.docx", Word::filePathToSave);
+    Word::copieCree(Word::modele("interface1"), Word::filePathToSave);
 
     qDebug() << "filePathToSave";
 
@@ -88,24 +88,29 @@ void Interface1::on_pushButtonSuivant_clicked()
         Word::replaceText("i_mode_de_garde",ui->comboBoxModeGarde->currentText());
 
 
-        if(ui->radioButtonEnfantUnique->isChecked())
+        if(ui->checkBoxEnfantUnique->isChecked())
         {
             Word::replaceText("i_fraterie","est enfant unique");
             Word::replaceText("i_entente","");
-            qDebug() << "C'est coché";
         }
         else
         {
+            // Lue ici plutôt qu'au clic : « Bonne », cochée par défaut, n'émet
+            // aucun clic et le bilan affichait « () ».
+            QString entente = "bonne entente entre eux";
+            if (ui->radioButtonMauvaiseEntenre->isChecked())
+                entente = "mauvaise entente entre eux";
+            else if (ui->radioButtonNeutreEntente->isChecked())
+                entente = "pas de relation particulière entre eux";
             Word::replaceText("i_fraterie","a " + ui->lineEditFraterie->text());
             Word::replaceText("i_entente","(" + entente + ")");
-            qDebug() << "C'est aps coché";
         }
 
 
         Word::replaceText("i_medecin_traitant",ui->lineEditMedecinTraitant->text());
         Word::replaceText("i_ville",ui->lineEditVille->text());
         Word::replaceTextFromZoneText("i_prenom",ui->lineEditPrenom->text());
-        Word::replaceTextFromZoneText("i_nom",ui->lineEditNom->text());
+        Word::replaceTextFromZoneText("i_nom_patient",ui->lineEditNom->text());
         Word::replaceTextFromZoneText("i_date_de_passation",dateDuJour.toString("dd-MM-yyyy"));
         // Save the document
         Word::document->dynamicCall("Save()");
@@ -117,24 +122,3 @@ void Interface1::on_pushButtonSuivant_clicked()
     this->hide();
     interface2_1->show();
 }
-
-
-void Interface1::on_radioButtonBonneEntente_clicked()
-{
-    entente = "bonne entente entre eux";
-}
-
-
-void Interface1::on_radioButtonMauvaiseEntenre_clicked()
-{
-    entente = "mauvaise entente entre eux";
-}
-
-
-void Interface1::on_radioButtonNeutreEntente_clicked()
-{
-    entente = "pas de relation particulière entre eux";
-}
-
-
-

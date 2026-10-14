@@ -2,6 +2,19 @@
 #include "ui_interface5.h"
 #include "word.h"
 
+#include <QFileInfo>
+#include <QMessageBox>
+
+// Une activité par ligne (« - activité ») : les deux champs, séparés par des virgules.
+static QString enListe(const QString &premier, const QString &second)
+{
+    QStringList activites;
+    for (const QString &activite : (premier + "," + second).split(','))
+        if (!activite.trimmed().isEmpty())
+            activites << "- " + activite.trimmed();
+    return activites.join("\n");
+}
+
 Interface5::Interface5(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::Interface5)
@@ -16,7 +29,7 @@ Interface5::~Interface5()
 
 void Interface5::on_pushButtonSuivant_clicked()
 {
-    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/interface5/interface5.docx", Word::filePathToSave);
+    Word::copieColle(Word::modele("interface5"), Word::filePathToSave);
 
     Word::document = Word::ouvrir(Word::filePathToSave);
     if (Word::document && !Word::document->isNull()) {
@@ -25,21 +38,18 @@ void Interface5::on_pushButtonSuivant_clicked()
 
         Word::replaceText("i_amenagements_scolaires",amenagementsScolaires);
 
-        QString activitesExtraScoalires = ui->lineEditActivitesExtraScolaires1->text() + ui->lineEditActivitesExtraScolaires2->text();
-        activitesExtraScoalires.replace(", ","\n-");
-        Word::replaceText("i_activite_extra_scolaire",activitesExtraScoalires);
-
-        QString activitesTempsLibre = ui->lineEditActivitesTempsLibre1->text() + ui->lineEditActivitesTempsLibre2->text();
-        activitesTempsLibre.replace(", ","\n-");
-        Word::replaceText("i_activite_temps_libre",activitesTempsLibre);
+        Word::replaceText("i_activite_extra_scolaire",
+                          enListe(ui->lineEditActivitesExtraScolaires1->text(), ui->lineEditActivitesExtraScolaires2->text()));
+        Word::replaceText("i_activite_temps_libre",
+                          enListe(ui->lineEditActivitesTempsLibre1->text(), ui->lineEditActivitesTempsLibre2->text()));
 
         if(ui->lineEditDifficultesPendantLoisirs->text()== "")
         {
-            Word::replaceText("i_difficulte_loisirs","");
+            Word::replaceText("i_difficultes_pendant_loisirs","");
         }
         else
         {
-            Word::replaceText("i_difficulte_loisirs","- difficultés pendant les loisirs : " + ui->lineEditDifficultesPendantLoisirs->text());
+            Word::replaceText("i_difficultes_pendant_loisirs","- difficultés pendant les loisirs : " + ui->lineEditDifficultesPendantLoisirs->text());
         }
 
         // Save the document
@@ -47,13 +57,12 @@ void Interface5::on_pushButtonSuivant_clicked()
         Word::document->dynamicCall("Close()");
     }
 
+    Word::fermer();
+    // Les erreurs éventuelles ont déjà été signalées par Word::.
+    if (QFileInfo::exists(Word::filePathToSave))
+        QMessageBox::information(this, "TrameErgo", "Bilan enregistré :\n"
+                                 + QDir::toNativeSeparators(Word::filePathToSave));
     QCoreApplication::quit();
-
-
-    // // Next interface
-    // Interface4_1 *interface4_1 = new Interface4_1();
-    // this->hide();
-    // interface4_1->show();
 }
 
 

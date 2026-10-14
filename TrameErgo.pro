@@ -6,7 +6,7 @@ CONFIG += c++17
 
 # Version de l'application (exe Windows, installateur et Release GitHub).
 # Chaque livraison l'augmente ; une nouvelle version publie la Release v<VERSION>.
-VERSION = 1.0.0
+VERSION = 1.0.1
 QMAKE_TARGET_PRODUCT = TrameErgo
 QMAKE_TARGET_DESCRIPTION = "Bilans d'ergothérapie"
 DISTFILES += arborescence/**/*.docx

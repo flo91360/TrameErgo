@@ -12,15 +12,23 @@ Word. Textes visibles, commentaires et messages de commit en français.
   `interface4_x`) : écrans successifs du questionnaire. Chaque écran a son
   `.ui` (Qt Designer), son `.h` et son `.cpp`.
 - `word.*` : pilotage de Microsoft Word par ActiveQt (`QAxObject`).
-  `Word::copieCree` crée le bilan à partir d'un modèle, `Word::copieColle`
-  ajoute un modèle à la fin du bilan, `Word::replaceText` remplace les champs
+  `Word::modele("interfaceN")` donne le modèle de l'écran pour le sexe et l'âge
+  du patient, `Word::copieCree` crée le bilan à partir d'un modèle,
+  `Word::copieColle` ajoute un modèle à la fin du bilan, `Word::insereModele`
+  l'insère à la place d'un champ, `Word::replaceText` remplace les champs
   `i_…` des modèles par les réponses. Utiliser `Word::ouvrir` et vérifier les
   pointeurs : Word ou un modèle peuvent manquer.
-- `patient.*` : données partagées entre les écrans.
-- `arborescence/<Sexe>/<Âge>/<écran>/*.docx` : modèles Word. Installés dans
+- `patient.*` : données partagées entre les écrans. `sexePatient` et
+  `typeBilan` sont les noms des dossiers de modèles.
+- `arborescence/<Femme|Homme>/<Enfant|Ado>/interfaceN/interfaceN.docx` :
+  modèles Word, un par écran et par variante. `interface4` est inséré à la
+  place du champ `i_interface4` d'`interface3`. Installés dans
   `%LOCALAPPDATA%\TrameErgo\arborescence`, lus via `Word::pathToArbo`. Les
-  champs à remplacer d'un modèle doivent correspondre aux `replaceText` de
-  l'écran. Les bilans sont enregistrés dans `Documents\TrameErgo`.
+  bilans sont enregistrés dans `Documents\TrameErgo`.
+- `outils/verifier_modeles.py` : vérifie que chaque champ `i_…` des modèles est
+  remplacé par le code et inversement, que chaque variante a tous ses modèles et
+  qu'aucun champ n'en contient un autre. Lancé par la CI ; le relancer après
+  avoir modifié un modèle ou un `replaceText` : `python outils/verifier_modeles.py`.
 - `installer/TrameErgo.iss` : installateur Inno Setup.
 - `interface1_old.*` et `interface_piliz1.*` ne sont pas compilés.
 

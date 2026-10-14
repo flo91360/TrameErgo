@@ -159,7 +159,7 @@
     <string>Fraterie : </string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButtonEnfantUnique">
+  <widget class="QCheckBox" name="checkBoxEnfantUnique">
    <property name="geometry">
     <rect>
      <x>220</x>

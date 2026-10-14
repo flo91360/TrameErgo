@@ -28,6 +28,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      # Champs i_… des modèles Word et du code : un nom qui diffère laisse le
+      # champ brut dans le bilan sans aucune erreur à l'exécution.
+      - name: Vérifier les modèles Word
+        shell: pwsh
+        run: python outils/verifier_modeles.py
+
       - name: Lire la version
         id: version
         shell: pwsh

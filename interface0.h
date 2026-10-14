@@ -18,12 +18,6 @@ public:
 private slots:
     void on_pushButtonSuivant_clicked();
 
-    void on_radioButtonEnfant_clicked();
-
-    void on_radioButtonAdolescent_clicked();
-
-    void on_radioButtonAdulte_clicked();
-
 private:
     Ui::Interface0 *ui;
 };

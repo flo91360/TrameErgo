@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="title">
-    <string>Nom de ficher : </string>
+    <string>Type de bilan :</string>
    </property>
    <widget class="QRadioButton" name="radioButtonEnfant">
     <property name="geometry">
@@ -35,7 +35,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Bilan_ergothérapie_enfant </string>
+     <string>Enfant</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -51,20 +51,23 @@
      </rect>
     </property>
     <property name="text">
-     <string>Bilan_ergothérapie_adolescent</string>
+     <string>Adolescent</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="radioButtonAdulte">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>171</width>
+      <width>261</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
-     <string>Bilan_ergothérapie_adulte</string>
+     <string>Adulte (pas encore disponible)</string>
     </property>
    </widget>
   </widget>

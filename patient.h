@@ -10,6 +10,7 @@ public:
 
     static QString calculerAge(QDate dateNaissance);
 
+    // Dossiers des modèles Word : « Femme » ou « Homme », « Enfant » ou « Ado ».
     static QString sexePatient;
     static QString typeBilan;
     static QString agePatient;

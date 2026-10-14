@@ -1,4 +1,5 @@
 #include "word.h"
+#include "patient.h"
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -28,6 +29,12 @@ static bool disponible(const QString &sourceFile)
         return signaler("Modèle Word introuvable :\n" + QDir::toNativeSeparators(sourceFile)
                         + "\n\nRéinstallez TrameErgo pour restaurer les modèles.");
     return true;
+}
+
+QString Word::modele(const QString &ecran)
+{
+    return pathToArbo + "/arborescence/" + Patient::sexePatient + "/" + Patient::typeBilan
+           + "/" + ecran + "/" + ecran + ".docx";
 }
 
 QAxObject* Word::ouvrir(const QString &file)
@@ -103,6 +110,28 @@ void Word::copieCree(QString sourceFile, QString destFile)
         signaler("Word n'a pas pu créer le bilan.");
     }
     sourceDocument->dynamicCall("Close()");
+}
+
+bool Word::insereModele(const QString &champ, const QString &sourceFile)
+{
+    if (!disponible(sourceFile) || !selection || selection->isNull())
+        return false;
+    selection->dynamicCall("HomeKey(int)", 6); // Début du document
+    QAxObject* find = selection->querySubObject("Find");
+    if (!find || find->isNull())
+        return false;
+    find->dynamicCall("ClearFormatting()");
+    find->setProperty("Text", champ);
+    find->setProperty("Forward", true);
+    find->setProperty("Wrap", 0); // wdFindStop
+    find->setProperty("MatchWildcards", false);
+    if (!find->dynamicCall("Execute()").toBool())
+        return signaler("Le bilan ne contient pas le champ " + champ + " : impossible d'y insérer\n"
+                        + QDir::toNativeSeparators(sourceFile));
+    // Le champ trouvé est sélectionné : on l'efface et on insère le modèle à sa place.
+    selection->dynamicCall("Delete()");
+    selection->dynamicCall("InsertFile(const QString&)", QDir::toNativeSeparators(sourceFile));
+    return true;
 }
 
 
@@ -181,4 +210,21 @@ void Word::replaceTextFromZoneText(QString originText, QString newText)
             }
         }
     }
+}
+
+void Word::fermer()
+{
+    if (!wordApp || wordApp->isNull())
+        return;
+    // Un Word lancé par l'application reste invisible en mémoire après la
+    // génération. On ne le ferme que s'il n'a aucun document ouvert, pour ne
+    // jamais fermer les documents de l'utilisateur.
+    const QVariant ouverts = documents ? documents->property("Count") : QVariant();
+    if (ouverts.isValid() && ouverts.toInt() == 0)
+        wordApp->dynamicCall("Quit()");
+    delete wordApp;
+    wordApp = nullptr;
+    documents = nullptr;
+    document = nullptr;
+    selection = nullptr;
 }

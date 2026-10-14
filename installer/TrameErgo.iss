@@ -37,6 +37,10 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "arborescence\*"; Flags: i
 ; Modèles Word, lus par l'application dans %LOCALAPPDATA%\TrameErgo\arborescence
 Source: "{#SourceDir}\arborescence\*"; DestDir: "{localappdata}\TrameErgo\arborescence"; Flags: ignoreversion recursesubdirs createallsubdirs
 
+[InstallDelete]
+; Les modèles ont changé de noms en 1.0.1 : on retire les anciens avant de copier les nouveaux.
+Type: filesandordirs; Name: "{localappdata}\TrameErgo\arborescence"
+
 [Icons]
 Name: "{group}\TrameErgo"; Filename: "{app}\TrameErgo.exe"
 Name: "{autodesktop}\TrameErgo"; Filename: "{app}\TrameErgo.exe"; Tasks: desktopicon

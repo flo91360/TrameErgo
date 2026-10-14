@@ -17,7 +17,7 @@ Interface2_1::~Interface2_1()
 
 void Interface2_1::on_pushButtonSuivant_clicked()
 {
-    Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/interface2/interface2.docx", Word::filePathToSave);
+    Word::copieColle(Word::modele("interface2"), Word::filePathToSave);
 
     qDebug() << "filePathToSave";
 
