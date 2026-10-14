@@ -1,9 +1,11 @@
 # TrameErgo
 
-Génère des bilans d'ergothérapie Word. Deux applications remplissent le même
-modèle à partir du même questionnaire : Windows (C++ / Qt 6, qmake, à la
-racine) et tablette (`tablette/`, application web hors ligne). Textes
-visibles, commentaires et messages de commit en français.
+Génère des bilans d'ergothérapie Word, sur tablette et sur Windows. Une seule
+application, `tablette/` (web, hors ligne), sert les deux : dans le
+navigateur des tablettes et empaquetée par Tauri en `.exe` pour Windows.
+L'ancienne application Windows (C++ / Qt 6, qmake, à la racine) est conservée
+jusqu'à la validation du `.exe` Tauri, puis retirée. Textes visibles,
+commentaires et messages de commit en français.
 
 ## Structure
 
@@ -39,10 +41,17 @@ visibles, commentaires et messages de commit en français.
   remplacé par le code et inversement, et que chaque chemin lu dans
   `questionnaire.json` existe. Lancé par la CI ; le relancer après avoir
   modifié le contenu ou un `replaceText` : `python outils/verifier_contenu.py`.
-- `tablette/` : application tablette (Vue 3, TypeScript, Vite), installable
-  depuis le navigateur et utilisable hors ligne (service worker,
-  vite-plugin-pwa). Aucun serveur : le bilan est rempli sur l'appareil par
-  docxtemplater et le brouillon reste dans le navigateur (localStorage).
+- `tablette/` : l'application (Vue 3, TypeScript, Vite), installable depuis
+  le navigateur et utilisable hors ligne (service worker, vite-plugin-pwa).
+  Aucun serveur : le bilan est rempli sur l'appareil par docxtemplater et le
+  brouillon reste sur l'appareil (localStorage).
+  - `src-tauri/` : version Windows (Tauri 2, WebView2, installateur NSIS par
+    utilisateur). `tauri.conf.json` prend la version de `package.json` ;
+    `capabilities/default.json` n'autorise que l'écriture dans
+    `Documents\TrameErgo` et l'ouverture des bilans.
+  - `src/ordinateur.ts` : sous Tauri, le bilan est enregistré dans
+    `Documents\TrameErgo` et ouvert dans Word ; dans un navigateur, il est
+    téléchargé ou partagé. Tout le reste est commun.
   - `src/bilan.ts` : réponses (`Bilan`) et valeur de chaque champ du modèle
     (`champs`), calculées comme dans les écrans Qt. Une modification du
     bilan se fait dans les deux applications.
@@ -50,8 +59,10 @@ visibles, commentaires et messages de commit en français.
     choix ordonnés (grosses cibles tactiles).
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
     de `contenu/bilan.docx` et remplit le vrai modèle.
-  - `npm test`, `npm run build` ; `.github/workflows/tablette.yml` les lance et
-    publie `dist/` sur GitHub Pages depuis `main`.
+  - `npm test`, `npm run build`, `npx tauri build` (Windows) ;
+    `.github/workflows/tablette.yml` les lance, publie `dist/` sur GitHub
+    Pages depuis `main` et fournit l'installateur Windows en artefact
+    (`TrameErgo-Windows-Tauri`).
 - `installer/TrameErgo.iss` : installateur Inno Setup.
 - `interface1_old.*` et `interface_piliz1.*` ne sont pas compilés.
 
@@ -71,4 +82,5 @@ Windows avec Qt Creator : ouvrir `TrameErgo.pro`, kit Desktop Qt 6 MinGW 64 bits
 - L'application tablette est publiée sur GitHub Pages à chaque arrivée sur
   `main` (job `publier`), sans numéro de version.
 - Ne pas committer `build/`, `release/`, `deploy/`, `Output/`, les fichiers
-  `*.pro.user` de Qt Creator ni `tablette/node_modules/` et `tablette/dist/`.
+  `*.pro.user` de Qt Creator, `tablette/node_modules/`, `tablette/dist/` ni
+  `tablette/src-tauri/target/` et `gen/`.

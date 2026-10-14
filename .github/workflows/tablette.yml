@@ -1,8 +1,8 @@
-name: Application tablette
+name: Application tablette et Windows
 
-# Teste et construit l'application tablette (tablette/), puis la publie sur
-# GitHub Pages quand elle arrive sur main. Le contenu (contenu/) est partagé
-# avec l'application Windows : les tests remplissent le vrai modèle bilan.docx.
+# Teste et construit l'application (tablette/) : version web publiée sur GitHub
+# Pages depuis main, et version Windows (Tauri) dont l'installateur est un
+# artefact de l'exécution. Les tests remplissent le vrai modèle bilan.docx.
 on:
   push:
     branches: ['**']
@@ -50,6 +50,43 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: tablette/dist
+
+  # Application Windows : la même application empaquetée par Tauri (WebView2),
+  # installateur NSIS à télécharger dans les artefacts de l'exécution.
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: tablette
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tablette/package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tablette/src-tauri -> target
+
+      - name: Installer
+        run: npm ci
+
+      - name: Construire l'installateur Windows
+        run: npx tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TrameErgo-Windows-Tauri
+          path: tablette/src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
 
   # Pages doit être activé une fois : Settings > Pages > Source « GitHub Actions ».
   publier:
