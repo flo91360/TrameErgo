@@ -6,10 +6,10 @@ CONFIG += c++17
 
 # Version de l'application (exe Windows, installateur et Release GitHub).
 # Chaque livraison l'augmente ; une nouvelle version publie la Release v<VERSION>.
-VERSION = 1.0.1
+VERSION = 1.1.0
 QMAKE_TARGET_PRODUCT = TrameErgo
 QMAKE_TARGET_DESCRIPTION = "Bilans d'ergothérapie"
-DISTFILES += arborescence/**/*.docx
+DISTFILES += contenu/bilan.docx
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -21,18 +21,15 @@ SOURCES += \
     interface2_1.cpp \
     interface2_2.cpp \
     interface3.cpp \
-    interface4_1.cpp \
-    interface4_2.cpp \
-    interface4_3.cpp \
-    interface4_4.cpp \
-    interface4_5.cpp \
-    interface4_6.cpp \
+    interface4.cpp \
     interface4_7.cpp \
     interface4_8.cpp \
     interface5.cpp \
+    listecases.cpp \
     main.cpp \
     mainwindow.cpp \
     patient.cpp \
+    questionnaire.cpp \
     word.cpp
 
 HEADERS += \
@@ -41,17 +38,14 @@ HEADERS += \
     interface2_1.h \
     interface2_2.h \
     interface3.h \
-    interface4_1.h \
-    interface4_2.h \
-    interface4_3.h \
-    interface4_4.h \
-    interface4_5.h \
-    interface4_6.h \
+    interface4.h \
     interface4_7.h \
     interface4_8.h \
     interface5.h \
+    listecases.h \
     mainwindow.h \
     patient.h \
+    questionnaire.h \
     word.h
 
 FORMS += \
@@ -60,12 +54,7 @@ FORMS += \
     interface2_1.ui \
     interface2_2.ui \
     interface3.ui \
-    interface4_1.ui \
-    interface4_2.ui \
-    interface4_3.ui \
-    interface4_4.ui \
-    interface4_5.ui \
-    interface4_6.ui \
+    interface4.ui \
     interface4_7.ui \
     interface4_8.ui \
     interface5.ui \
@@ -76,4 +65,5 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RESOURCES +=
+# Contenu du questionnaire, intégré à l'exécutable.
+RESOURCES += contenu.qrc

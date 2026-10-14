@@ -1,4 +1,8 @@
 #include "patient.h"
+#include "questionnaire.h"
+
+#include <QJsonArray>
+#include <QJsonObject>
 
 Patient::Patient() {}
 
@@ -6,15 +10,7 @@ QString Patient::sexePatient = nullptr;
 QString Patient::typeBilan = nullptr;
 QString Patient::agePatient = nullptr;
 QString Patient::prenomPatient = nullptr;
-QString Patient::aideMaison= nullptr;
-QString Patient::aideEcole= nullptr;
-QString Patient::aideLoisirs= nullptr;
-QString Patient::difficulteMaison= nullptr;
-QString Patient::difficulteEcole= nullptr;
-QString Patient::difficulteLoisirs= nullptr;
-QString Patient::grandeDifficulteMaison= nullptr;
-QString Patient::grandeDifficulteEcole= nullptr;
-QString Patient::grandeDifficulteLoisirs= nullptr;
+QMap<QString, QStringList> Patient::otHope;
 QStringList Patient::objectfisFinauxPossibles;
 QStringList Patient::objectfisAVQPatient;
 QStringList Patient::objectfisAVSPatient;
@@ -32,4 +28,17 @@ QString Patient:: calculerAge(QDate dateNaissance) {
     int ans = mois / 12;
 
     return QString("%1 %2 et %3 mois").arg(ans).arg(ans > 1 ? "ans" : "an").arg(mois % 12);
+}
+
+QString Patient::accord(const QString &masculin, const QString &feminin)
+{
+    return sexePatient == "Homme" ? masculin : feminin;
+}
+
+QStringList Patient::activitesOtHope(const QString &domaine)
+{
+    QStringList activites;
+    for (const QJsonValue &niveau : Questionnaire::valeur("otHope/niveaux").toArray())
+        activites += otHope.value(niveau.toObject().value("id").toString() + "_" + domaine);
+    return activites;
 }

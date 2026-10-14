@@ -1,7 +1,11 @@
 #include "interface4_8.h"
 #include "ui_interface4_8.h"
 #include "patient.h"
+#include "questionnaire.h"
 #include "word.h"
+
+#include <QJsonArray>
+#include <QJsonObject>
 #include "interface5.h"
 
 // « Aucun » en premier : sans choix, aucun objectif n'est retenu (avant, la
@@ -42,6 +46,7 @@ Interface4_8::Interface4_8(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->comboBoxAccordParents->addItems(Questionnaire::liste("objectifs/accordParents"));
     remplir(choixPatient(), Patient::objectfisFinauxPossibles);
     remplir(choixParents(), Patient::objectfisFinauxPossibles);
 }
@@ -96,47 +101,31 @@ void Interface4_8::on_pushButtonSuivant_clicked()
     if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
-        // Section OT Hope et objectifs, insérée là où interface3 l'attend.
-        Word::insereModele("i_interface4", Word::modele("interface4"));
-
-        Word::replaceText("i_aide_maison",Patient::aideMaison);
-        Word::replaceText("i_aide_ecole",Patient::aideEcole);
-        Word::replaceText("i_aide_loisirs",Patient::aideLoisirs);
-        Word::replaceText("i_difficulte_maison",Patient::difficulteMaison);
-        Word::replaceText("i_difficulte_ecole",Patient::difficulteEcole);
-        Word::replaceText("i_difficulte_loisirs",Patient::difficulteLoisirs);
-        Word::replaceText("i_grande_difficulte_maison",Patient::grandeDifficulteMaison);
-        Word::replaceText("i_grande_difficulte_ecole",Patient::grandeDifficulteEcole);
-        Word::replaceText("i_grande_difficulte_loisirs",Patient::grandeDifficulteLoisirs);
-
-        Word::replaceText("i_objectifs_activites_vie_quotidienne",numerotes(Patient::objectfisAVQPatient));
-        Word::replaceText("i_objectifs_activites_scolaires",numerotes(Patient::objectfisAVSPatient));
-        Word::replaceText("i_objectifs_activites_loisirs",numerotes(Patient::objectfisAVLPatient));
-
-        Word::replaceText("i_prenom",Patient::prenomPatient);
-
-        QString phraseAccordParents;
-
-        if(ui->comboBoxAccordParents->currentText() == "Oui" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " sont en accord avec les objectifs qui lui paraissent importants";
-        }
-        else if(ui->comboBoxAccordParents->currentText() == "Non" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " ne sont pas en accord avec les objectifs qui lui paraissent importants";
-        }
-        else if(ui->comboBoxAccordParents->currentText() == "Pas tout à fait" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " ne sont pas totalement en accord avec les objectifs qui lui paraissent importants";
+        // Activités OT Hope : champs {aide_maison}, {difficulte_ecole}… (niveau_domaine).
+        for (const QJsonValue &domaine : Questionnaire::valeur("otHope/domaines").toArray()) {
+            for (const QJsonValue &niveau : Questionnaire::valeur("otHope/niveaux").toArray()) {
+                const QString champ = niveau.toObject().value("id").toString() + "_"
+                                      + domaine.toObject().value("id").toString();
+                Word::replaceText("{" + champ + "}",Word::enListe(Patient::otHope.value(champ)));
+            }
         }
 
-        Word::replaceText("i_en_accord",phraseAccordParents);
+        Word::replaceText("{objectifs_maison}",numerotes(Patient::objectfisAVQPatient));
+        Word::replaceText("{objectifs_ecole}",numerotes(Patient::objectfisAVSPatient));
+        Word::replaceText("{objectifs_loisirs}",numerotes(Patient::objectfisAVLPatient));
 
-        Word::replaceText("i_objectifs_finaux",numerotes(Patient::objectfisFinauxPatients));
+        Word::replaceText("{accord_parents}",
+                          Questionnaire::phrase("objectifs/accordParents", ui->comboBoxAccordParents->currentText())
+                              .replace("{prenom}", Patient::prenomPatient));
+
+        Word::replaceText("{objectifs_finaux}",numerotes(Patient::objectfisFinauxPatients));
 
         // Objectifs et remarques des parents : saisis mais jamais écrits jusqu'ici.
         QString objectifsParents = numerotes(choisis(choixParents()));
         const QString remarques = ui->textEditRemarquesParents->toPlainText().trimmed();
         if (!remarques.isEmpty())
             objectifsParents += "Remarques des parents : " + remarques;
-        Word::replaceText("i_objectifs_parents",objectifsParents);
+        Word::replaceText("{objectifs_parents}",objectifsParents);
 
         // Save the document
         Word::document->dynamicCall("Save()");

@@ -2,146 +2,51 @@
 <ui version="4.0">
  <class>Interface2_2</class>
  <widget class="QDialog" name="Interface2_2">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>500</width>
-    <height>357</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
-  <widget class="QGroupBox" name="groupBoxProfessionnels">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>431</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>professionnels autour du patient :</string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxPsychomotricien">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>133</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>psychomotricien(ne)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxOrthophoniste">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>98</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>orthophoniste</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxOrthopiste">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>40</y>
-      <width>84</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>orthoptiste </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPsychologue">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>20</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>psychologue</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxNeuropsychologue">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>20</y>
-      <width>122</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>neuropsychologue</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxKinesiterapeute">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>40</y>
-      <width>110</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>kinésithérapeute</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxAucun">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>60</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>aucun</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QWidget" name="formLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>120</y>
-     <width>451</width>
-     <height>196</height>
-    </rect>
-   </property>
-   <layout class="QFormLayout" name="formLayoutSuivi"/>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSuivant">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>320</y>
-     <width>75</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Suivant </string>
-   </property>
-  </widget>
+  <property name="geometry"><rect><x>0</x><y>0</y><width>520</width><height>420</height></rect></property>
+  <property name="windowTitle"><string>TrameErgo - Professionnels</string></property>
+  <layout class="QVBoxLayout" name="dispositionEcran">
+   <item>
+    <widget class="QGroupBox" name="groupBoxProfessionnels">
+     <property name="title"><string>Professionnels autour du patient</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxProfessionnels">
+      <item>
+       <widget class="ListeCases" name="listeProfessionnels"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxAucun"><property name="text"><string>Aucun</string></property></widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxSuivi">
+     <property name="title"><string>Fréquence des suivis</string></property>
+     <layout class="QFormLayout" name="formLayoutSuivi">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="espaceVertical"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property></spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutBas">
+     <item>
+      <spacer name="espaceBas"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonSuivant"><property name="text"><string>Suivant</string></property></widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListeCases</class>
+   <extends>QWidget</extends>
+   <header>listecases.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

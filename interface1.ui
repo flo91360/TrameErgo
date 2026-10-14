@@ -13,60 +13,15 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QGroupBox" name="groupBoxEntente">
+  <widget class="QComboBox" name="comboBoxEntente">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>120</y>
-     <width>231</width>
-     <height>31</height>
+     <y>125</y>
+     <width>121</width>
+     <height>22</height>
     </rect>
    </property>
-   <property name="title">
-    <string/>
-   </property>
-   <widget class="QRadioButton" name="radioButtonNeutreEntente">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>10</y>
-      <width>69</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Neutre</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButtonMauvaiseEntenre">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>10</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Mauvaise</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButtonBonneEntente">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>71</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Bonne</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
   </widget>
   <widget class="QLabel" name="labelEntente">
    <property name="geometry">
@@ -233,89 +188,6 @@
      <height>22</height>
     </rect>
    </property>
-   <property name="currentText">
-    <string>petite section</string>
-   </property>
-   <item>
-    <property name="text">
-     <string>petite section</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>moyenne section</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>grande section </string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>CP</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>CE1</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>CE2</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>CM1</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>CM2</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>6ème</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>5ème</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>4ème</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>3ème</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2nd</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>1ère</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Terminal </string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>post BAC</string>
-    </property>
-   </item>
   </widget>
   <widget class="QLabel" name="labelVille">
    <property name="geometry">
@@ -352,21 +224,6 @@
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>droitière</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>gauchère</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>ambidextre</string>
-    </property>
-   </item>
   </widget>
   <widget class="QDateEdit" name="dateEditNaissance">
    <property name="geometry">
@@ -410,21 +267,6 @@
      <height>21</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>l'école</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>le collège</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>le lycée</string>
-    </property>
-   </item>
   </widget>
   <widget class="QComboBox" name="comboBoxModeGarde">
    <property name="geometry">
@@ -435,46 +277,6 @@
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>avec ses 2 parents</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>avec son père</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>avec sa mère</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>en garde alternée</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>une semaine chez chaque parent</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>la semaine chez sa mère et un week-end sur deux chez son père</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>la semaine chez son père et un week-end sur deux chez sa mère</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>en foyer</string>
-    </property>
-   </item>
   </widget>
   <widget class="QLabel" name="labelClasse">
    <property name="geometry">

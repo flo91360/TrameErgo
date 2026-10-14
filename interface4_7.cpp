@@ -3,15 +3,6 @@
 #include "patient.h"
 #include "interface4_8.h"
 
-// Activités d'une liste « - activité\n- activité\n », sans les tirets.
-static QStringList activites(const QString &liste)
-{
-    QStringList resultat;
-    for (QString element : liste.split('\n', Qt::SkipEmptyParts))
-        resultat << element.remove(0, 2).trimmed();
-    return resultat;
-}
-
 // « Aucun » en premier : sans choix, aucun objectif n'est retenu (avant, la
 // première activité était choisie par défaut dans les 5 listes).
 static void remplir(const QList<QComboBox*> &choix, const QStringList &activites)
@@ -38,12 +29,10 @@ Interface4_7::Interface4_7(QWidget *parent)
 {
     ui->setupUi(this);
 
-    remplir(choixAVQ(), activites(Patient::aideMaison) + activites(Patient::difficulteMaison)
-                            + activites(Patient::grandeDifficulteMaison));
-    remplir(choixAVS(), activites(Patient::aideEcole) + activites(Patient::difficulteEcole)
-                            + activites(Patient::grandeDifficulteEcole));
-    remplir(choixAVL(), activites(Patient::aideLoisirs) + activites(Patient::difficulteLoisirs)
-                            + activites(Patient::grandeDifficulteLoisirs));
+    // Domaines OT Hope de questionnaire.json : vie quotidienne, école, loisirs.
+    remplir(choixAVQ(), Patient::activitesOtHope("maison"));
+    remplir(choixAVS(), Patient::activitesOtHope("ecole"));
+    remplir(choixAVL(), Patient::activitesOtHope("loisirs"));
 }
 
 Interface4_7::~Interface4_7()

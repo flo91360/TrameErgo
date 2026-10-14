@@ -1,0 +1,358 @@
+{
+  "identite": {
+    "classes": [
+      "petite section",
+      "moyenne section",
+      "grande section",
+      "CP",
+      "CE1",
+      "CE2",
+      "CM1",
+      "CM2",
+      "6ème",
+      "5ème",
+      "4ème",
+      "3ème",
+      "2nde",
+      "1ère",
+      "Terminale",
+      "post-bac"
+    ],
+    "typesEtablissement": [
+      "l'école",
+      "le collège",
+      "le lycée"
+    ],
+    "lateralite": {
+      "Femme": [
+        "droitière",
+        "gauchère",
+        "ambidextre"
+      ],
+      "Homme": [
+        "droitier",
+        "gaucher",
+        "ambidextre"
+      ]
+    },
+    "modesDeGarde": [
+      "avec ses 2 parents",
+      "avec son père",
+      "avec sa mère",
+      "en garde alternée",
+      "une semaine chez chaque parent",
+      "la semaine chez sa mère et un week-end sur deux chez son père",
+      "la semaine chez son père et un week-end sur deux chez sa mère",
+      "en foyer"
+    ],
+    "entente": [
+      {
+        "libelle": "Bonne",
+        "phrase": "bonne entente entre eux"
+      },
+      {
+        "libelle": "Mauvaise",
+        "phrase": "mauvaise entente entre eux"
+      },
+      {
+        "libelle": "Neutre",
+        "phrase": "pas de relation particulière entre eux"
+      }
+    ]
+  },
+  "demande": {
+    "personnesDemandeuses": [
+      "le médecin traitant",
+      "la neuropédiatre",
+      "l'enseignant",
+      "la psychomotricienne",
+      "la neuropsychologue",
+      "le(s) parent(s)",
+      "le père",
+      "la mère"
+    ],
+    "motifs": [
+      "Voir la pertinence de la mise en place de l'outil informatique pour compenser les difficultés d'écriture",
+      "Explorer d'où viennent les difficultés qui génèrent un trouble graphique",
+      "Faire le point sur les besoins en aménagements scolaires"
+    ],
+    "troubles": [
+      "Difficulté d'écriture",
+      "Difficulté de lecture",
+      "Difficulté de coordination",
+      "Difficulté de concentration",
+      "Hyperlaxité",
+      "Dyslexie",
+      "Dysorthographie",
+      "Dysgraphie",
+      "Difficulté sociale",
+      "TDA sans hyperactivité",
+      "TDA avec hyperactivité",
+      "TSA",
+      "Trouble autistique de type asperger",
+      "Trouble du développement des coordinations",
+      "Trouble psychologique",
+      "Trouble psychiatrique"
+    ],
+    "dossierMdph": [
+      "Actif",
+      "En renouvellement",
+      "En création",
+      "Aucun"
+    ]
+  },
+  "suivis": {
+    "professionnels": [
+      "psychomotricien(ne)",
+      "orthophoniste",
+      "orthoptiste",
+      "psychologue",
+      "neuropsychologue",
+      "kinésithérapeute"
+    ],
+    "frequences": [
+      "à raison d'une fois par semaine",
+      "à raison d'une fois toutes les deux semaines",
+      "à raison d'une fois par mois",
+      "à raison d'une fois par trimestre",
+      "à raison d'une fois tous les 6 mois",
+      "à raison d'une fois par an"
+    ]
+  },
+  "scolarite": {
+    "comportement": [
+      "Se concentre bien",
+      "Difficulté à se concentrer",
+      "La concentration est fluctuante au cours de la journée",
+      "Participe bien",
+      "Ne participe pas",
+      "Participation dépendante de la matière",
+      "Bavardage en cours",
+      "Ne se met pas au travail de manière autonome"
+    ],
+    "difficultes": [
+      "d'écriture (qualité)",
+      "d'écriture (quantité)",
+      "d'écriture (qualité et quantité)",
+      "en mathématiques (calcul)",
+      "en mathématiques (géométrie)",
+      "en mathématiques (calcul et géométrie)",
+      "de concentration",
+      "pour s'organiser",
+      "pour faire ses devoirs"
+    ],
+    "matieres": [
+      "Français",
+      "Mathématiques",
+      "Histoire-géographie",
+      "Anglais",
+      "Espagnol",
+      "Les langues",
+      "SVT",
+      "Physique-chimie",
+      "Technologie",
+      "EPS",
+      "Musique",
+      "Arts plastiques"
+    ]
+  },
+  "otHope": {
+    "neutre": "Rien à signaler",
+    "niveaux": [
+      {
+        "id": "aide",
+        "libelle": "Avec aide"
+      },
+      {
+        "id": "difficulte",
+        "libelle": "Avec difficulté"
+      },
+      {
+        "id": "grande_difficulte",
+        "libelle": "Avec grande difficulté"
+      }
+    ],
+    "domaines": [
+      {
+        "id": "maison",
+        "titre": "Activités de vie quotidienne",
+        "activites": [
+          "Balayer",
+          "Compter son argent",
+          "Cuisiner",
+          "Enlever la poussière",
+          "Etendre le linge",
+          "Faire la lessive",
+          "Faire la vaisselle",
+          "Faire son lit",
+          "Mettre/ débarrasser la table",
+          "Passer l'aspirateur",
+          "Plier le linge",
+          "Ranger sa chambre",
+          "Repasser",
+          "S'occuper des animaux",
+          "Sortir la poubelle",
+          "Utiliser le four micro-onde",
+          "Aller au WC",
+          "Couper la viande",
+          "Dormir",
+          "Eplucher un fruit",
+          "Faire mes lacets",
+          "Fermer mon manteau",
+          "Gérer mon hygiène féminine",
+          "M'épiler",
+          "Manger/ boire",
+          "Me coiffer",
+          "Me doucher",
+          "Me faire une tartine",
+          "Me laver le visage",
+          "Me laver les mains",
+          "Me brosser les dents",
+          "Vider le lave-vaisselle",
+          "Me moucher",
+          "Me raser",
+          "Me réveiller seul",
+          "Mettre mes bijoux",
+          "Mettre mes boutons",
+          "Mettre mes chaussures",
+          "Mettre/ enlever les vêtements",
+          "Servir un verre d'eau",
+          "Me maquiller",
+          "Me déplacer en skate/ roller",
+          "Me déplacer en trottinette",
+          "Me déplacer à vélo",
+          "Utiliser les transports en commun",
+          "Appeler les parents",
+          "Appeler les secours",
+          "Attacher ma ceinture",
+          "Mettre mes protections",
+          "Mettre mon casque",
+          "Traverser la rue",
+          "Utiliser une clé",
+          "Utiliser un cadenas"
+        ]
+      },
+      {
+        "id": "ecole",
+        "titre": "Activités de vie scolaire",
+        "activites": [
+          "Débarrasser le plateau",
+          "Ecrire au tableau",
+          "Être délégué de classe",
+          "Faire du sport",
+          "Jouer à la récréation",
+          "Lire l'heure avec des aiguilles",
+          "Me changer pour le sport",
+          "Me repérer dans l'école",
+          "M'installer confortablement à ma table en classe",
+          "Ranger mon classeur",
+          "Retrouver mes affaires dans ma case ou mon casier",
+          "Tenir mon plateau à la cantine",
+          "Dessiner sur une feuille",
+          "Ecrire au bon endroit sur la feuille",
+          "Ecrire en suivant la ligne",
+          "Ecrire lisiblement pour les autres",
+          "Ecrire toute une leçon sans être fatigué",
+          "Former toutes les lettres correctement",
+          "Me relire",
+          "Coller une feuille dans mon cahier",
+          "Colorier sans dépasser",
+          "Découper",
+          "Gommer",
+          "Souligner",
+          "Tailler mes crayons",
+          "Tracer un trait à la règle",
+          "Utiliser un pinceau",
+          "Compter",
+          "Poser une question",
+          "Tracer un carré",
+          "Tracer un rond",
+          "Tracer un triangle",
+          "Utiliser un compas",
+          "Utiliser une équerre",
+          "Utiliser un rapporteur",
+          "Utiliser une calculatrice",
+          "Ecrire mes devoirs dans mon agenda",
+          "Faire mes exercices en autonomie",
+          "M'organiser pour faire mes devoirs",
+          "Préparer mon cartable",
+          "Relire mes cours",
+          "Savoir quoi apprendre",
+          "Utiliser l'ordinateur à la maison",
+          "Utiliser l'ordinateur en classe/ évaluation"
+        ]
+      },
+      {
+        "id": "loisirs",
+        "titre": "Activités de loisirs",
+        "activites": [
+          "Courir",
+          "Faire de la gym/ danse",
+          "Faire du badminton/ tennis",
+          "Faire du basket",
+          "Faire du foot",
+          "Faire du handball",
+          "Faire du judo/karaté",
+          "Faire du patin à glace",
+          "Faire du rugby",
+          "Faire du ski",
+          "Faire du volley",
+          "Nager",
+          "Bricoler",
+          "Ecouter de la musique",
+          "Ecrire des histoires",
+          "Faire des arts plastiques",
+          "Faire des collections",
+          "Faire des jeux de construction",
+          "Jouer aux fléchettes",
+          "Jouer aux jeux vidéo",
+          "Jouer avec des amis",
+          "Jouer d'un instrument de musique",
+          "Lire des histoires",
+          "Répondre au téléphone",
+          "Faire de la balançoire",
+          "Faire du roller",
+          "Faire du trampoline",
+          "Faire du vélo",
+          "Grimper aux arbres",
+          "Jouer à la marelle",
+          "Jouer au ballon",
+          "Jouer au frisbee",
+          "Jouer au palet/ pétanque",
+          "Jouer dans l'eau",
+          "Jouer dans le sable",
+          "Jouer dans la neige",
+          "Sauter à la corde",
+          "Se retrouver entre amis"
+        ]
+      }
+    ]
+  },
+  "objectifs": {
+    "accordParents": [
+      {
+        "libelle": "Oui",
+        "phrase": "Les parents de {prenom} sont en accord avec les objectifs qui lui paraissent importants."
+      },
+      {
+        "libelle": "Non",
+        "phrase": "Les parents de {prenom} ne sont pas en accord avec les objectifs qui lui paraissent importants."
+      },
+      {
+        "libelle": "Pas tout à fait",
+        "phrase": "Les parents de {prenom} ne sont pas totalement en accord avec les objectifs qui lui paraissent importants."
+      }
+    ]
+  },
+  "amenagements": [
+    "AESH",
+    "Ordinateur",
+    "Mise en place d'un PAP",
+    "Mise en place d'un PPS",
+    "Mise en place d'un PPRE",
+    "Tiers temps",
+    "Polycopiés donnés",
+    "Moins d'exercices",
+    "Dictée à trous"
+  ]
+}

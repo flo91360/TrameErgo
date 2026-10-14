@@ -21,7 +21,7 @@ Interface0::~Interface0()
 void Interface0::on_pushButtonSuivant_clicked()
 {
     // Lus ici plutôt qu'au clic : le choix coché par défaut n'émet aucun clic.
-    // Ils désignent les dossiers des modèles Word (voir Word::modele).
+    // Ils accordent le bilan : il ou elle, Enfant ou Adolescent(e).
     Patient::sexePatient = ui->comboBoxSexe->currentText();
     Patient::typeBilan = ui->radioButtonAdolescent->isChecked() ? "Ado" : "Enfant";
     Interface1 *interface1 = new Interface1();

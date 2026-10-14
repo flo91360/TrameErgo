@@ -1,20 +1,9 @@
 #ifndef INTERFACE2_2_H
 #define INTERFACE2_2_H
 
-#include <QDialog>
-#include <QApplication>
-#include <QFile>
-#include <QFormLayout>
-#include <QLabel>
 #include <QComboBox>
-#include <QMainWindow>
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QDebug>
-#include <QTranslator>
-#include <QLibraryInfo>
-#include <QLocale>
-#include <QtUiTools>
+#include <QDialog>
+#include <QMap>
 
 namespace Ui {
 class Interface2_2;
@@ -29,36 +18,16 @@ public:
     ~Interface2_2();
 
 private slots:
-    void on_checkBoxPsychomotricien_stateChanged(int arg1);
-
-    void on_checkBoxOrthophoniste_stateChanged(int arg1);
-
-    void on_checkBoxPsychologue_stateChanged(int arg1);
-
-    void on_checkBoxOrthopiste_stateChanged(int arg1);
-
-    void on_checkBoxNeuropsychologue_stateChanged(int arg1);
-
-    void on_checkBoxKinesiterapeute_stateChanged(int arg1);
+    void on_checkBoxAucun_toggled(bool checked);
 
     void on_pushButtonSuivant_clicked();
 
 private:
-    Ui::Interface2_2 *ui;
-    QLabel *labelPsychomotricien = nullptr;
-    QComboBox *comboBoxPsychomotricien  = nullptr;
-    QLabel *labelOrthophoniste = nullptr;
-    QComboBox *comboBoxOrthophoniste = nullptr;
-    QLabel *labelOrthopiste = nullptr;
-    QComboBox *comboBoxOrthopiste  = nullptr;
-    QLabel *labelKinesiterapeute = nullptr;
-    QComboBox *comboBoxKinesiterapeute = nullptr;
-    QLabel *labelNeuropsychologue = nullptr;
-    QComboBox *comboBoxNeuropsychologue  = nullptr;
-    QLabel *labelPsychologue = nullptr;
-    QComboBox *comboBoxPsychologue = nullptr;
+    // Ajoute ou retire la fréquence de suivi du professionnel coché ou décoché.
+    void suiviModifie(const QString &professionnel, bool suivi);
 
-    QString professionnels = "";
+    Ui::Interface2_2 *ui;
+    QMap<QString, QComboBox*> frequences;
 };
 
 #endif // INTERFACE2_2_H

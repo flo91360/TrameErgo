@@ -18,27 +18,8 @@ public:
 private slots:
     void on_pushButtonSuivant_clicked();
 
-    void on_checkBoxAESH_stateChanged(int arg1);
-
-    void on_checkBoxOrdinateur_stateChanged(int arg1);
-
-    void on_checkBoxMiseEnPlacePAP_stateChanged(int arg1);
-
-    void on_checkBoxMiseEnPlacePPS_stateChanged(int arg1);
-
-    void on_checkBoxMiseEnPlacePPRE_stateChanged(int arg1);
-
-    void on_checkBoxPolycopiesDonnes_stateChanged(int arg1);
-
-    void on_checkBoxTierTemps_stateChanged(int arg1);
-
-    void on_checkBoxMoinsExercices_stateChanged(int arg1);
-
-    void on_checkBoxDicterTrous_stateChanged(int arg1);
-
 private:
     Ui::Interface5 *ui;
-    QString amenagementsScolaires = "";
 };
 
 #endif // INTERFACE5_H

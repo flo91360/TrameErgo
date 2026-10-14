@@ -2,662 +2,91 @@
 <ui version="4.0">
  <class>Interface3</class>
  <widget class="QDialog" name="Interface3">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>612</width>
-    <height>453</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
-  <widget class="QGroupBox" name="groupBoxDifficultesClasse">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>120</y>
-     <width>571</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Difficulté en classe </string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxEcritureQualite">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>d'écriture (qualité)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxEcritureQuantite">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>d'écriture (quantité)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxEcritureQualiteQuantite">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>191</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>d'écriture (qualité et quantité)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDCConcentration">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>20</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>de concentration </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxMathematiquesCalcul">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>40</y>
-      <width>161</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>en mathématiques (calcul)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxMathematiquesCalculGeometrie">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>60</y>
-      <width>231</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>en mathématiques (calcul et géométrie)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxMathematiquesGeometrie">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>40</y>
-      <width>191</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>en mathématiques (géométrie)</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxOrganiser">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>20</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>pour s'organiser</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxFaireDevoirs">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>20</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>faire ses devoirs</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxMatieresPreferees">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>220</y>
-     <width>571</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Matière(s) préférée(s)</string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxPrefereEPS">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>41</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>EPS</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereSVT">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>SVT</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereTechnologie">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Technologie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereHistoireGeographie">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>20</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Histoire-géographie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereFrancais">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Français </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereMusique">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Musique </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereArtsPlastique">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>60</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Art plastique</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereAnglais">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Anglais</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereEspagnol">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Espagnol</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereLangues">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>40</y>
-      <width>81</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Les langues</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPrefereMathematiques">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>20</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Mathématiques </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPreferePhysiqueChimie">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>20</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Physique - chimie</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAutreMatierePrefere">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>60</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Autre :</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEditMatierePrefere">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>60</y>
-      <width>113</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxComportementClasse">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>571</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Comportement en classe : </string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxCCDifficultesConcentrer">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>151</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté à se concentrer</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxConcentreBien">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>151</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Se concentre bien </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxConcentrationFluctuente">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>321</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>La concentration est fluctuante au cours de la journée </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxBavardage">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>20</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Bavardage en cours</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxTravailNonAutonome">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>40</y>
-      <width>271</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ne se met pas au travail de manière autonome</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxParticipeBien">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>20</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Participe bien </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxParticipePas">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>20</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ne participe pas</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxParticipeSelonMatiere">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>60</y>
-      <width>231</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Participation dépendante de la matière</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxMatieresDetestees">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>320</y>
-     <width>571</width>
-     <height>91</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Matières les moins appréciées :</string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxDetesteEPS">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>41</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>EPS</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteSVT">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>SVT</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteTechnologie">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Technologie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteHistoireGeo">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>20</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Histoire-géographie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteFrancais">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Français </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteMusique">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Musique </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteArtsPlastique">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>60</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Art plastique</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteAnglais">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Anglais</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteEspagnol">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>40</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Espagnol</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteLangues">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>40</y>
-      <width>81</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Les langues</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetesteMathematiques">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>20</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Mathématiques </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDetestePhysiqueChimie">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>20</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Physique -chimie</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAutresMatiereDeteste">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>60</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Autre :</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEditMatiereDeteste">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>60</y>
-      <width>113</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSuivant">
-   <property name="geometry">
-    <rect>
-     <x>510</x>
-     <y>420</y>
-     <width>75</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Suivant </string>
-   </property>
-  </widget>
+  <property name="geometry"><rect><x>0</x><y>0</y><width>760</width><height>640</height></rect></property>
+  <property name="windowTitle"><string>TrameErgo - Scolarité</string></property>
+  <layout class="QVBoxLayout" name="dispositionEcran">
+   <item>
+    <widget class="QGroupBox" name="groupBoxComportementClasse">
+     <property name="title"><string>Comportement en classe</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxComportementClasse">
+      <item>
+       <widget class="ListeCases" name="listeComportement"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxDifficultesClasse">
+     <property name="title"><string>Difficultés en classe</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxDifficultesClasse">
+      <item>
+       <widget class="ListeCases" name="listeDifficultes"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxMatieresPreferees">
+     <property name="title"><string>Matière(s) préférée(s)</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxMatieresPreferees">
+      <item>
+       <widget class="ListeCases" name="listeMatieresPreferees"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutAutreMatierePreferee">
+        <item>
+         <widget class="QLabel" name="labelAutreMatierePreferee"><property name="text"><string>Autre :</string></property></widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditMatierePrefere"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxMatieresDetestees">
+     <property name="title"><string>Matières les moins appréciées</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxMatieresDetestees">
+      <item>
+       <widget class="ListeCases" name="listeMatieresDetestees"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutAutreMatiereDetestee">
+        <item>
+         <widget class="QLabel" name="labelAutreMatiereDetestee"><property name="text"><string>Autre :</string></property></widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditMatiereDeteste"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="espaceVertical"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property></spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutBas">
+     <item>
+      <spacer name="espaceBas"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonSuivant"><property name="text"><string>Suivant</string></property></widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListeCases</class>
+   <extends>QWidget</extends>
+   <header>listecases.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

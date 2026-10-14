@@ -3,6 +3,7 @@
 #include "interface2_1.h"
 #include "word.h"
 #include "patient.h"
+#include "questionnaire.h"
 
 Interface1::Interface1(QWidget *parent)
     : QDialog(parent)
@@ -10,17 +11,12 @@ Interface1::Interface1(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // QFile logFile("C:/Users/flori/OneDrive/Documents/TrameERGO_test/log.txt");
-    // logFile.open(QIODevice::Append | QIODevice::Text);
-    // QTextStream out(&logFile);
-    // out << "Trying to access folder: ALED\n";
-
-
-    // Le texte du modèle accorde la latéralité : « i_prenom est i_lateralite ».
-    if (Patient::sexePatient == "Homme") {
-        ui->comboBoxLateralite->setItemText(0, "droitier");
-        ui->comboBoxLateralite->setItemText(1, "gaucher");
-    }
+    ui->comboBoxClasse->addItems(Questionnaire::liste("identite/classes"));
+    ui->comboBoxTypeEtablissement->addItems(Questionnaire::liste("identite/typesEtablissement"));
+    // Le bilan accorde la latéralité : « {prenom} est {lateralite} ».
+    ui->comboBoxLateralite->addItems(Questionnaire::liste("identite/lateralite/" + Patient::sexePatient));
+    ui->comboBoxModeGarde->addItems(Questionnaire::liste("identite/modesDeGarde"));
+    ui->comboBoxEntente->addItems(Questionnaire::liste("identite/entente"));
 
     Word::wordApp = new QAxObject("Word.Application");
     if (Word::wordApp && !Word::wordApp->isNull()) {
@@ -36,40 +32,15 @@ Interface1::~Interface1()
 
 void Interface1::on_pushButtonSuivant_clicked()
 {
-    QString moisPassation;
-    QString anneePassation;
-    QString age;
-    QDate dateDuJour;
-    QString fileName;
-
-    // QFile logFile("C:/Users/flori/OneDrive/Documents/TrameERGO_test/log.txt");
-    // logFile.open(QIODevice::Append | QIODevice::Text);
-    // QTextStream out(&logFile);
-    // out << "Trying to access folder: plop\n";
-
-
-
     // Configurer la localisation pour le français
     QLocale frenchLocale(QLocale::French);
-    fileName = "Bilan_ergotherapie";
-    dateDuJour = QDateTime::currentDateTime().date();
-    moisPassation = frenchLocale.toString(dateDuJour, "MMMM");
-    anneePassation  = dateDuJour.toString("yyyy");
+    QDate dateDuJour = QDate::currentDate();
+    QString moisPassation = frenchLocale.toString(dateDuJour, "MMMM");
+    QString anneePassation = dateDuJour.toString("yyyy");
 
-
-    Word::pathToArbo = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    qDebug() << "Word::pathToArbo";
-    qDebug() << Word::pathToArbo;
-    // out << Word::pathToArbo +"\n";
-
-
-    Word::filePathToSave = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/TrameErgo/" + fileName + "_" + ui->lineEditNom->text() + "_" + ui->lineEditPrenom->text()  + "_" +  moisPassation + "_" + anneePassation  + ".docx";
-    qDebug() <<  Word::filePathToSave;
-    qDebug() << QDir::currentPath();
-    // out << Word::filePathToSave  +"\n";
-    Word::copieCree(Word::modele("interface1"), Word::filePathToSave);
-
-    qDebug() << "filePathToSave";
+    Word::filePathToSave = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/TrameErgo/Bilan_ergotherapie_" + ui->lineEditNom->text() + "_" + ui->lineEditPrenom->text()  + "_" +  moisPassation + "_" + anneePassation  + ".docx";
+    if (!Word::creerBilan(Word::filePathToSave))
+        return;
 
     Patient::prenomPatient = ui->lineEditPrenom->text();
 
@@ -77,41 +48,44 @@ void Interface1::on_pushButtonSuivant_clicked()
     if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
-        Word::replaceText("i_prenom",Patient::prenomPatient);
-        Word::replaceText("i_date_de_naissance",ui->dateEditNaissance->date().toString("dd-MM-yyyy"));
-        Patient::agePatient = Patient::calculerAge(ui->dateEditNaissance->date());
-        Word::replaceText("i_age",Patient::agePatient);
-        Word::replaceText("i_classe",ui->comboBoxClasse->currentText());
-        Word::replaceText("i_type_etablissement",ui->comboBoxTypeEtablissement->currentText());
-        Word::replaceText("i_nom_etablissement",ui->lineEditNomEtablissement->text());
-        Word::replaceText("i_lateralite",ui->comboBoxLateralite->currentText());
-        Word::replaceText("i_mode_de_garde",ui->comboBoxModeGarde->currentText());
+        // Mots accordés au sexe du patient, dans tout le bilan.
+        Word::replaceText("{il_elle}",Patient::accord("il", "elle"));
+        Word::replaceText("{Il_Elle}",Patient::accord("Il", "Elle"));
+        Word::replaceText("{ne_e}",Patient::accord("né", "née"));
+        Word::replaceText("{seul_e}",Patient::accord("seul", "seule"));
 
+        Word::replaceText("{prenom}",Patient::prenomPatient);
+        Word::replaceText("{date_de_naissance}",ui->dateEditNaissance->date().toString("dd-MM-yyyy"));
+        Patient::agePatient = Patient::calculerAge(ui->dateEditNaissance->date());
+        Word::replaceText("{age}",Patient::agePatient);
+        Word::replaceText("{classe}",ui->comboBoxClasse->currentText());
+        Word::replaceText("{type_etablissement}",ui->comboBoxTypeEtablissement->currentText());
+        Word::replaceText("{nom_etablissement}",ui->lineEditNomEtablissement->text());
+        Word::replaceText("{lateralite}",ui->comboBoxLateralite->currentText());
+        Word::replaceText("{mode_de_garde}",ui->comboBoxModeGarde->currentText());
 
         if(ui->checkBoxEnfantUnique->isChecked())
         {
-            Word::replaceText("i_fraterie","est enfant unique");
-            Word::replaceText("i_entente","");
+            Word::replaceText("{fratrie}","est enfant unique");
+            Word::replaceText("{entente}","");
         }
         else
         {
-            // Lue ici plutôt qu'au clic : « Bonne », cochée par défaut, n'émet
-            // aucun clic et le bilan affichait « () ».
-            QString entente = "bonne entente entre eux";
-            if (ui->radioButtonMauvaiseEntenre->isChecked())
-                entente = "mauvaise entente entre eux";
-            else if (ui->radioButtonNeutreEntente->isChecked())
-                entente = "pas de relation particulière entre eux";
-            Word::replaceText("i_fraterie","a " + ui->lineEditFraterie->text());
-            Word::replaceText("i_entente","(" + entente + ")");
+            const QString entente = Questionnaire::phrase("identite/entente", ui->comboBoxEntente->currentText());
+            Word::replaceText("{fratrie}","a " + ui->lineEditFraterie->text());
+            Word::replaceText("{entente}","(" + entente + ")");
         }
 
+        Word::replaceText("{medecin_traitant}",ui->lineEditMedecinTraitant->text());
+        Word::replaceText("{ville}",ui->lineEditVille->text());
 
-        Word::replaceText("i_medecin_traitant",ui->lineEditMedecinTraitant->text());
-        Word::replaceText("i_ville",ui->lineEditVille->text());
-        Word::replaceTextFromZoneText("i_prenom",ui->lineEditPrenom->text());
-        Word::replaceTextFromZoneText("i_nom_patient",ui->lineEditNom->text());
-        Word::replaceTextFromZoneText("i_date_de_passation",dateDuJour.toString("dd-MM-yyyy"));
+        // Page de garde (zones de texte)
+        const QString typeBilan = Patient::typeBilan == "Ado" ? Patient::accord("Adolescent", "Adolescente")
+                                                              : "Enfant";
+        Word::replaceTextFromZoneText("{type_bilan}",typeBilan);
+        Word::replaceTextFromZoneText("{prenom}",ui->lineEditPrenom->text());
+        Word::replaceTextFromZoneText("{nom}",ui->lineEditNom->text());
+        Word::replaceTextFromZoneText("{date_de_passation}",dateDuJour.toString("dd-MM-yyyy"));
         // Save the document
         Word::document->dynamicCall("Save()");
         Word::document->dynamicCall("Close()");

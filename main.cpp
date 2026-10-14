@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    // Fixe le dossier des modèles : %LOCALAPPDATA%\TrameErgo\arborescence.
+    // Fixe le dossier du modèle : %LOCALAPPDATA%\TrameErgo\contenu.
     QApplication::setApplicationName("TrameErgo");
     MainWindow w;
     w.show();
