@@ -23,7 +23,8 @@ cours de validation : son installateur est l'artefact `TrameErgo-Windows-Tauri`
 de la dernière exécution « Application tablette et Windows » dans
 [Actions](https://github.com/flo91360/TrameErgo/actions). Elle crée le bilan
 sans Word, puis l'ouvre dans Word. Les Releases fournissent encore l'ancienne
-application Windows, qui demande Microsoft Word.
+application Windows, qui demande Microsoft Word. Les vérifications à faire
+avant de passer à la nouvelle version sont dans [TESTER.md](TESTER.md).
 
 ## Développer
 
