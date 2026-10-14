@@ -1,8 +1,8 @@
 # TrameErgo
 
 Génère automatiquement des bilans d'ergothérapie au format Word, à partir d'un
-questionnaire et d'un modèle `.docx`. Deux applications produisent le même
-bilan : une application Windows et une application tablette.
+questionnaire et d'un modèle `.docx`. La même application fonctionne sur
+tablette (dans le navigateur) et sur Windows (installateur `.exe`).
 
 ## Tablette (iPad, Android)
 
@@ -16,8 +16,14 @@ restent sur la tablette : rien n'est envoyé sur Internet.
 
 Télécharger `TrameErgo-Installation-<version>.exe` depuis les
 [Releases](https://github.com/flo91360/TrameErgo/releases) et lancer
-l'installation. Microsoft Word doit être installé. Les bilans sont enregistrés
-dans `Documents\TrameErgo`.
+l'installation. Les bilans sont enregistrés dans `Documents\TrameErgo`.
+
+La nouvelle version Windows (la même application que sur tablette) est en
+cours de validation : son installateur est l'artefact `TrameErgo-Windows-Tauri`
+de la dernière exécution « Application tablette et Windows » dans
+[Actions](https://github.com/flo91360/TrameErgo/actions). Elle crée le bilan
+sans Word, puis l'ouvre dans Word. Les Releases fournissent encore l'ancienne
+application Windows, qui demande Microsoft Word.
 
 ## Développer
 
@@ -27,8 +33,9 @@ dans `Documents\TrameErgo`.
   module ActiveQt). Chaque push compile l'application et l'installateur sur
   GitHub Actions ; augmenter `VERSION` dans `TrameErgo.pro` publie une nouvelle
   Release.
-- Tablette : dans `tablette/`, `npm install`, puis `npm run dev` (développement),
-  `npm test` et `npm run build`. Chaque arrivée sur `main` publie l'application
-  sur GitHub Pages.
+- Application (tablette et Windows) : dans `tablette/`, `npm install`, puis
+  `npm run dev` (développement), `npm test`, `npm run build`, et
+  `npx tauri build` pour l'installateur Windows (Rust nécessaire). Chaque
+  arrivée sur `main` publie l'application sur GitHub Pages.
 
 Voir `CLAUDE.md` pour l'organisation du code.

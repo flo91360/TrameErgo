@@ -102,3 +102,5 @@ compile_commands.json
 /tablette/node_modules/
 /tablette/dist/
 /tablette/dev-dist/
+/tablette/src-tauri/target/
+/tablette/src-tauri/gen/
