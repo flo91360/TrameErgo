@@ -214,21 +214,6 @@
      <height>24</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>Oui</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Non</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Pas tout à fait</string>
-    </property>
-   </item>
   </widget>
   <widget class="QLabel" name="labelChoix4ObjectfisFinauxParents">
    <property name="enabled">

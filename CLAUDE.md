@@ -9,18 +9,34 @@ Word. Textes visibles, commentaires et messages de commit en français.
   `SOURCES`, `HEADERS` ou `FORMS`. `VERSION = x.y.z` fixe la version de l'exe,
   de l'installateur et de la Release.
 - `mainwindow.*` puis `interface0` à `interface5` (et `interface2_x`,
-  `interface4_x`) : écrans successifs du questionnaire. Chaque écran a son
-  `.ui` (Qt Designer), son `.h` et son `.cpp`.
+  `interface4_7`, `interface4_8`) : écrans successifs du questionnaire. Chaque
+  écran a son `.ui` (Qt Designer), son `.h` et son `.cpp`. `interface4` est
+  l'écran OT Hope, ouvert une fois par domaine de `otHope/domaines`.
+- `contenu/` : le contenu, indépendant de Qt, à réutiliser tel quel par une
+  future version tablette.
+  - `questionnaire.json` : toutes les listes de choix et les phrases du bilan.
+    Intégré à l'exécutable (`contenu.qrc`), lu par `Questionnaire::liste`,
+    `valeur` et `phrase` avec un chemin `"scolarite/matieres"`. Changer une
+    liste ne demande que de modifier ce fichier.
+  - `bilan.docx` : modèle Word unique du bilan. Champs `{champ}` (syntaxe
+    docxtemplater), mots accordés au sexe par des champs (`{il_elle}`,
+    `{Il_Elle}`, `{ne_e}`, `{seul_e}`, `{type_bilan}`). Les activités OT Hope
+    vont dans `{niveau_domaine}` (`{aide_maison}`…), construits à partir des
+    identifiants du questionnaire. Installé dans
+    `%LOCALAPPDATA%\TrameErgo\contenu` (écrasé à chaque installation : modifier
+    celui du dépôt).
+- `listecases.*` : liste de cases à cocher remplie depuis le questionnaire
+  (QWidget promu en `ListeCases` dans les `.ui`).
 - `word.*` : pilotage de Microsoft Word par ActiveQt (`QAxObject`).
-  `Word::copieCree` crée le bilan à partir d'un modèle, `Word::copieColle`
-  ajoute un modèle à la fin du bilan, `Word::replaceText` remplace les champs
-  `i_…` des modèles par les réponses. Utiliser `Word::ouvrir` et vérifier les
-  pointeurs : Word ou un modèle peuvent manquer.
+  `Word::creerBilan` copie le modèle dans `Documents\TrameErgo`, puis chaque
+  écran ouvre le bilan (`Word::ouvrir`) et remplace ses champs
+  (`Word::replaceText`, `Word::replaceTextFromZoneText` pour la page de garde,
+  casse respectée). Vérifier les pointeurs : Word peut manquer.
 - `patient.*` : données partagées entre les écrans.
-- `arborescence/<Sexe>/<Âge>/<écran>/*.docx` : modèles Word. Installés dans
-  `%LOCALAPPDATA%\TrameErgo\arborescence`, lus via `Word::pathToArbo`. Les
-  champs à remplacer d'un modèle doivent correspondre aux `replaceText` de
-  l'écran. Les bilans sont enregistrés dans `Documents\TrameErgo`.
+- `outils/verifier_contenu.py` : vérifie que chaque champ `{…}` du modèle est
+  remplacé par le code et inversement, et que chaque chemin lu dans
+  `questionnaire.json` existe. Lancé par la CI ; le relancer après avoir
+  modifié le contenu ou un `replaceText` : `python outils/verifier_contenu.py`.
 - `installer/TrameErgo.iss` : installateur Inno Setup.
 - `interface1_old.*` et `interface_piliz1.*` ne sont pas compilés.
 

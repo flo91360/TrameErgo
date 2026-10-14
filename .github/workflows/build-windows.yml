@@ -28,6 +28,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      # Champs {…} du modèle Word, listes du questionnaire et code : un nom qui
+      # diffère laisse le champ brut dans le bilan sans erreur à l'exécution.
+      - name: Vérifier le contenu
+        shell: pwsh
+        run: python outils/verifier_contenu.py
+
       - name: Lire la version
         id: version
         shell: pwsh
@@ -64,14 +70,15 @@ jobs:
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           if (-not (Test-Path release\TrameErgo.exe)) { throw "release\TrameErgo.exe absent" }
 
-      - name: Rassembler l'application et ses modèles Word
+      - name: Rassembler l'application et son modèle Word
         shell: pwsh
         run: |
           New-Item -ItemType Directory deploy | Out-Null
           Copy-Item release\TrameErgo.exe deploy\
           windeployqt --release --no-translations --compiler-runtime deploy\TrameErgo.exe
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          Copy-Item arborescence deploy\arborescence -Recurse
+          New-Item -ItemType Directory deploy\contenu | Out-Null
+          Copy-Item contenu\bilan.docx deploy\contenu\
 
       - name: Fabriquer l'installateur
         shell: pwsh

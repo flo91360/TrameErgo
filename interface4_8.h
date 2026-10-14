@@ -1,6 +1,7 @@
 #ifndef INTERFACE4_8_H
 #define INTERFACE4_8_H
 
+#include <QComboBox>
 #include <QDialog>
 
 namespace Ui {
@@ -22,6 +23,10 @@ private slots:
 
 private:
     Ui::Interface4_8 *ui;
+
+    // Les 5 objectifs finaux choisis pour le patient, puis par ses parents.
+    QList<QComboBox*> choixPatient() const;
+    QList<QComboBox*> choixParents() const;
 };
 
 #endif // INTERFACE4_8_H

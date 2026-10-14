@@ -2,456 +2,90 @@
 <ui version="4.0">
  <class>Interface2_1</class>
  <widget class="QDialog" name="Interface2_1">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>738</width>
-    <height>374</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
-  <widget class="QLabel" name="labelPersonneDemandeuse">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>20</y>
-     <width>131</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Personne demandeuse :</string>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBoxMotifs">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>591</width>
-     <height>131</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Motifs </string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxMotif1">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>581</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Voir la pertinence de la mise en place de l'outil informatique pour compenser les difficultés d'écriture</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxMotif2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>401</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Explorer d'où viennent les difficultés qui génèrent un trouble graphique</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxMotif3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>331</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Faire le point sur les besoins en aménagements scolaires</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAutreMotif">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>90</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Autre :</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEditAutreMotif">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>90</y>
-      <width>491</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QComboBox" name="comboBoxDossierMDPH">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>340</y>
-     <width>141</width>
-     <height>22</height>
-    </rect>
-   </property>
+  <property name="geometry"><rect><x>0</x><y>0</y><width>760</width><height>520</height></rect></property>
+  <property name="windowTitle"><string>TrameErgo - Demande de bilan</string></property>
+  <layout class="QVBoxLayout" name="dispositionEcran">
    <item>
-    <property name="text">
-     <string>Actif</string>
-    </property>
+    <layout class="QHBoxLayout" name="layoutPersonneDemandeuse">
+     <item>
+      <widget class="QLabel" name="labelPersonneDemandeuse"><property name="text"><string>Personne demandeuse :</string></property></widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxPersonneDemandeuse"/>
+     </item>
+     <item>
+      <spacer name="espacePersonneDemandeuse"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+     </item>
+    </layout>
    </item>
    <item>
-    <property name="text">
-     <string>En renouvellement</string>
-    </property>
+    <widget class="QGroupBox" name="groupBoxMotifs">
+     <property name="title"><string>Motifs</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxMotifs">
+      <item>
+       <widget class="ListeCases" name="listeMotifs"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutAutreMotif">
+        <item>
+         <widget class="QLabel" name="labelAutreMotif"><property name="text"><string>Autre :</string></property></widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditAutreMotif"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <property name="text">
-     <string>En création </string>
-    </property>
+    <widget class="QGroupBox" name="groupBoxTroubles">
+     <property name="title"><string>Anamnèse / troubles</string></property>
+     <layout class="QVBoxLayout" name="layoutGroupBoxTroubles">
+      <item>
+       <widget class="ListeCases" name="listeTroubles"/>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutAutreTrouble">
+        <item>
+         <widget class="QLabel" name="labelAutreTrouble"><property name="text"><string>Autre :</string></property></widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEditAutreTrouble"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <property name="text">
-     <string>Aucun</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QPushButton" name="pushButtonSuivant">
-   <property name="geometry">
-    <rect>
-     <x>630</x>
-     <y>340</y>
-     <width>75</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Suivant </string>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>180</y>
-     <width>681</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Anamnèse/ Troubles : </string>
-   </property>
-   <widget class="QCheckBox" name="checkBoxDifficultesEcriture">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>20</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté d'écriture </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxdDifficultesLecture">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>40</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté de lecture </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDifficultesCoordination">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>60</y>
-      <width>161</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté de coordination</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDifficultesConcentration">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>80</y>
-      <width>171</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté de concentration</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDysgraphie">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>70</y>
-      <width>81</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Dysgraphie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDyslexie">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>30</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Dyslexie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxHyperlaxite">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>10</y>
-      <width>91</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Hyperlaxité</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDeveloppementCoordination">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>90</y>
-      <width>271</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Trouble du développement des coordinations </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxTDAAvecHyperactivite">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>30</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TDA avec hyperactivité</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDystographie">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>50</y>
-      <width>121</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Dysorthographie</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxTDASansHyperactivite">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>10</y>
-      <width>151</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TDA sans hyperactivité</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxDifficultesSociales">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>90</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Difficulté sociale </string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxTSA">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>50</y>
-      <width>76</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TSA</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxAutistiqueAsperger">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>70</y>
-      <width>211</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Trouble autistique de type asperger</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEditAutreTrouble">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>120</y>
-      <width>491</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelAutreTrouble">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>120</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Autre :</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPsychologique">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>10</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Trouble psychologique</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBoxPsychiatrique">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>30</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Trouble psychiatrique </string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QComboBox" name="comboBoxPersonneDemandeuse">
-   <property name="geometry">
-    <rect>
-     <x>160</x>
-     <y>20</y>
-     <width>131</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <item>
-    <property name="text">
-     <string>le médecin traitant</string>
-    </property>
+    <spacer name="espaceVertical"><property name="orientation"><enum>Qt::Vertical</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property></spacer>
    </item>
    <item>
-    <property name="text">
-     <string>la neuropédiatre</string>
-    </property>
+    <layout class="QHBoxLayout" name="layoutBas">
+     <item>
+      <widget class="QLabel" name="labelDossierMDPH"><property name="text"><string>Dossier MDPH :</string></property></widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxDossierMDPH"/>
+     </item>
+     <item>
+      <spacer name="espaceBas"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property></spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonSuivant"><property name="text"><string>Suivant</string></property></widget>
+     </item>
+    </layout>
    </item>
-   <item>
-    <property name="text">
-     <string>l'enseignant</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>la psychomotricienne</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>la neuropsychologue</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>le(s) parent(s)</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>le père </string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>la mère</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QLabel" name="labelDossierMDPH">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>340</y>
-     <width>91</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Dossier MDPH : </string>
-   </property>
-  </widget>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListeCases</class>
+   <extends>QWidget</extends>
+   <header>listecases.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

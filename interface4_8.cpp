@@ -1,8 +1,44 @@
 #include "interface4_8.h"
 #include "ui_interface4_8.h"
 #include "patient.h"
+#include "questionnaire.h"
 #include "word.h"
+
+#include <QJsonArray>
+#include <QJsonObject>
 #include "interface5.h"
+
+// « Aucun » en premier : sans choix, aucun objectif n'est retenu (avant, la
+// première activité était choisie par défaut dans les 5 listes).
+static void remplir(const QList<QComboBox*> &choix, const QStringList &activites)
+{
+    for (QComboBox *combo : choix) {
+        combo->addItem("Aucun");
+        combo->addItems(activites);
+    }
+}
+
+// Activités choisies, sans « Aucun » ni doublon.
+static QStringList choisis(const QList<QComboBox*> &choix)
+{
+    QStringList objectifs;
+    for (const QComboBox *combo : choix) {
+        const QString activite = combo->currentText();
+        if (activite != "Aucun" && !objectifs.contains(activite))
+            objectifs << activite;
+    }
+    return objectifs;
+}
+
+// Liste numérotée « 1 - objectif », une ligne par objectif.
+static QString numerotes(const QStringList &objectifs)
+{
+    QString liste;
+    for (int i = 0; i < objectifs.size(); ++i) {
+        liste += QString::number(i + 1) + " - " + objectifs[i] + "\n";
+    }
+    return liste;
+}
 
 Interface4_8::Interface4_8(QWidget *parent)
     : QDialog(parent)
@@ -10,30 +46,9 @@ Interface4_8::Interface4_8(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->comboBoxChoix1ObjectfisFinauxPatient->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix2ObjectfisFinauxPatient->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix3ObjectfisFinauxPatient->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix4ObjectfisFinauxPatient->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix5ObjectfisFinauxPatient->addItems(Patient::objectfisFinauxPossibles);
-
-    ui->comboBoxChoix1ObjectfisFinauxPatient->addItem("Aucun");
-    ui->comboBoxChoix2ObjectfisFinauxPatient->addItem("Aucun");
-    ui->comboBoxChoix3ObjectfisFinauxPatient->addItem("Aucun");
-    ui->comboBoxChoix4ObjectfisFinauxPatient->addItem("Aucun");
-    ui->comboBoxChoix5ObjectfisFinauxPatient->addItem("Aucun");
-
-
-    ui->comboBoxChoix1ObjectfisFinauxParents->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix2ObjectfisFinauxParents->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix3ObjectfisFinauxParents->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix4ObjectfisFinauxParents->addItems(Patient::objectfisFinauxPossibles);
-    ui->comboBoxChoix5ObjectfisFinauxParents->addItems(Patient::objectfisFinauxPossibles);
-
-    ui->comboBoxChoix1ObjectfisFinauxParents->addItem("Aucun");
-    ui->comboBoxChoix2ObjectfisFinauxParents->addItem("Aucun");
-    ui->comboBoxChoix3ObjectfisFinauxParents->addItem("Aucun");
-    ui->comboBoxChoix4ObjectfisFinauxParents->addItem("Aucun");
-    ui->comboBoxChoix5ObjectfisFinauxParents->addItem("Aucun");
+    ui->comboBoxAccordParents->addItems(Questionnaire::liste("objectifs/accordParents"));
+    remplir(choixPatient(), Patient::objectfisFinauxPossibles);
+    remplir(choixParents(), Patient::objectfisFinauxPossibles);
 }
 
 Interface4_8::~Interface4_8()
@@ -41,26 +56,23 @@ Interface4_8::~Interface4_8()
     delete ui;
 }
 
+QList<QComboBox*> Interface4_8::choixPatient() const
+{
+    return {ui->comboBoxChoix1ObjectfisFinauxPatient, ui->comboBoxChoix2ObjectfisFinauxPatient,
+            ui->comboBoxChoix3ObjectfisFinauxPatient, ui->comboBoxChoix4ObjectfisFinauxPatient,
+            ui->comboBoxChoix5ObjectfisFinauxPatient};
+}
+
+QList<QComboBox*> Interface4_8::choixParents() const
+{
+    return {ui->comboBoxChoix1ObjectfisFinauxParents, ui->comboBoxChoix2ObjectfisFinauxParents,
+            ui->comboBoxChoix3ObjectfisFinauxParents, ui->comboBoxChoix4ObjectfisFinauxParents,
+            ui->comboBoxChoix5ObjectfisFinauxParents};
+}
 
 
 void Interface4_8::on_pushButtonValiderObjectifsFinaux_clicked()
 {
-    if(ui->comboBoxChoix1ObjectfisFinauxPatient->currentText() != "Aucun"){
-        Patient::objectfisFinauxPatients.append(ui->comboBoxChoix1ObjectfisFinauxPatient->currentText());
-    }
-    if(ui->comboBoxChoix2ObjectfisFinauxPatient->currentText() != "Aucun"){
-        Patient::objectfisFinauxPatients.append(ui->comboBoxChoix2ObjectfisFinauxPatient->currentText());
-    }
-    if(ui->comboBoxChoix3ObjectfisFinauxPatient->currentText() != "Aucun"){
-        Patient::objectfisFinauxPatients.append(ui->comboBoxChoix3ObjectfisFinauxPatient->currentText());
-    }
-    if(ui->comboBoxChoix4ObjectfisFinauxPatient->currentText() != "Aucun"){
-        Patient::objectfisFinauxPatients.append(ui->comboBoxChoix4ObjectfisFinauxPatient->currentText());
-    }
-    if(ui->comboBoxChoix5ObjectfisFinauxPatient->currentText() != "Aucun"){
-        Patient::objectfisFinauxPatients.append(ui->comboBoxChoix5ObjectfisFinauxPatient->currentText());
-    }
-
     ui->labelAccordParents->setEnabled(true);
     ui->comboBoxAccordParents->setEnabled(true);
     ui->labelObjectifsParents->setEnabled(true);
@@ -76,89 +88,44 @@ void Interface4_8::on_pushButtonValiderObjectifsFinaux_clicked()
     ui->comboBoxChoix5ObjectfisFinauxParents->setEnabled(true);
     ui->textEditRemarquesParents->setEnabled(true);
     ui->pushButtonSuivant->setEnabled(true);
-
-    qDebug() << "go to interface 5";
-
-
 }
 
 
 void Interface4_8::on_pushButtonSuivant_clicked()
 {
-    // Word::copieColle(Word::pathToArbo + "/arborescence/Femme/Enfant/Interface4/interface4.docx", Word::filePathToSave);
-
-    // qDebug() << "filePathToSave";
+    // Lus ici : valider deux fois créait des doublons, et un choix modifié
+    // après « Valider » était perdu.
+    Patient::objectfisFinauxPatients = choisis(choixPatient());
 
     Word::document = Word::ouvrir(Word::filePathToSave);
     if (Word::document && !Word::document->isNull()) {
         Word::selection = Word::wordApp->querySubObject("Selection");
 
-
-        Word::replaceText("i_aide_maison",Patient::aideMaison);
-        Word::replaceText("i_aide_ecole",Patient::aideEcole);
-        Word::replaceText("i_aide_loisirs",Patient::aideLoisirs);
-        Word::replaceText("i_difficulte_maison",Patient::difficulteMaison);
-        Word::replaceText("i_difficulte_ecole",Patient::difficulteEcole);
-        Word::replaceText("i_difficulte_loisirs",Patient::difficulteLoisirs);
-        Word::replaceText("i_grande_difficulte_maison",Patient::grandeDifficulteMaison);
-        Word::replaceText("i_grande_difficulte_ecole",Patient::grandeDifficulteEcole);
-        Word::replaceText("i_grande_difficulte_loisirs",Patient::grandeDifficulteLoisirs);
-
-        qDebug() << "ALED";
-        qDebug() << Patient::objectfisAVQPatient;
-        qDebug() << Patient::objectfisAVSPatient;
-        qDebug() << Patient::objectfisAVLPatient;
-
-        QString listAVQ;
-        for (int i = 0; i < Patient::objectfisAVQPatient.size(); ++i) {
-            listAVQ += QString::number(i + 1) + " - " + Patient::objectfisAVQPatient[i] + "\n";
+        // Activités OT Hope : champs {aide_maison}, {difficulte_ecole}… (niveau_domaine).
+        for (const QJsonValue &domaine : Questionnaire::valeur("otHope/domaines").toArray()) {
+            for (const QJsonValue &niveau : Questionnaire::valeur("otHope/niveaux").toArray()) {
+                const QString champ = niveau.toObject().value("id").toString() + "_"
+                                      + domaine.toObject().value("id").toString();
+                Word::replaceText("{" + champ + "}",Word::enListe(Patient::otHope.value(champ)));
+            }
         }
 
-        QString listAVS;
-        for (int i = 0; i < Patient::objectfisAVSPatient.size(); ++i) {
-            listAVS += QString::number(i + 1) + " - " + Patient::objectfisAVSPatient[i] + "\n";
-        }
+        Word::replaceText("{objectifs_maison}",numerotes(Patient::objectfisAVQPatient));
+        Word::replaceText("{objectifs_ecole}",numerotes(Patient::objectfisAVSPatient));
+        Word::replaceText("{objectifs_loisirs}",numerotes(Patient::objectfisAVLPatient));
 
-        QString listAVL;
-        for (int i = 0; i < Patient::objectfisAVLPatient.size(); ++i) {
-            listAVL += QString::number(i + 1) + " - " + Patient::objectfisAVLPatient[i] + "\n";
-        }
+        Word::replaceText("{accord_parents}",
+                          Questionnaire::phrase("objectifs/accordParents", ui->comboBoxAccordParents->currentText())
+                              .replace("{prenom}", Patient::prenomPatient));
 
-        qDebug() << "ALED1";
-        Word::replaceText("i_objectifs_activites_vie_quotidienne",listAVQ);
-        qDebug() << "ALED2";
-        Word::replaceText("i_obejctifs_activites_scolaires",listAVS);
-        Word::replaceText("i_objectifs_activites_loisirs",listAVL);
+        Word::replaceText("{objectifs_finaux}",numerotes(Patient::objectfisFinauxPatients));
 
-        Word::replaceText("i_prenom",Patient::prenomPatient);
-
-        QString phraseAccordParents;
-
-        qDebug() << ui->comboBoxAccordParents->currentText() ;
-
-        if(ui->comboBoxAccordParents->currentText() == "Oui" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " sont en accords avec les objectifs qui lui paraissent importants";
-        }
-        else if(ui->comboBoxAccordParents->currentText() == "Non" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " ne sont pas en accords avec les objectifs qui lui paraissent importants";
-        }
-        else if(ui->comboBoxAccordParents->currentText() == "Pas tout à fait" ){
-            phraseAccordParents = "Les parents de " + Patient::prenomPatient + " ne sont pas totalement en accords avec les objectifs qui lui paraissent importants";
-        }
-
-        qDebug() << phraseAccordParents;
-
-        Word::replaceText("i_en_accord",phraseAccordParents);
-
-
-        QString listObjectfisFinaux;
-        for (int i = 0; i < Patient::objectfisFinauxPatients.size(); ++i) {
-            listObjectfisFinaux += QString::number(i + 1) + " - " + Patient::objectfisFinauxPatients[i] + "\n";
-        }
-
-        Word::replaceText("i_objectifs_finaux",listObjectfisFinaux);
-
-
+        // Objectifs et remarques des parents : saisis mais jamais écrits jusqu'ici.
+        QString objectifsParents = numerotes(choisis(choixParents()));
+        const QString remarques = ui->textEditRemarquesParents->toPlainText().trimmed();
+        if (!remarques.isEmpty())
+            objectifsParents += "Remarques des parents : " + remarques;
+        Word::replaceText("{objectifs_parents}",objectifsParents);
 
         // Save the document
         Word::document->dynamicCall("Save()");
@@ -170,4 +137,3 @@ void Interface4_8::on_pushButtonSuivant_clicked()
         interface5->show();
     }
 }
-
