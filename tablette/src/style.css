@@ -1,0 +1,134 @@
+/* TrameErgo tablette : grosses cibles tactiles, couleurs de la page de garde du bilan. */
+:root {
+  --bleu: #1f4e79;
+  --bleu-clair: #4f81bd;
+  --bleu-pale: #e8eef7;
+  --fond: #f4f6f9;
+  --carte: #ffffff;
+  --texte: #1d2733;
+  --gris: #5b6675;
+  --bordure: #cfd8e3;
+  --aide: #2e7d32;
+  --difficulte: #ef6c00;
+  --grande: #c62828;
+  --rayon: 12px;
+  --toucher: 48px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  color: var(--texte);
+  background: var(--fond);
+  -webkit-text-size-adjust: 100%;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.entete {
+  position: sticky; top: 0; z-index: 3;
+  display: flex; align-items: baseline; gap: 16px;
+  padding: calc(env(safe-area-inset-top) + 10px) 20px 10px;
+  background: var(--bleu); color: #fff;
+}
+.entete h1 { margin: 0; font-size: 1.3rem; }
+.entete .patient { opacity: .85; }
+
+.etapes {
+  position: sticky; top: 52px; z-index: 2;
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
+  background: #fff; border-bottom: 1px solid var(--bordure);
+  scrollbar-width: none;
+}
+.etapes button {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 4px 14px 4px 6px;
+  border: 1px solid var(--bordure); border-radius: 999px; background: #fff; white-space: nowrap;
+}
+.etapes .numero {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--bleu-pale); color: var(--bleu); font-weight: 600; font-size: .85rem;
+}
+.etapes button.active { background: var(--bleu); color: #fff; border-color: var(--bleu); }
+.etapes button.active .numero { background: #fff; }
+
+main { max-width: 980px; margin: 0 auto; padding: 16px 16px 120px; }
+h2 { color: var(--bleu); margin: 8px 0 12px; }
+h3 { margin: 0 0 12px; font-size: 1.05rem; }
+
+.carte {
+  background: var(--carte); border: 1px solid var(--bordure); border-radius: var(--rayon);
+  padding: 16px; margin-bottom: 16px;
+}
+.grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 20px; }
+.grille .large { grid-column: 1 / -1; }
+label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; margin-top: 10px; }
+.grille label { margin-top: 0; }
+input:not([type=checkbox]), select, textarea {
+  min-height: var(--toucher); padding: 8px 12px; font-weight: 400;
+  border: 1px solid var(--bordure); border-radius: 10px; background: #fff; width: 100%;
+}
+textarea { resize: vertical; }
+input:focus, select:focus, textarea:focus { outline: 3px solid var(--bleu-pale); border-color: var(--bleu-clair); }
+.interrupteur { flex-direction: row; align-items: center; gap: 12px; min-height: var(--toucher); margin: 4px 0; }
+.interrupteur input { width: 26px; height: 26px; accent-color: var(--bleu); }
+.aide { color: var(--gris); margin: 6px 0 12px; }
+.alerte { color: var(--grande); font-weight: 600; }
+
+.puces { display: flex; flex-wrap: wrap; gap: 10px; }
+.puce {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: var(--toucher); padding: 8px 16px; text-align: left;
+  border: 1.5px solid var(--bordure); border-radius: 999px; background: #fff; cursor: pointer;
+}
+.puce.choisie { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+.puce.choisie::before { content: "✓"; }
+.puce:has(.rang)::before { content: none; }
+.puce:disabled { opacity: .45; }
+.rang {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: #fff; color: var(--bleu); font-weight: 700; font-size: .85rem;
+}
+
+.segments { display: flex; flex-wrap: wrap; border: 1.5px solid var(--bordure); border-radius: 10px; overflow: hidden; }
+.segments button {
+  flex: 1 1 0; min-height: var(--toucher); padding: 6px 10px; border: 0; background: #fff; cursor: pointer;
+}
+.segments button + button { border-left: 1.5px solid var(--bordure); }
+.segments button.choisi { background: var(--bleu); color: #fff; font-weight: 600; }
+.segments button.choisi.niveau-aide { background: var(--aide); }
+.segments button.choisi.niveau-difficulte { background: var(--difficulte); }
+.segments button.choisi.niveau-grande_difficulte { background: var(--grande); }
+.segments button.choisi.niveau-rien { background: var(--bleu-pale); color: var(--bleu); }
+
+.activites { padding: 0; }
+.activite {
+  display: grid; grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr); gap: 12px; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid var(--bordure);
+}
+.activite:last-child { border-bottom: 0; }
+.activite.signalee { background: #fff8ec; }
+@media (max-width: 760px) { .activite { grid-template-columns: 1fr; } }
+
+.resume { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 0; }
+.resume dt { color: var(--gris); }
+.resume dd { margin: 0; font-weight: 600; }
+.actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+
+button.principal, .navigation button:not(.secondaire), button.secondaire, button.danger {
+  min-height: var(--toucher); padding: 10px 22px; border-radius: 10px; cursor: pointer; font-weight: 600;
+}
+button.principal, .navigation button:not(.secondaire) { background: var(--bleu); color: #fff; border: 0; }
+button.principal { font-size: 1.1rem; padding: 14px 28px; }
+button.secondaire { background: #fff; color: var(--bleu); border: 1.5px solid var(--bleu); }
+button.danger { background: #fff; color: var(--grande); border: 1.5px solid var(--grande); }
+button:disabled { opacity: .4; cursor: default; }
+button.lien { background: none; border: 0; color: var(--bleu); text-decoration: underline; cursor: pointer; padding: 0 4px; }
+.bandeau { background: var(--bleu-pale); border-radius: var(--rayon); padding: 10px 14px; }
+
+.navigation {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 3;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px);
+  background: #fff; border-top: 1px solid var(--bordure);
+}
+.navigation span { color: var(--gris); }

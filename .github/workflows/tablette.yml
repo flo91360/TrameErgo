@@ -1,0 +1,67 @@
+name: Application tablette
+
+# Teste et construit l'application tablette (tablette/), puis la publie sur
+# GitHub Pages quand elle arrive sur main. Le contenu (contenu/) est partagé
+# avec l'application Windows : les tests remplissent le vrai modèle bilan.docx.
+on:
+  push:
+    branches: ['**']
+    paths: ['tablette/**', 'contenu/**', '.github/workflows/tablette.yml']
+  pull_request:
+    branches: [main]
+    paths: ['tablette/**', 'contenu/**', '.github/workflows/tablette.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: tablette-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  tablette:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tablette
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tablette/package-lock.json
+
+      - name: Installer
+        run: npm ci
+
+      - name: Tester (remplit le vrai modèle Word)
+        run: npm test
+
+      - name: Construire
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          path: tablette/dist
+
+  # Pages doit être activé une fois : Settings > Pages > Source « GitHub Actions ».
+  publier:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: tablette
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4

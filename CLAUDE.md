@@ -1,7 +1,9 @@
 # TrameErgo
 
-Application Windows (C++ / Qt 6, qmake) qui génère des bilans d'ergothérapie
-Word. Textes visibles, commentaires et messages de commit en français.
+Génère des bilans d'ergothérapie Word. Deux applications remplissent le même
+modèle à partir du même questionnaire : Windows (C++ / Qt 6, qmake, à la
+racine) et tablette (`tablette/`, application web hors ligne). Textes
+visibles, commentaires et messages de commit en français.
 
 ## Structure
 
@@ -37,6 +39,19 @@ Word. Textes visibles, commentaires et messages de commit en français.
   remplacé par le code et inversement, et que chaque chemin lu dans
   `questionnaire.json` existe. Lancé par la CI ; le relancer après avoir
   modifié le contenu ou un `replaceText` : `python outils/verifier_contenu.py`.
+- `tablette/` : application tablette (Vue 3, TypeScript, Vite), installable
+  depuis le navigateur et utilisable hors ligne (service worker,
+  vite-plugin-pwa). Aucun serveur : le bilan est rempli sur l'appareil par
+  docxtemplater et le brouillon reste dans le navigateur (localStorage).
+  - `src/bilan.ts` : réponses (`Bilan`) et valeur de chaque champ du modèle
+    (`champs`), calculées comme dans les écrans Qt. Une modification du
+    bilan se fait dans les deux applications.
+  - `src/etapes/` : un écran par étape, `src/composants/` : puces, segments,
+    choix ordonnés (grosses cibles tactiles).
+  - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
+    de `contenu/bilan.docx` et remplit le vrai modèle.
+  - `npm test`, `npm run build` ; `.github/workflows/tablette.yml` les lance et
+    publie `dist/` sur GitHub Pages depuis `main`.
 - `installer/TrameErgo.iss` : installateur Inno Setup.
 - `interface1_old.*` et `interface_piliz1.*` ne sont pas compilés.
 
@@ -49,9 +64,11 @@ Windows avec Qt Creator : ouvrir `TrameErgo.pro`, kit Desktop Qt 6 MinGW 64 bits
 
 ## Livraison
 
-- Chaque livraison augmente `VERSION` dans `TrameErgo.pro`. Une nouvelle version
-  arrivée sur `main` publie la Release `v<VERSION>` avec l'installateur ; une
-  version déjà publiée n'est pas remplacée. PlaniFiKateur archive ses `.exe`
-  dans Google Drive.
-- Ne pas committer `build/`, `release/`, `deploy/`, `Output/` ni les fichiers
-  `*.pro.user` de Qt Creator.
+- Chaque livraison de l'application Windows augmente `VERSION` dans
+  `TrameErgo.pro`. Une nouvelle version arrivée sur `main` publie la Release
+  `v<VERSION>` avec l'installateur ; une version déjà publiée n'est pas
+  remplacée. PlaniFiKateur archive ses `.exe` dans Google Drive.
+- L'application tablette est publiée sur GitHub Pages à chaque arrivée sur
+  `main` (job `publier`), sans numéro de version.
+- Ne pas committer `build/`, `release/`, `deploy/`, `Output/`, les fichiers
+  `*.pro.user` de Qt Creator ni `tablette/node_modules/` et `tablette/dist/`.
