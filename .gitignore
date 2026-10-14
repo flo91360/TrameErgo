@@ -98,3 +98,7 @@ compile_commands.json
 /deploy/
 /Output/
 /.qtcreator/
+# Application tablette (npm)
+/tablette/node_modules/
+/tablette/dist/
+/tablette/dev-dist/
