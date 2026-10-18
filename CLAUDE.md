@@ -53,3 +53,9 @@ push et PR :
 
 Ne pas committer `tablette/node_modules/`, `tablette/dist/`,
 `tablette/installateur/` ni `tablette/src-tauri/target/` et `gen/`.
+
+## Fusion des PR
+
+Quand la CI est verte sur une PR (tous les jobs, dont `build` Windows, sur le
+dernier commit) et qu'elle n'a pas de conflit, Claude la fusionne dans `main`
+automatiquement, sans demander l'accord de l'utilisateur.
