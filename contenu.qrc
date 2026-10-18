@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>contenu/questionnaire.json</file>
-    </qresource>
-</RCC>
