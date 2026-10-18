@@ -1,8 +1,8 @@
 # Tester TrameErgo
 
-Liste de vérifications avant de remplacer l'ancienne application Windows (Qt)
-par la nouvelle (la même application que sur tablette, empaquetée en `.exe`).
-Noter toute différence ou anomalie, avec une capture d'écran ou le `.docx`.
+Liste de vérifications avant de diffuser une nouvelle version, sous Windows
+(l'application empaquetée en `.exe`) et sur tablette. Noter toute anomalie,
+avec une capture d'écran ou le `.docx`.
 
 ## 1. Version Windows
 
@@ -45,13 +45,3 @@ Noter toute différence ou anomalie, avec une capture d'écran ou le `.docx`.
       relancer depuis l'icône et créer un bilan : il s'ouvre dans Word, Pages
       ou Fichiers.
 - [ ] Mêmes vérifications du contenu du bilan que sous Windows.
-
-## 3. Comparer avec l'ancienne application
-
-- [ ] Saisir le même patient dans l'ancienne application (installateur des
-      [Releases](https://github.com/flo91360/TrameErgo/releases)) et dans la
-      nouvelle, puis comparer les deux Word : ils doivent dire la même chose.
-      Relever toute différence de phrase, de liste ou de mise en page.
-
-Quand tout est bon, l'ancienne application Qt peut être retirée et
-l'installateur de la nouvelle publié dans les Releases.

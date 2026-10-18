@@ -28,18 +28,22 @@ prévue pour fonctionner hors ligne. Le bilan est créé sur l'appareil, puis
 téléchargé. Le bouton de partage apparaît si le navigateur le permet. On peut
 ensuite l'ouvrir dans Word, Pages ou une application compatible.
 
-### Sur Windows : deux générations coexistent
+### Sur Windows
 
-| Version | Code | Installation |
-| --- | --- | --- |
-| Nouvelle application commune à la tablette et à Windows | `tablette/`, avec une enveloppe Windows appelée **Tauri** dans `tablette/src-tauri/` | Artefact `TrameErgo-Windows-Tauri` du workflow « Application tablette et Windows » dans [Actions](https://github.com/flo91360/TrameErgo/actions). Encore en cours de validation. |
-| Ancienne application Windows | Fichiers C++/Qt à la racine, notamment `interface*.cpp` et `TrameErgo.pro` | `TrameErgo-Installation-<version>.exe` dans les [Releases](https://github.com/flo91360/TrameErgo/releases). Microsoft Word est nécessaire pour produire le bilan. |
+Télécharger `TrameErgo-Installation-<version>.exe` dans les
+[Releases](https://github.com/flo91360/TrameErgo/releases), puis lancer
+l'installation (aucun droit administrateur n'est demandé). Si Windows affiche
+« Windows a protégé votre ordinateur » : « Informations complémentaires »,
+puis « Exécuter quand même ».
 
-La **nouvelle application** crée le document sans avoir besoin de Word. Sur
-Windows, elle l'enregistre dans `Documents\TrameErgo`, puis l'ouvre avec le
-logiciel associé aux `.docx`, généralement Word. Ses écrans et ses règles de
-rédaction sont les mêmes que sur tablette. La suite du guide porte sur cette
-application commune.
+C'est la même application que sur tablette, empaquetée pour Windows par
+**Tauri** (`tablette/src-tauri/`). Elle crée le document sans avoir besoin de
+Word, l'enregistre dans `Documents\TrameErgo`, puis l'ouvre avec le logiciel
+associé aux `.docx`, généralement Word.
+
+L'ancienne application Windows (C++/Qt, versions 1.0.0 et 1.1.0) n'est plus
+maintenue. Si elle est encore installée sur un PC, la désinstaller depuis les
+paramètres de Windows (Applications) pour ne garder qu'un TrameErgo.
 
 ## Comment fonctionne l'application commune
 
@@ -118,7 +122,7 @@ Document .docx téléchargé ou enregistré dans Documents\TrameErgo
 
 | Élément | Fichier | Son rôle |
 | --- | --- | --- |
-| Choix et certaines phrases | [`contenu/questionnaire.json`](contenu/questionnaire.json) | Listes de motifs, troubles, professionnels, activités, aménagements, etc. C'est un fichier de texte structuré, partagé avec l'ancienne application. |
+| Choix et certaines phrases | [`contenu/questionnaire.json`](contenu/questionnaire.json) | Listes de motifs, troubles, professionnels, activités, aménagements, etc. C'est un fichier de texte structuré. |
 | Écrans | [`tablette/src/etapes/`](tablette/src/etapes/) | Un fichier `.vue` décrit les champs visibles d'une étape. [`App.vue`](tablette/src/App.vue) fixe leur ordre. Les écrans OT Hope sont créés à partir des domaines du questionnaire. |
 | Réponses et rédaction | [`tablette/src/bilan.ts`](tablette/src/bilan.ts) | `Bilan` décrit les réponses mémorisées ; `nouveauBilan()` fixe les valeurs de départ ; `champs()` transforme les réponses en textes à insérer dans Word. |
 | Modèle Word | [`contenu/bilan.docx`](contenu/bilan.docx) | Mise en page, titres, texte fixe, coordonnées du cabinet et repères `{…}` à remplacer. |
@@ -378,7 +382,7 @@ it('reprend les observations sur le sommeil dans le Word', () => {
 
 Le test existant des repères vérifiera aussi la correspondance entre le code
 et le modèle. Tester la saisie, la réouverture du brouillon et sa remise à
-zéro. Voir plus bas la précaution liée au modèle partagé avec l'ancien Qt.
+zéro.
 
 ### 4. Ajouter un domaine OT Hope
 
@@ -480,8 +484,6 @@ terminal, depuis la racine, lancer :
 cd tablette
 npm test
 npm run build
-cd ..
-python3 outils/verifier_contenu.py
 ```
 
 `npm test` compare les repères du code à ceux du modèle et remplit le vrai
@@ -489,24 +491,6 @@ Word. La suite actuelle contient sept tests ; ajouter des cas pour les
 nouvelles règles. `npm run build` vérifie le code TypeScript et construit
 l'application web avec ses fichiers hors ligne. La mise en page doit aussi
 être relue dans Word.
-
-### Attention au modèle partagé avec l'ancienne application
-
-`contenu/bilan.docx` et `questionnaire.json` servent encore au C++/Qt. Le
-contrôle Python compare le modèle au code de **cette ancienne application** ;
-les tests de `tablette/` le comparent à l'application commune.
-
-Ajouter `{observations_sommeil}` uniquement dans le nouveau code et le modèle
-fera donc échouer le contrôle Python : l'ancien code ne sait pas le remplir.
-Une activité supplémentaire dans un domaine existant ne demande pas de
-nouveau repère ; une nouvelle rubrique, oui.
-
-Tant que les fichiers sont partagés, il faut soit adapter également l'ancienne
-application aux nouveaux repères, soit organiser explicitement la séparation
-des modèles ou le retrait de l'ancienne version. Ne pas désactiver le contrôle
-pour masquer l'incompatibilité. Pour un nouveau domaine OT Hope, vérifier aussi
-le parcours Qt en plus de son fonctionnement automatique dans l'application
-commune.
 
 ### Relire avec des cas représentatifs
 
@@ -529,14 +513,12 @@ teste et construit les modifications de `tablette/` ou `contenu/` :
 - Sur `main`, la version web est publiée sur GitHub Pages si le job web et
   les réglages Pages le permettent. Reconnecter la tablette pour charger
   la mise à jour, puis vérifier le nouveau contenu hors ligne.
-- Le job Windows crée un nouvel installateur Tauri dans les artefacts de
-  l'exécution. Installer cette nouvelle version sur le PC. Sa version vient
-  de `tablette/package.json`. Pour le construire localement, il faut Windows,
-  Rust et les prérequis Tauri, puis `npx tauri build` dans `tablette/`.
-
-L'ancienne application suit [un autre workflow](.github/workflows/build-windows.yml),
-avec Qt 6.8.3, MinGW et ActiveQt. Ouvrir `TrameErgo.pro` dans Qt Creator pour
-la développer sous Windows. Augmenter sa `VERSION` déclenche une nouvelle
-Release à l'arrivée sur `main`. Ce numéro ne pilote pas la version Tauri.
+- Le job Windows (`build`) crée l'installateur dans les artefacts de
+  l'exécution (`TrameErgo-Windows-Tauri`). Sur `main`, une nouvelle version
+  de `tablette/package.json` publie aussi la Release `v<version>` avec cet
+  installateur ; une version déjà publiée n'est pas remplacée. Augmenter
+  `version` dans `tablette/package.json` pour chaque livraison Windows. Pour
+  le construire localement, il faut Windows, Rust et les prérequis Tauri,
+  puis `npx tauri build` dans `tablette/`.
 
 Pour les détails techniques complémentaires, voir [CLAUDE.md](CLAUDE.md).
