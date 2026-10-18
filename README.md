@@ -517,7 +517,8 @@ teste et construit les modifications de `tablette/` ou `contenu/` :
   l'exécution (`TrameErgo-Windows-Tauri`). Sur `main`, une nouvelle version
   de `tablette/package.json` publie aussi la Release `v<version>` avec cet
   installateur ; une version déjà publiée n'est pas remplacée. Augmenter
-  `version` dans `tablette/package.json` pour chaque livraison Windows. Pour
+  `version` dans `tablette/package.json` pour chaque livraison Windows et
+  noter les modifications de cette version dans [CHANGELOG.md](CHANGELOG.md). Pour
   le construire localement, il faut Windows, Rust et les prérequis Tauri,
   puis `npx tauri build` dans `tablette/`.
 
