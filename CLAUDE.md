@@ -50,6 +50,10 @@ push et PR :
   pas remplacée. Chaque livraison Windows augmente donc cette version (et
   celle de `src-tauri/Cargo.toml`). PlaniFiKateur archive les `.exe` des
   Releases dans Google Drive.
+- `CHANGELOG.md` répertorie les modifications de chaque version. Toute
+  modification visible pour l'utilisateur y est ajoutée sous « Non publié » ;
+  quand la version augmente, cette section prend le numéro et la date de la
+  livraison.
 
 Ne pas committer `tablette/node_modules/`, `tablette/dist/`,
 `tablette/installateur/` ni `tablette/src-tauri/target/` et `gen/`.
