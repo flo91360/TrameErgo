@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import modeleUrl from '@contenu/bilan.docx?url'
-import { activitesEnDifficulte, champs, datesIncoherentes, nomDuFichier, objectifsRetenus, questionnaire } from '../bilan'
+import {
+  activitesEnDifficulte, champs, datesIncoherentes, nomDuFichier, nonRenseignes, objectifsRetenus, questionnaire,
+} from '../bilan'
 import { bilan, nouveauBilanVide } from '../brouillon'
 import { remplirModele, TYPE_DOCX } from '../generer'
 import { enregistrerDansDocuments, existe, nomLibre, ouvrir, surOrdinateur } from '../ordinateur'
@@ -122,6 +124,9 @@ function recommencer() {
       </template>
     </dl>
     <p v-if="manquants.length" class="alerte">Il manque {{ manquants.join(', ') }}.</p>
+    <p v-if="nonRenseignes(bilan).length" class="alerte">
+      À renseigner : {{ nonRenseignes(bilan).join(', ') }}. Sinon, ces passages seront absents du bilan.
+    </p>
     <p v-if="datesIncoherentes(bilan)" class="alerte">
       La date de naissance est après la date de passation : l'âge ne peut pas être calculé.
     </p>

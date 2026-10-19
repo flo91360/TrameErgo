@@ -11,11 +11,15 @@ const { demande } = questionnaire
     <div class="grille">
       <label>Personne demandeuse
         <select v-model="bilan.personneDemandeuse">
+          <option value="" disabled>— à renseigner —</option>
           <option v-for="p in demande.personnesDemandeuses" :key="p">{{ p }}</option>
         </select>
       </label>
       <label>Dossier MDPH
-        <select v-model="bilan.dossierMdph"><option v-for="d in demande.dossierMdph" :key="d">{{ d }}</option></select>
+        <select v-model="bilan.dossierMdph">
+          <option value="" disabled>— à renseigner —</option>
+          <option v-for="d in demande.dossierMdph" :key="d">{{ d }}</option>
+        </select>
       </label>
     </div>
   </section>

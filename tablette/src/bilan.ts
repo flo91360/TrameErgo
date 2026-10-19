@@ -17,8 +17,8 @@ export interface Bilan {
   classe: string
   typeEtablissement: string
   nomEtablissement: string
-  /** Indice dans identite/lateralite/<sexe> : le libellé s'accorde au sexe. */
-  lateralite: number
+  /** Indice dans identite/lateralite/<sexe> : le libellé s'accorde au sexe (null : non renseignée). */
+  lateralite: number | null
   modeDeGarde: string
   enfantUnique: boolean
   fratrie: string
@@ -61,8 +61,9 @@ export function aujourdhui(date = new Date()): string {
   return `${date.getFullYear()}-${deux(date.getMonth() + 1)}-${deux(date.getDate())}`
 }
 
+// Les choix sans réponse évidente commencent vides (« — à renseigner — ») :
+// une valeur par défaut irait dans le bilan sans avoir été choisie.
 export function nouveauBilan(date = new Date()): Bilan {
-  const { identite, demande, objectifs } = questionnaire
   return {
     sexe: 'Femme',
     trancheAge: 'Enfant',
@@ -70,22 +71,22 @@ export function nouveauBilan(date = new Date()): Bilan {
     nom: '',
     dateNaissance: '',
     datePassation: aujourdhui(date),
-    classe: identite.classes[0],
-    typeEtablissement: identite.typesEtablissement[0],
+    classe: '',
+    typeEtablissement: '',
     nomEtablissement: '',
-    lateralite: 0,
-    modeDeGarde: identite.modesDeGarde[0],
+    lateralite: null,
+    modeDeGarde: '',
     enfantUnique: false,
     fratrie: '',
-    entente: identite.entente[0].libelle,
+    entente: '',
     medecinTraitant: '',
     ville: '',
-    personneDemandeuse: demande.personnesDemandeuses[0],
+    personneDemandeuse: '',
     motifs: [],
     autreMotif: '',
     troubles: [],
     autreTrouble: '',
-    dossierMdph: demande.dossierMdph[0],
+    dossierMdph: '',
     aucunProfessionnel: false,
     professionnels: {},
     comportement: [],
@@ -97,7 +98,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     otHope: {},
     objectifs: {},
     objectifsFinaux: [],
-    accordParents: objectifs.accordParents[0].libelle,
+    accordParents: '',
     objectifsParents: [],
     remarquesParents: '',
     amenagements: [],
@@ -193,9 +194,25 @@ export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
 }
 
+/** Choix encore « à renseigner » : ils resteraient vides dans le bilan. */
+export function nonRenseignes(bilan: Bilan): string[] {
+  return [
+    !bilan.classe && 'la classe',
+    !bilan.typeEtablissement && "l'établissement",
+    bilan.lateralite === null && 'la latéralité',
+    !bilan.modeDeGarde && 'le mode de garde',
+    !bilan.enfantUnique && !bilan.entente && "l'entente dans la fratrie",
+    !bilan.personneDemandeuse && 'la personne demandeuse',
+    !bilan.dossierMdph && 'le dossier MDPH',
+    !bilan.accordParents && "l'accord des parents",
+  ].filter(Boolean) as string[]
+}
+
 /** Valeur de chaque champ {…} du modèle bilan.docx. */
 export function champs(bilan: Bilan): Record<string, string> {
   const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
+  // Une réponse vide donne un champ vide : le modèle masque alors la phrase ({#champ}…{/champ}).
+  const entente = bilan.enfantUnique ? '' : phrase(identite.entente, bilan.entente)
   const valeurs: Record<string, string> = {
     il_elle: accord(bilan, 'il', 'elle'),
     Il_Elle: accord(bilan, 'Il', 'Elle'),
@@ -211,10 +228,10 @@ export function champs(bilan: Bilan): Record<string, string> {
     classe: bilan.classe,
     type_etablissement: bilan.typeEtablissement,
     nom_etablissement: bilan.nomEtablissement.trim(),
-    lateralite: lateralites(bilan.sexe)[bilan.lateralite] ?? '',
+    lateralite: bilan.lateralite === null ? '' : lateralites(bilan.sexe)[bilan.lateralite] ?? '',
     mode_de_garde: bilan.modeDeGarde,
-    fratrie: bilan.enfantUnique ? 'est enfant unique' : `a ${bilan.fratrie.trim()}`,
-    entente: bilan.enfantUnique ? '' : `(${phrase(identite.entente, bilan.entente)})`,
+    fratrie: bilan.enfantUnique ? 'est enfant unique' : bilan.fratrie.trim() && `a ${bilan.fratrie.trim()}`,
+    entente: entente && `(${entente})`,
     medecin_traitant: bilan.medecinTraitant.trim(),
     ville: bilan.ville.trim(),
 
@@ -224,7 +241,7 @@ export function champs(bilan: Bilan): Record<string, string> {
     professionnels: enListe(bilan.aucunProfessionnel
       ? ['aucun']
       : dansLOrdre(suivis.professionnels, Object.keys(bilan.professionnels))
-          .map((professionnel) => `${professionnel} : ${bilan.professionnels[professionnel]}`)),
+          .map((professionnel) => [professionnel, bilan.professionnels[professionnel]].filter(Boolean).join(' : '))),
     dossier_mdph: bilan.dossierMdph,
 
     comportement_en_classe: enListe(dansLOrdre(scolarite.comportement, bilan.comportement)),

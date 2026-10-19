@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from 'vue'
 import { questionnaire } from './bilan'
-import { bilan, brouillonTrouve } from './brouillon'
+import { bilan, brouillonTrouve, reponsesRetirees } from './brouillon'
 import Amenagements from './etapes/Amenagements.vue'
 import Demande from './etapes/Demande.vue'
 import Generation from './etapes/Generation.vue'
@@ -30,6 +30,7 @@ const etapes: Etape[] = [
 const courante = ref(0)
 const etape = computed(() => etapes[courante.value])
 const brouillonRepris = ref(brouillonTrouve && !!(bilan.prenom || bilan.nom))
+const retireesVues = ref(false)
 
 function aller(numero: number) {
   courante.value = numero
@@ -57,8 +58,13 @@ function aller(numero: number) {
       dernière étape, « Nouveau bilan ».
       <button type="button" class="lien" @click="brouillonRepris = false">Fermer</button>
     </p>
+    <p v-if="reponsesRetirees.length && !retireesVues" class="bandeau alerte">
+      Le questionnaire a changé : ces réponses n'existent plus et ont été retirées du bilan en cours :
+      {{ reponsesRetirees.join(', ') }}. Les choisir à nouveau si besoin.
+      <button type="button" class="lien" @click="retireesVues = true">Fermer</button>
+    </p>
     <h2>{{ etape.titre }}</h2>
-    <Generation v-if="etape.composant === Generation" @recommencer="brouillonRepris = false; aller(0)" />
+    <Generation v-if="etape.composant === Generation" @recommencer="brouillonRepris = false; retireesVues = true; aller(0)" />
     <component :is="etape.composant" v-else v-bind="etape.proprietes ?? {}" :key="courante" />
   </main>
 
