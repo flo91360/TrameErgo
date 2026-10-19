@@ -11,6 +11,22 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+### Modifié
+
+- Choisir un professionnel ne remplit plus sa fréquence de suivi d'office
+  (« une fois par semaine ») : elle est « à renseigner ».
+- L'écran Bilan liste aussi la fratrie, le nom de l'établissement, le
+  médecin traitant, la ville du médecin et les fréquences de suivi
+  manquantes : sans eux, une partie du bilan (dont l'entente, ou la ville)
+  n'est pas imprimée.
+
+### Corrigé
+
+- Une date illisible dans un brouillon n'écrit plus « NaN an et NaN mois »
+  dans le bilan : elle est retirée et signalée.
+- Plus d'interstice entre l'en-tête et la barre d'étapes quand la page
+  défile.
+
 ## [1.2.2] - 2026-10-19
 
 ### Modifié

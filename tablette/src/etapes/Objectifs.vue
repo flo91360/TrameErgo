@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { activitesEnDifficulte, NOMBRE_OBJECTIFS, objectifsDuDomaine, objectifsPossibles, questionnaire } from '../bilan'
+import {
+  activitesEnDifficulte, NOMBRE_OBJECTIFS, objectifsDuDomaine, objectifsPossibles, questionnaire,
+} from '../bilan'
 import { bilan } from '../brouillon'
 import ChoixOrdonnes from '../composants/ChoixOrdonnes.vue'
 import Segments from '../composants/Segments.vue'

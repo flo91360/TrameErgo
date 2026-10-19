@@ -24,8 +24,10 @@
 body { margin: 0; background: var(--fond); }
 button, input, select, textarea { font: inherit; color: inherit; }
 
+/* En-tête et barre d'étapes collés ensemble : la barre suit la hauteur réelle
+   de l'en-tête (nom long, encoche de l'iPad), sans interstice. */
+.haut { position: sticky; top: 0; z-index: 3; }
 .entete {
-  position: sticky; top: 0; z-index: 3;
   display: flex; align-items: baseline; gap: 16px;
   padding: calc(env(safe-area-inset-top) + 10px) 20px 10px;
   background: var(--bleu); color: #fff;
@@ -34,7 +36,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .entete .patient { opacity: .85; }
 
 .etapes {
-  position: sticky; top: 52px; z-index: 2;
   display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px;
   background: #fff; border-bottom: 1px solid var(--bordure);
   scrollbar-width: none;

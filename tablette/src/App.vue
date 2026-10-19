@@ -39,18 +39,20 @@ function aller(numero: number) {
 </script>
 
 <template>
-  <header class="entete">
-    <h1>TrameErgo</h1>
-    <span class="patient">{{ bilan.prenom }} {{ bilan.nom }}</span>
-  </header>
+  <div class="haut">
+    <header class="entete">
+      <h1>TrameErgo</h1>
+      <span class="patient">{{ bilan.prenom }} {{ bilan.nom }}</span>
+    </header>
 
-  <nav class="etapes" aria-label="Étapes du bilan">
-    <button v-for="(e, i) in etapes" :key="e.titre" type="button"
-            :class="{ active: i === courante }" :aria-current="i === courante ? 'step' : undefined"
-            @click="aller(i)">
-      <span class="numero">{{ i + 1 }}</span>{{ e.titre }}
-    </button>
-  </nav>
+    <nav class="etapes" aria-label="Étapes du bilan">
+      <button v-for="(e, i) in etapes" :key="e.titre" type="button"
+              :class="{ active: i === courante }" :aria-current="i === courante ? 'step' : undefined"
+              @click="aller(i)">
+        <span class="numero">{{ i + 1 }}</span>{{ e.titre }}
+      </button>
+    </nav>
+  </div>
 
   <main>
     <p v-if="brouillonRepris" class="bandeau">
@@ -64,12 +66,15 @@ function aller(numero: number) {
       <button type="button" class="lien" @click="retireesVues = true">Fermer</button>
     </p>
     <h2>{{ etape.titre }}</h2>
-    <Generation v-if="etape.composant === Generation" @recommencer="brouillonRepris = false; retireesVues = true; aller(0)" />
+    <Generation v-if="etape.composant === Generation"
+                @recommencer="brouillonRepris = false; retireesVues = true; aller(0)" />
     <component :is="etape.composant" v-else v-bind="etape.proprietes ?? {}" :key="courante" />
   </main>
 
   <footer class="navigation">
-    <button type="button" class="secondaire" :disabled="courante === 0" @click="aller(courante - 1)">Précédent</button>
+    <button type="button" class="secondaire" :disabled="courante === 0" @click="aller(courante - 1)">
+      Précédent
+    </button>
     <span>{{ courante + 1 }} / {{ etapes.length }}</span>
     <button type="button" :disabled="courante === etapes.length - 1" @click="aller(courante + 1)">Suivant</button>
   </footer>

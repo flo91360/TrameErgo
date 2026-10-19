@@ -23,7 +23,8 @@ const resume = computed(() => [
   ['Patient', `${bilan.prenom} ${bilan.nom}`.trim() || '—'],
   ['Âge', champs(bilan).age || '—'],
   ['Troubles', String(bilan.troubles.length + (bilan.autreTrouble.trim() ? 1 : 0))],
-  ...questionnaire.otHope.domaines.map((d) => [d.titre, `${activitesEnDifficulte(bilan, d.id).length} activité(s) signalée(s)`]),
+  ...questionnaire.otHope.domaines.map((d) =>
+    [d.titre, `${activitesEnDifficulte(bilan, d.id).length} activité(s) signalée(s)`]),
   ['Objectifs finaux', String(objectifsRetenus(bilan, bilan.objectifsFinaux).length)],
 ])
 
@@ -76,7 +77,8 @@ async function generer() {
 // effacerait ce travail. Sans accord, une copie numérotée est créée à côté.
 async function nomSansEcraser(nom: string): Promise<string> {
   if (!(await existe(nom))) return nom
-  const remplacer = confirm(`${nom} existe déjà dans Documents\\TrameErgo et a peut-être été complété dans Word.\n\n`
+  const remplacer = confirm(`${nom} existe déjà dans Documents\\TrameErgo`
+    + ' et a peut-être été complété dans Word.\n\n'
     + 'OK : le remplacer (les modifications faites dans Word seront perdues).\n'
     + 'Annuler : enregistrer une copie à côté.')
   return remplacer ? nom : nomLibre(nom)
@@ -149,7 +151,9 @@ function recommencer() {
   </section>
 
   <section class="carte">
-    <p class="aide">Les réponses restent sur cet appareil, jusqu'au prochain bilan : rien n'est envoyé sur Internet.</p>
+    <p class="aide">
+      Les réponses restent sur cet appareil, jusqu'au prochain bilan : rien n'est envoyé sur Internet.
+    </p>
     <button type="button" class="danger" @click="recommencer">Nouveau bilan</button>
   </section>
 </template>

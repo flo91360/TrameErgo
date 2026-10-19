@@ -8,13 +8,14 @@ avec une capture d'écran ou le `.docx`.
 
 ### Installer
 
-1. Sur un PC Windows, se connecter à GitHub (les artefacts ne se téléchargent
-   que connecté ; ils sont conservés 90 jours).
-2. Ouvrir [Actions](https://github.com/flo91360/TrameErgo/actions), puis la
-   dernière exécution verte « Application tablette et Windows » sur `main`.
-3. En bas de la page, dans **Artifacts**, télécharger
-   **TrameErgo-Windows-Tauri** et décompresser le zip.
-4. Lancer l'installateur. S'il est bloqué par SmartScreen (installateur non
+1. Sur un PC Windows, ouvrir les
+   [Releases](https://github.com/flo91360/TrameErgo/releases) et télécharger
+   `TrameErgo-Installation-<version>.exe` de la version à tester.
+   Pour une PR pas encore publiée : se connecter à GitHub, ouvrir son
+   exécution « Application tablette et Windows » dans
+   [Actions](https://github.com/flo91360/TrameErgo/actions) et télécharger
+   l'artefact **TrameErgo-Windows-Tauri** (zip, conservé 90 jours).
+2. Lancer l'installateur. S'il est bloqué par SmartScreen (installateur non
    signé) : « Informations complémentaires », puis « Exécuter quand même ».
    Aucun droit administrateur n'est demandé.
 

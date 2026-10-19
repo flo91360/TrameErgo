@@ -31,6 +31,10 @@ function memeForme(valeur: unknown, depart: unknown): boolean {
   return typeof valeur === typeof depart
 }
 
+function dateValide(date: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date))
+}
+
 export function enregistrement(bilan: Bilan): string {
   return JSON.stringify({ version: VERSION_BROUILLON, bilan })
 }
@@ -56,6 +60,18 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
   if (!['Enfant', 'Ado'].includes(bilan.trancheAge)) bilan.trancheAge = depart.trancheAge
 
   const retirees: string[] = []
+
+  // Dates AAAA-MM-JJ, comme un champ <input type="date"> : sinon l'âge vaudrait « NaN ».
+  const dates: ['dateNaissance' | 'datePassation', string][] = [
+    ['dateNaissance', 'Date de naissance'], ['datePassation', 'Date de passation'],
+  ]
+  for (const [cle, rubrique] of dates) {
+    if (bilan[cle] && !dateValide(bilan[cle])) {
+      retirees.push(`${bilan[cle]} (${rubrique})`)
+      bilan[cle] = depart[cle]
+    }
+  }
+
   const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
 
   const simples: [ChoixSimple, readonly string[], string][] = [
