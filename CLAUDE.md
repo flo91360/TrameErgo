@@ -60,13 +60,15 @@ PR vers `main` et à chaque push sur `main` :
   (`TrameErgo-Windows-Tauri`). PlaniFiKateur exige ce job avant de fusionner.
   Une nouvelle `version` de `tablette/package.json` arrivée sur `main` publie
   la Release `v<version>` avec l'installateur ; une version déjà publiée n'est
-  pas remplacée. Chaque livraison Windows augmente donc cette version (et
-  celle de `src-tauri/Cargo.toml`). PlaniFiKateur archive les `.exe` des
-  Releases dans Google Drive.
-- `CHANGELOG.md` répertorie les modifications de chaque version. Toute
-  modification visible pour l'utilisateur y est ajoutée sous « Non publié » ;
-  quand la version augmente, cette section prend le numéro et la date de la
-  livraison.
+  pas remplacée. PlaniFiKateur archive les `.exe` des Releases dans Google
+  Drive.
+- **Chaque PR livre une nouvelle version** : elle augmente `version` dans
+  `tablette/package.json`, `src-tauri/Cargo.toml` et `Cargo.lock` (dernier
+  chiffre en général : 1.2.3 → 1.2.4 ; `npm version <v> --no-git-tag-version`
+  puis `cargo metadata` dans `src-tauri/`) et ajoute à `CHANGELOG.md` la
+  section `## [<version>] - <date>` avec ses modifications. Sur une PR, le
+  job `tablette` échoue si la version n'est pas supérieure à celle de
+  `main`. Si `main` a avancé entre-temps, reprendre la version suivante.
 
 Ne pas committer `tablette/node_modules/`, `tablette/dist/`,
 `tablette/installateur/` ni `tablette/src-tauri/target/` et `gen/`.
