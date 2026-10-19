@@ -11,6 +11,10 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+## [1.2.1] - 2026-10-19
+
+Corrections relevées par l'audit du projet.
+
 ### Ajouté
 
 - Ce journal des modifications (`CHANGELOG.md`).
@@ -120,6 +124,7 @@ Première version publiée : application Windows C++/Qt.
 - Message clair quand Word est absent ou qu'un modèle manque, au lieu d'un
   plantage ; dossier `Documents\TrameErgo` créé si besoin.
 
+[1.2.1]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.1
 [1.2.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.0
 [1.1.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.1.0
 [1.0.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.0.0
