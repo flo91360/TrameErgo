@@ -19,6 +19,29 @@ export async function nomLibre(nom: string): Promise<string> {
   return copieNumerotee(nom, numero)
 }
 
+export type ChoixBilanExistant = 'remplacer' | 'copie' | 'annuler'
+
+/**
+ * Un bilan de ce nom existe déjà (et a peut-être été complété dans Word) :
+ * fenêtre Windows avec trois boutons nommés, plutôt qu'un « OK / Annuler »
+ * où « Annuler » créerait une copie.
+ */
+export async function choisirSiExiste(nom: string): Promise<ChoixBilanExistant> {
+  const { message } = await import('@tauri-apps/plugin-dialog')
+  const remplacer = 'Remplacer'
+  const copie = 'Garder les deux'
+  const reponse = await message(
+    `${nom} existe déjà dans Documents\\TrameErgo et a peut-être été complété dans Word.\n\n`
+      + `« ${remplacer} » efface ce fichier, avec les modifications faites dans Word.\n`
+      + `« ${copie} » enregistre le nouveau bilan à côté, sous un autre nom.`,
+    { title: 'Bilan déjà enregistré', kind: 'warning', buttons: { yes: remplacer, no: copie, cancel: 'Annuler' } },
+  )
+  // Réponse : le libellé du bouton (ou Yes / No selon le système) ; fermer la fenêtre annule.
+  if (reponse === remplacer || reponse === 'Yes') return 'remplacer'
+  if (reponse === copie || reponse === 'No') return 'copie'
+  return 'annuler'
+}
+
 /** Écrit le bilan dans Documents\TrameErgo et renvoie son chemin complet. */
 export async function enregistrerDansDocuments(nom: string, contenu: Uint8Array): Promise<string> {
   const { BaseDirectory, mkdir, writeFile } = await import('@tauri-apps/plugin-fs')

@@ -67,7 +67,7 @@ jobs:
       # Parcours complets sur l'application construite, jusqu'au Word téléchargé.
       - name: Parcours dans le navigateur (Playwright)
         run: |
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
           npm run e2e
 
       - uses: actions/upload-pages-artifact@v5

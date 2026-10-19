@@ -89,9 +89,10 @@ les réponses restent seulement en mémoire pendant la session.
 Les fichiers Word déjà enregistrés restent indépendants. Une correction dans
 Word ne revient pas dans le questionnaire. Pour tenir compte de nouvelles
 réponses, il faut générer un nouveau document. Sous Windows, si un bilan du
-même nom existe déjà, l'application demande s'il faut le remplacer (les
-modifications faites dans Word sont alors perdues) ou enregistrer une copie
-`…_2.docx` ; un document ouvert dans Word peut empêcher le remplacement.
+même nom existe déjà, une fenêtre propose « Remplacer » (les modifications
+faites dans Word sont alors perdues), « Garder les deux » (le nouveau bilan
+est enregistré à côté, en `…_2.docx`) ou « Annuler » ; un document ouvert
+dans Word peut empêcher le remplacement.
 
 Le nom suit la forme `Bilan_ergotherapie_Nom_Prénom_mois_année.docx`, avec le
 mois et l'année de la passation.
@@ -512,10 +513,14 @@ npm run e2e
 ```
 
 `npm test` compare les repères du code à ceux du modèle, remplit le vrai
-Word et vérifie la reprise des brouillons. Ajouter des cas pour les nouvelles
+Word, vérifie la reprise des brouillons et la cohérence de
+`questionnaire.json` (doublons, identifiants, phrases) : le relancer après
+avoir modifié ce fichier. Ajouter des cas pour les nouvelles
 règles. `npm run build` vérifie le code TypeScript et construit l'application
 web avec ses fichiers hors ligne. `npm run e2e` remplit un bilan dans un vrai
-navigateur (Playwright, dossier `e2e/`), jusqu'au Word téléchargé. La mise en
+navigateur (Playwright, dossier `e2e/`), jusqu'au Word téléchargé, avec le
+moteur de Chrome et celui de Safari sur iPad (WebKit). `npm run e2e --
+--project=chromium` se limite au premier. La mise en
 page doit aussi être relue dans Word.
 
 ### Relire avec des cas représentatifs

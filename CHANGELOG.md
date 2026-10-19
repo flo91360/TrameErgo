@@ -13,6 +13,11 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ### Modifié
 
+- Windows : quand un bilan du même nom existe, une vraie fenêtre propose
+  « Remplacer », « Garder les deux » ou « Annuler » (avant : « OK / Annuler »,
+  où « Annuler » créait une copie).
+- Au clavier, les flèches changent le choix d'un groupe de segments (sexe,
+  entente, niveaux OT Hope…), qui ne compte plus qu'un arrêt de tabulation.
 - Choisir un professionnel ne remplit plus sa fréquence de suivi d'office
   (« une fois par semaine ») : elle est « à renseigner ».
 - L'écran Bilan liste aussi la fratrie, le nom de l'établissement, le
