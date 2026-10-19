@@ -17,6 +17,7 @@
       "identifier": "fs:allow-write-file",
       "allow": [{ "path": "$DOCUMENT/TrameErgo/*" }]
     },
+    "dialog:allow-message",
     {
       "identifier": "opener:allow-open-path",
       "allow": [{ "path": "$DOCUMENT/TrameErgo/*" }]

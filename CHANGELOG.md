@@ -6,13 +6,18 @@ version est celle de `tablette/package.json` ; chaque version arrivée sur
 [Releases](https://github.com/flo91360/TrameErgo/releases) avec
 l'installateur Windows.
 
-Les modifications pas encore publiées vont dans « Non publié » ; elles
-passent sous un nouveau numéro de version au moment de la livraison.
+Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
+et ajoute ici sa section, datée.
 
-## Non publié
+## [1.2.3] - 2026-10-19
 
 ### Modifié
 
+- Windows : quand un bilan du même nom existe, une vraie fenêtre propose
+  « Remplacer », « Garder les deux » ou « Annuler » (avant : « OK / Annuler »,
+  où « Annuler » créait une copie).
+- Au clavier, les flèches changent le choix d'un groupe de segments (sexe,
+  entente, niveaux OT Hope…), qui ne compte plus qu'un arrêt de tabulation.
 - Choisir un professionnel ne remplit plus sa fréquence de suivi d'office
   (« une fois par semaine ») : elle est « à renseigner ».
 - L'écran Bilan liste aussi la fratrie, le nom de l'établissement, le
@@ -157,6 +162,7 @@ Première version publiée : application Windows C++/Qt.
 - Message clair quand Word est absent ou qu'un modèle manque, au lieu d'un
   plantage ; dossier `Documents\TrameErgo` créé si besoin.
 
+[1.2.3]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.3
 [1.2.2]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.2
 [1.2.1]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.1
 [1.2.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.0

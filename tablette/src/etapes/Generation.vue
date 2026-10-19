@@ -6,7 +6,7 @@ import {
 } from '../bilan'
 import { bilan, nouveauBilanVide } from '../brouillon'
 import { remplirModele, TYPE_DOCX } from '../generer'
-import { enregistrerDansDocuments, existe, nomLibre, ouvrir, surOrdinateur } from '../ordinateur'
+import { choisirSiExiste, enregistrerDansDocuments, existe, nomLibre, ouvrir, surOrdinateur } from '../ordinateur'
 
 const emit = defineEmits<{ recommencer: [] }>()
 
@@ -60,7 +60,9 @@ async function generer() {
       return
     }
     try {
-      chemin.value = await enregistrerDansDocuments(await nomSansEcraser(nomDuFichier(bilan)), docx)
+      const nom = await nomSansEcraser(nomDuFichier(bilan))
+      if (!nom) return // Création annulée : rien n'est écrit.
+      chemin.value = await enregistrerDansDocuments(nom, docx)
     } catch (e) {
       erreur.value = `Le bilan n'a pas pu être enregistré dans Documents\\TrameErgo : ${message(e)}`
         + ' (est-il déjà ouvert dans Word ?)'
@@ -74,14 +76,13 @@ async function generer() {
 }
 
 // Un bilan déjà enregistré a pu être complété dans Word : le remplacer
-// effacerait ce travail. Sans accord, une copie numérotée est créée à côté.
-async function nomSansEcraser(nom: string): Promise<string> {
+// effacerait ce travail. On demande : remplacer, garder les deux (copie
+// numérotée) ou annuler (null).
+async function nomSansEcraser(nom: string): Promise<string | null> {
   if (!(await existe(nom))) return nom
-  const remplacer = confirm(`${nom} existe déjà dans Documents\\TrameErgo`
-    + ' et a peut-être été complété dans Word.\n\n'
-    + 'OK : le remplacer (les modifications faites dans Word seront perdues).\n'
-    + 'Annuler : enregistrer une copie à côté.')
-  return remplacer ? nom : nomLibre(nom)
+  const choix = await choisirSiExiste(nom)
+  if (choix === 'annuler') return null
+  return choix === 'remplacer' ? nom : nomLibre(nom)
 }
 
 async function ouvrirDansWord() {

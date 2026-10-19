@@ -42,9 +42,13 @@ jobs:
           cache: npm
           cache-dependency-path: tablette/package-lock.json
 
-      # Version identique partout, et notée dans CHANGELOG.md avant d'être publiée.
+      # Version identique partout, notée dans CHANGELOG.md, et (sur une PR)
+      # supérieure à celle de main : chaque PR fusionnée livre une version.
       - name: Vérifier la version
         shell: bash
+        env:
+          EVENEMENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
         run: |
           version=$(node -p "require('./package.json').version")
           cargo=$(sed -n 's/^version = "\(.*\)"$/\1/p' src-tauri/Cargo.toml | head -n 1)
@@ -53,6 +57,15 @@ jobs:
           [ "$cargo" = "$version" ] || { echo "::error::src-tauri/Cargo.toml ($cargo) ≠ package.json ($version)"; erreur=1; }
           [ "$verrou" = "$version" ] || { echo "::error::src-tauri/Cargo.lock ($verrou) ≠ package.json ($version)"; erreur=1; }
           grep -q "^## \[$version\]" ../CHANGELOG.md || { echo "::error::CHANGELOG.md n'a pas de section [$version]"; erreur=1; }
+          if [ "$EVENEMENT" = pull_request ]; then
+            git fetch -q --depth 1 origin "$BASE"
+            avant=$(git show FETCH_HEAD:tablette/package.json | node -p "JSON.parse(require('fs').readFileSync(0)).version")
+            node -e '
+              const [a, b] = process.argv.slice(1).map((v) => v.split(".").map(Number))
+              const i = a.findIndex((n, k) => n !== b[k])
+              process.exit(i >= 0 && a[i] > b[i] ? 0 : 1)
+            ' "$version" "$avant" || { echo "::error::version $version ≤ $avant ($BASE) : chaque PR augmente la version"; erreur=1; }
+          fi
           exit $erreur
 
       - name: Installer
@@ -67,7 +80,7 @@ jobs:
       # Parcours complets sur l'application construite, jusqu'au Word téléchargé.
       - name: Parcours dans le navigateur (Playwright)
         run: |
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
           npm run e2e
 
       - uses: actions/upload-pages-artifact@v5

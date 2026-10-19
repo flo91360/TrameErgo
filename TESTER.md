@@ -35,8 +35,11 @@ avec une capture d'écran ou le `.docx`.
       le Word n'a pas de phrase cassée (« Dr , à . », « () »…).
 - [ ] Fermer l'application en cours de saisie et la rouvrir : les réponses
       sont toujours là.
-- [ ] Recréer le même bilan : l'application demande s'il faut le remplacer.
-      « Annuler » enregistre `…_2.docx` à côté ; « OK » le remplace.
+- [ ] Recréer le même bilan : une fenêtre Windows propose « Remplacer »,
+      « Garder les deux » (enregistre `…_2.docx` à côté) et « Annuler »
+      (rien n'est écrit) ; vérifier les trois.
+- [ ] Au clavier, sur l'écran Patient : Tab arrive sur « Sexe », les flèches
+      passent de Fille à Garçon.
 - [ ] Remplacer un bilan pendant qu'il est ouvert dans Word : un message
       demande s'il est déjà ouvert dans Word, sans plantage.
 - [ ] Wi-Fi coupé, créer un bilan : tout fonctionne.

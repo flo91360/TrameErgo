@@ -104,3 +104,15 @@ test('un professionnel choisi n\'a pas de fréquence d\'office', async ({ page }
   await etape(page, /^\d+\s*Bilan$/)
   await expect(page.getByText(/la fréquence de suivi \(orthophoniste\)/)).toBeVisible()
 })
+
+test('les flèches du clavier changent le choix d\'un groupe de segments', async ({ page }) => {
+  const sexe = page.getByRole('radiogroup', { name: 'Sexe' })
+  await expect(sexe.getByRole('radio', { name: 'Fille' })).toHaveAttribute('tabindex', '0')
+  await expect(sexe.getByRole('radio', { name: 'Garçon' })).toHaveAttribute('tabindex', '-1')
+  await sexe.getByRole('radio', { name: 'Fille' }).focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(sexe.getByRole('radio', { name: 'Garçon' })).toBeFocused()
+  expect((await brouillon(page)).sexe).toBe('Homme')
+  await page.keyboard.press('ArrowRight') // On revient au début.
+  expect((await brouillon(page)).sexe).toBe('Femme')
+})

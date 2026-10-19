@@ -1,6 +1,6 @@
 {
   "name": "trameergo-tablette",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "description": "TrameErgo sur tablette : bilans d'ergothérapie générés sur l'appareil, hors ligne.",
   "type": "module",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.3",
+    "@tauri-apps/plugin-dialog": "^2.8.1",
     "@tauri-apps/plugin-fs": "^2.7.0",
     "@tauri-apps/plugin-opener": "^2.7.1",
     "docxtemplater": "^3.71.0",
