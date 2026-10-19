@@ -38,11 +38,13 @@ Textes visibles, commentaires et messages de commit en français.
 ## CI et livraison
 
 `.github/workflows/tablette.yml` teste et construit l'application à chaque
-push et PR :
+PR vers `main` et à chaque push sur `main` :
 
-- job `tablette` : `npm test` et `npm run build` ; sur `main`, le job
+- job `tablette` : vérifie que `package.json`, `src-tauri/Cargo.toml`,
+  `Cargo.lock` ont la même version et que `CHANGELOG.md` a sa section, puis
+  `npm test` et `npm run build` ; sur `main`, le job
   `publier` met `dist/` sur GitHub Pages (sans numéro de version).
-- job `build` (Windows) : `npx tauri build`, installateur
+- job `build` (Windows, après `tablette`) : `npx tauri build`, installateur
   `TrameErgo-Installation-<version>.exe` en artefact
   (`TrameErgo-Windows-Tauri`). PlaniFiKateur exige ce job avant de fusionner.
   Une nouvelle `version` de `tablette/package.json` arrivée sur `main` publie

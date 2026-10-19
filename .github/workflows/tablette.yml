@@ -6,12 +6,14 @@ name: Application tablette et Windows
 # quand une nouvelle version arrive sur main. Les tests remplissent le vrai
 # modèle bilan.docx. PlaniFiKateur exige le job « build » avant de fusionner
 # une PR et archive les .exe de chaque Release dans Google Drive.
+# Un commit de PR n'est construit qu'une fois (événement pull_request) ; les
+# push ne déclenchent la CI que sur main.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review, labeled]
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 concurrency:
@@ -39,6 +41,19 @@ jobs:
           cache: npm
           cache-dependency-path: tablette/package-lock.json
 
+      # Version identique partout, et notée dans CHANGELOG.md avant d'être publiée.
+      - name: Vérifier la version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          cargo=$(sed -n 's/^version = "\(.*\)"$/\1/p' src-tauri/Cargo.toml | head -n 1)
+          verrou=$(grep -A1 '^name = "trameergo"$' src-tauri/Cargo.lock | sed -n 's/^version = "\(.*\)"$/\1/p')
+          erreur=0
+          [ "$cargo" = "$version" ] || { echo "::error::src-tauri/Cargo.toml ($cargo) ≠ package.json ($version)"; erreur=1; }
+          [ "$verrou" = "$version" ] || { echo "::error::src-tauri/Cargo.lock ($verrou) ≠ package.json ($version)"; erreur=1; }
+          grep -q "^## \[$version\]" ../CHANGELOG.md || { echo "::error::CHANGELOG.md n'a pas de section [$version]"; erreur=1; }
+          exit $erreur
+
       - name: Installer
         run: npm ci
 
@@ -56,6 +71,8 @@ jobs:
   # Application Windows : la même application empaquetée par Tauri (WebView2),
   # installateur NSIS à télécharger dans les artefacts de l'exécution.
   build:
+    # Jamais d'installateur (ni de Release) sans tests verts.
+    needs: tablette
     runs-on: windows-2022
     timeout-minutes: 45
     permissions:
