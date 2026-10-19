@@ -45,10 +45,10 @@ const desParents = computed({
 
   <section class="carte">
     <h3>Objectifs des parents</h3>
-    <label>Les parents sont-ils en accord avec ces objectifs ?
+    <div class="champ">Les parents sont-ils en accord avec ces objectifs ?
       <Segments v-model="bilan.accordParents" etiquette="Accord des parents"
                 :options="objectifs.accordParents.map((a) => ({ valeur: a.libelle, libelle: a.libelle }))" />
-    </label>
+    </div>
     <ChoixOrdonnes v-if="possibles.length" v-model="desParents" :options="possibles" :maximum="NOMBRE_OBJECTIFS" />
     <label>Remarques des parents <textarea v-model="bilan.remarquesParents" rows="3" /></label>
   </section>

@@ -1,4 +1,4 @@
-// Remplit le modèle Word sur l'appareil : aucune donnée ne quitte la tablette.
+// Remplit le modèle Word localement : aucune donnée ne quitte l'appareil.
 import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 

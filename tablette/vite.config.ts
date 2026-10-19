@@ -3,8 +3,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Le contenu (questionnaire.json, bilan.docx) est partagé avec l'application
-// Windows : il est lu dans ../contenu, en dehors du dossier de l'application.
+// Le contenu (questionnaire.json, bilan.docx) est modifiable sans toucher au
+// code : il est lu dans ../contenu, en dehors du dossier de l'application.
 const contenu = fileURLToPath(new URL('../contenu', import.meta.url))
 
 export default defineConfig({
@@ -21,7 +21,7 @@ export default defineConfig({
       manifest: {
         name: 'TrameErgo',
         short_name: 'TrameErgo',
-        description: "Bilans d'ergothérapie générés sur la tablette, hors ligne",
+        description: "Bilans d'ergothérapie générés sur l'appareil, hors ligne",
         lang: 'fr',
         start_url: '.',
         scope: '.',

@@ -88,9 +88,10 @@ les réponses restent seulement en mémoire pendant la session.
 « Nouveau bilan » demande confirmation, puis remplace les réponses en cours.
 Les fichiers Word déjà enregistrés restent indépendants. Une correction dans
 Word ne revient pas dans le questionnaire. Pour tenir compte de nouvelles
-réponses, il faut générer un nouveau document. Sous Windows, recréer un bilan
-portant le même nom réécrit le fichier ; un document ouvert dans Word peut
-empêcher cette écriture.
+réponses, il faut générer un nouveau document. Sous Windows, si un bilan du
+même nom existe déjà, l'application demande s'il faut le remplacer (les
+modifications faites dans Word sont alors perdues) ou enregistrer une copie
+`…_2.docx` ; un document ouvert dans Word peut empêcher le remplacement.
 
 Le nom suit la forme `Bilan_ergotherapie_Nom_Prénom_mois_année.docx`, avec le
 mois et l'année de la passation.
@@ -100,8 +101,9 @@ ensuite un document, par exemple par mail, passe par l'application choisie.
 
 Le bilan reste à relire et à compléter par l'ergothérapeute : le logiciel ne
 pose pas de diagnostic et ne calcule pas de scores cliniques. Certains choix
-ont une valeur par défaut. L'écran final signale l'absence de prénom, nom ou
-date de naissance, mais **n'empêche pas la génération** d'un bilan incomplet.
+ont une valeur par défaut. L'écran final signale l'absence de prénom, nom,
+date de naissance ou date de passation, et une date de naissance postérieure
+à la passation, mais **n'empêche pas la génération** d'un bilan incomplet.
 
 Il n'y a actuellement ni éditeur de questionnaire dans l'application, ni
 import de modèle Word, ni assemblage de modèles séparés par rubrique.
@@ -487,8 +489,7 @@ npm run build
 ```
 
 `npm test` compare les repères du code à ceux du modèle et remplit le vrai
-Word. La suite actuelle contient sept tests ; ajouter des cas pour les
-nouvelles règles. `npm run build` vérifie le code TypeScript et construit
+Word. Ajouter des cas pour les nouvelles règles. `npm run build` vérifie le code TypeScript et construit
 l'application web avec ses fichiers hors ligne. La mise en page doit aussi
 être relue dans Word.
 
