@@ -11,6 +11,21 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+### Modifié
+
+- Aucun choix clinique n'est plus pré-rempli : classe, établissement,
+  latéralité, mode de garde, entente, personne demandeuse, dossier MDPH et
+  accord des parents commencent à « — à renseigner — ». L'écran Bilan liste
+  ceux qui restent vides.
+- Une réponse vide ne laisse plus de phrase cassée dans le bilan (« Dr , à
+  . », « Motif : . », « il a  () ») : la phrase est omise.
+
+### Corrigé
+
+- Un brouillon dont une réponse n'existe plus dans le questionnaire (option
+  renommée ou supprimée) ne l'écrit plus dans le bilan : elle est retirée et
+  signalée une fois à l'ouverture.
+
 ## [1.2.1] - 2026-10-19
 
 Corrections relevées par l'audit du projet.

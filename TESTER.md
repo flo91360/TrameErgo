@@ -30,6 +30,8 @@ avec une capture d'écran ou le `.docx`.
       ordre des objectifs.
 - [ ] Refaire un bilan en changeant fille/garçon et enfant/adolescent : titre
       et accords suivent.
+- [ ] Laisser des choix à « — à renseigner — » : l'écran Bilan les liste, et
+      le Word n'a pas de phrase cassée (« Dr , à . », « () »…).
 - [ ] Fermer l'application en cours de saisie et la rouvrir : les réponses
       sont toujours là.
 - [ ] Recréer le même bilan : l'application demande s'il faut le remplacer.

@@ -5,3 +5,5 @@
 /tablette/src-tauri/target/
 /tablette/src-tauri/gen/
 /tablette/installateur/
+/tablette/test-results/
+/tablette/playwright-report/

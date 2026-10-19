@@ -100,10 +100,15 @@ Les réponses ne sont pas envoyées à un serveur par l'application. Partager
 ensuite un document, par exemple par mail, passe par l'application choisie.
 
 Le bilan reste à relire et à compléter par l'ergothérapeute : le logiciel ne
-pose pas de diagnostic et ne calcule pas de scores cliniques. Certains choix
-ont une valeur par défaut. L'écran final signale l'absence de prénom, nom,
-date de naissance ou date de passation, et une date de naissance postérieure
-à la passation, mais **n'empêche pas la génération** d'un bilan incomplet.
+pose pas de diagnostic et ne calcule pas de scores cliniques. Les choix sans
+réponse évidente (classe, établissement, latéralité, mode de garde, entente,
+personne demandeuse, dossier MDPH, accord des parents) commencent à « — à
+renseigner — » : rien n'entre dans le bilan sans avoir été choisi. Seuls le
+sexe, Enfant/Adolescent et la date de passation (le jour même) ont une valeur
+de départ. L'écran final signale l'absence de prénom, nom, date de naissance
+ou date de passation, les choix encore à renseigner et une date de naissance
+postérieure à la passation, mais **n'empêche pas la génération** d'un bilan
+incomplet : la phrase d'une réponse vide est alors absente du Word.
 
 Il n'y a actuellement ni éditeur de questionnaire dans l'application, ni
 import de modèle Word, ni assemblage de modèles séparés par rubrique.
@@ -250,8 +255,9 @@ format des entrées : une activité est un texte ; un domaine possède un
 identifiant, un titre et une liste d'activités.
 
 Les textes des options servent aussi à retrouver les réponses sauvegardées.
-Renommer ou supprimer une option peut rendre un ancien choix absent du
-prochain bilan. Tester avec un brouillon existant. Pour la latéralité, garder
+Si une option est renommée ou supprimée, un brouillon qui l'avait choisie la
+perd à la réouverture : un bandeau liste les réponses retirées, à choisir à
+nouveau ([`reprise.ts`](tablette/src/reprise.ts)). Pour la latéralité, garder
 les listes féminine et masculine dans le même ordre : la réponse est
 mémorisée par sa position dans la liste.
 
@@ -270,8 +276,13 @@ dans le projet. Modifier un bilan déjà généré ne change pas le modèle.
   que les repères du modèle et du code correspondent exactement.
 - Un repère peut recevoir plusieurs lignes. Prévoir assez de place dans les
   tableaux et vérifier la mise en page avec des réponses longues.
-- Une réponse vide ne supprime pas le titre, le tableau ou le paragraphe qui
-  l'entoure. Masquer une rubrique vide nécessite une règle supplémentaire.
+- Pour qu'un texte n'apparaisse que si une réponse est remplie, l'encadrer
+  par `{#champ}` et `{/champ}` : `{#medecin_traitant}Nom du médecin
+  traitant : Dr {medecin_traitant}.{/medecin_traitant}`. À l'inverse,
+  `{^champ}…{/champ}` n'apparaît que si la réponse est vide. Le modèle
+  utilise déjà ces conditions dans la phrase d'identité, la personne
+  demandeuse et le motif. Une réponse vide ne supprime pas, en revanche, un
+  titre ou un tableau placé hors de ces conditions.
 
 Écrire `{nouvelle_information}` dans Word ne crée pas de question à l'écran.
 Sans correspondance dans `champs()`, elle ne sera pas renseignée et peut
@@ -301,10 +312,11 @@ observationsSommeil: '',
 ```
 
 Cela initialise la zone à vide et permet à « Nouveau bilan » de l'effacer.
-La reprise d'un ancien brouillon complète déjà les nouveaux champs de premier
-niveau avec cette valeur de départ. Une nouvelle structure avec des
-sous-champs, ou le changement du type d'une réponse, demande de vérifier et
-d'adapter la reprise des anciens brouillons.
+La reprise d'un ancien brouillon ([`reprise.ts`](tablette/src/reprise.ts))
+complète déjà les nouveaux champs avec cette valeur de départ. Changer la
+forme d'une réponse existante (texte devenu liste…) demande d'augmenter
+`VERSION_BROUILLON` et d'adapter `reprendre()`, avec un test dans
+`tests/reprise.test.ts`.
 
 **B. Créer l'écran.** Créer `tablette/src/etapes/Sommeil.vue` :
 
@@ -486,12 +498,15 @@ terminal, depuis la racine, lancer :
 cd tablette
 npm test
 npm run build
+npm run e2e
 ```
 
-`npm test` compare les repères du code à ceux du modèle et remplit le vrai
-Word. Ajouter des cas pour les nouvelles règles. `npm run build` vérifie le code TypeScript et construit
-l'application web avec ses fichiers hors ligne. La mise en page doit aussi
-être relue dans Word.
+`npm test` compare les repères du code à ceux du modèle, remplit le vrai
+Word et vérifie la reprise des brouillons. Ajouter des cas pour les nouvelles
+règles. `npm run build` vérifie le code TypeScript et construit l'application
+web avec ses fichiers hors ligne. `npm run e2e` remplit un bilan dans un vrai
+navigateur (Playwright, dossier `e2e/`), jusqu'au Word téléchargé. La mise en
+page doit aussi être relue dans Word.
 
 ### Relire avec des cas représentatifs
 
