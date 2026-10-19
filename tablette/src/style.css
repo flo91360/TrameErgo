@@ -1,4 +1,4 @@
-/* TrameErgo tablette : grosses cibles tactiles, couleurs de la page de garde du bilan. */
+/* TrameErgo : grosses cibles tactiles, couleurs de la page de garde du bilan. */
 :root {
   --bleu: #1f4e79;
   --bleu-clair: #4f81bd;
@@ -61,8 +61,9 @@ h3 { margin: 0 0 12px; font-size: 1.05rem; }
 }
 .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 20px; }
 .grille .large { grid-column: 1 / -1; }
-label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; margin-top: 10px; }
-.grille label { margin-top: 0; }
+/* .champ : comme un label, pour les segments (un label transmettrait le toucher au premier segment). */
+label, .champ { display: flex; flex-direction: column; gap: 6px; font-weight: 600; margin-top: 10px; }
+.grille label, .grille .champ { margin-top: 0; }
 input:not([type=checkbox]), select, textarea {
   min-height: var(--toucher); padding: 8px 12px; font-weight: 400;
   border: 1px solid var(--bordure); border-radius: 10px; background: #fff; width: 100%;

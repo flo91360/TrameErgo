@@ -1,5 +1,5 @@
 // Bilan en cours, enregistré sur l'appareil (localStorage) à chaque modification :
-// il survit à une fermeture de l'onglet et ne quitte jamais la tablette.
+// il survit à une fermeture de l'application et ne quitte jamais l'appareil.
 import { reactive, watch } from 'vue'
 import { nouveauBilan, type Bilan } from './bilan'
 

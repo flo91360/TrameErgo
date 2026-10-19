@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { questionnaire } from '../bilan'
+import { activitesEnDifficulte, questionnaire } from '../bilan'
 import { bilan } from '../brouillon'
 import Segments from '../composants/Segments.vue'
 
@@ -23,7 +23,8 @@ function coter(activite: string, valeur: string) {
   bilan.otHope = { ...bilan.otHope, [props.domaine]: reponses }
 }
 
-const signalees = computed(() => Object.keys(bilan.otHope[props.domaine] ?? {}).length)
+// Comme dans le bilan Word : seules les activités du questionnaire comptent.
+const signalees = computed(() => activitesEnDifficulte(bilan, props.domaine).length)
 </script>
 
 <template>

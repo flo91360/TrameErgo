@@ -4,7 +4,8 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  calculerAge, champs, nomDuFichier, nouveauBilan, objectifsPossibles, questionnaire, type Bilan,
+  calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, objectifsPossibles,
+  objectifsRetenus, questionnaire, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 
@@ -46,6 +47,17 @@ describe('âge', () => {
     expect(calculerAge('2026-05-14', '2026-10-14')).toBe('0 an et 5 mois')
     expect(calculerAge('', '2026-10-14')).toBe('')
   })
+
+  it('ne calcule pas d\'âge négatif et signale les dates incohérentes', () => {
+    expect(calculerAge('2026-12-01', '2026-10-14')).toBe('')
+    const bilan = nouveauBilan(new Date(2026, 9, 14))
+    expect(datesIncoherentes(bilan)).toBe(false)
+    bilan.dateNaissance = '2026-12-01'
+    expect(datesIncoherentes(bilan)).toBe(true)
+    expect(champs(bilan).age).toBe('')
+    bilan.dateNaissance = '2026-10-14'
+    expect(datesIncoherentes(bilan)).toBe(false)
+  })
 })
 
 describe('champs du bilan', () => {
@@ -78,8 +90,17 @@ describe('champs du bilan', () => {
     expect(objectifsPossibles(bilan)).toEqual(['Faire mes lacets', 'Utiliser un compas'])
   })
 
-  it('nomme le fichier comme sous Windows', () => {
+  it('compte les mêmes objectifs finaux à l\'écran et dans le Word', () => {
+    const bilan = lucas()
+    delete bilan.otHope.ecole['Utiliser un compas']
+    expect(objectifsRetenus(bilan, bilan.objectifsFinaux)).toEqual(['Faire mes lacets'])
+    expect(champs(bilan).objectifs_finaux).toBe('1 - Faire mes lacets')
+  })
+
+  it('nomme le fichier d\'après le patient et la passation', () => {
     expect(nomDuFichier(lucas())).toBe('Bilan_ergotherapie_Martin_Lucas_octobre_2026.docx')
+    expect(copieNumerotee('Bilan_ergotherapie_Martin_Lucas_octobre_2026.docx', 2))
+      .toBe('Bilan_ergotherapie_Martin_Lucas_octobre_2026_2.docx')
   })
 })
 
@@ -92,6 +113,8 @@ describe('génération', () => {
     expect(texte).toContain('ne sait pas encore faire seul ou celles qu’il fait difficilement')
     expect(texte).toContain('Bilan ergothérapie Adolescent')
     expect(texte).toContain('ne sont pas totalement en accord')
+    expect(texte).toMatch(/Préférées\s: EPS, Musique/)
+    expect(texte).toMatch(/Les moins appréciées\s: Français/)
   })
 
   it('remplit un bilan vide sans laisser de champ', () => {

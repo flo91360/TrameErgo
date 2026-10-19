@@ -13,7 +13,7 @@ import Suivis from './etapes/Suivis.vue'
 
 interface Etape { titre: string; composant: Component; proprietes?: Record<string, string> }
 
-// Mêmes étapes que l'application Windows ; un écran OT Hope par domaine du questionnaire.
+// Un écran OT Hope par domaine du questionnaire.
 const etapes: Etape[] = [
   { titre: 'Patient', composant: Patient },
   { titre: 'Demande', composant: Demande },
@@ -58,7 +58,7 @@ function aller(numero: number) {
       <button type="button" class="lien" @click="brouillonRepris = false">Fermer</button>
     </p>
     <h2>{{ etape.titre }}</h2>
-    <Generation v-if="etape.composant === Generation" @recommencer="aller(0)" />
+    <Generation v-if="etape.composant === Generation" @recommencer="brouillonRepris = false; aller(0)" />
     <component :is="etape.composant" v-else v-bind="etape.proprietes ?? {}" :key="courante" />
   </main>
 

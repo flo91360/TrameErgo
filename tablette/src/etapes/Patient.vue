@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { calculerAge, lateralites, questionnaire } from '../bilan'
+import { calculerAge, datesIncoherentes, lateralites, questionnaire } from '../bilan'
 import { bilan } from '../brouillon'
 import Segments from '../composants/Segments.vue'
 
@@ -11,20 +11,22 @@ const age = computed(() => calculerAge(bilan.dateNaissance, bilan.datePassation)
 <template>
   <section class="carte">
     <div class="grille">
-      <label>Sexe
+      <!-- Pas de <label> autour des segments : toucher son texte choisirait le premier segment. -->
+      <div class="champ">Sexe
         <Segments v-model="bilan.sexe" etiquette="Sexe"
                   :options="[{ valeur: 'Femme', libelle: 'Fille' }, { valeur: 'Homme', libelle: 'Garçon' }]" />
-      </label>
-      <label>Bilan
+      </div>
+      <div class="champ">Bilan
         <Segments v-model="bilan.trancheAge" etiquette="Bilan"
                   :options="[{ valeur: 'Enfant', libelle: 'Enfant' }, { valeur: 'Ado', libelle: 'Adolescent' }]" />
-      </label>
+      </div>
       <label>Prénom <input v-model="bilan.prenom" autocomplete="off" /></label>
       <label>Nom <input v-model="bilan.nom" autocomplete="off" /></label>
       <label>Date de naissance <input v-model="bilan.dateNaissance" type="date" /></label>
       <label>Date de passation <input v-model="bilan.datePassation" type="date" /></label>
     </div>
     <p v-if="age" class="aide">Âge à la passation : {{ age }}</p>
+    <p v-if="datesIncoherentes(bilan)" class="alerte">La date de naissance est après la date de passation.</p>
   </section>
 
   <section class="carte">
@@ -53,10 +55,10 @@ const age = computed(() => calculerAge(bilan.dateNaissance, bilan.datePassation)
     <label class="interrupteur"><input v-model="bilan.enfantUnique" type="checkbox" /> Enfant unique</label>
     <div v-if="!bilan.enfantUnique" class="grille">
       <label>Fratrie <input v-model="bilan.fratrie" placeholder="1 frère et 1 sœur" /></label>
-      <label>Entente
+      <div class="champ">Entente
         <Segments v-model="bilan.entente" etiquette="Entente"
                   :options="identite.entente.map((e) => ({ valeur: e.libelle, libelle: e.libelle }))" />
-      </label>
+      </div>
     </div>
   </section>
 

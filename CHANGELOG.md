@@ -11,9 +11,36 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+## [1.2.1] - 2026-10-19
+
+Corrections relevées par l'audit du projet.
+
 ### Ajouté
 
 - Ce journal des modifications (`CHANGELOG.md`).
+- Windows : si un bilan du même nom existe déjà dans `Documents\TrameErgo`,
+  l'application demande s'il faut le remplacer ou enregistrer une copie
+  (`…_2.docx`) : un bilan complété dans Word n'est plus écrasé sans accord.
+- Alerte quand la date de naissance est après la date de passation, et quand
+  la date de passation manque.
+
+### Corrigé
+
+- Toucher le titre « Sexe », « Bilan », « Entente » ou « Les parents sont-ils
+  en accord… » choisissait la première réponse (Fille, Enfant, Bonne, Oui).
+- Âge négatif (« -1 an et -2 mois ») écrit dans le bilan quand la date de
+  naissance était après la passation : l'âge est maintenant laissé vide.
+- Le bandeau « Bilan en cours repris » restait affiché après « Nouveau bilan ».
+- Le récapitulatif et l'écran OT Hope comptent les objectifs et les activités
+  comme le bilan Word.
+- Windows : message distinct quand le bilan est enregistré mais que Word ne
+  s'ouvre pas ; le bouton « Créer le bilan Word » est désactivé pendant la
+  création.
+- Modèle Word : « Préférées » et « Les moins appréciées ».
+
+### Sécurité
+
+- Windows : politique de sécurité du contenu (CSP) activée.
 
 ## [1.2.0] - 2026-10-18
 
@@ -97,6 +124,7 @@ Première version publiée : application Windows C++/Qt.
 - Message clair quand Word est absent ou qu'un modèle manque, au lieu d'un
   plantage ; dossier `Documents\TrameErgo` créé si besoin.
 
+[1.2.1]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.1
 [1.2.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.0
 [1.1.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.1.0
 [1.0.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.0.0

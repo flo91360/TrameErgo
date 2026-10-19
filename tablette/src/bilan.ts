@@ -1,6 +1,4 @@
 // Réponses du questionnaire et champs {…} du modèle contenu/bilan.docx.
-// Les champs sont calculés comme dans l'application Windows (écrans interface*.cpp) :
-// les deux applications produisent le même bilan.
 import questionnaire from '@contenu/questionnaire.json'
 
 export { questionnaire }
@@ -109,6 +107,11 @@ export function nouveauBilan(date = new Date()): Bilan {
   }
 }
 
+/** Date de naissance postérieure à la date de passation : l'âge ne peut pas être calculé. */
+export function datesIncoherentes(bilan: Bilan): boolean {
+  return !!bilan.dateNaissance && !!bilan.datePassation && bilan.dateNaissance > bilan.datePassation
+}
+
 /** Âge en années et mois révolus à la date de référence (dates AAAA-MM-JJ). */
 export function calculerAge(naissance: string, reference: string): string {
   if (!naissance || !reference) return ''
@@ -116,11 +119,12 @@ export function calculerAge(naissance: string, reference: string): string {
   const [an2, mois2, jour2] = reference.split('-').map(Number)
   let mois = (an2 - an1) * 12 + mois2 - mois1
   if (jour2 < jour1) mois -= 1 // Le mois en cours n'est pas encore révolu
+  if (mois < 0) return '' // Naissance après la référence : signalé par datesIncoherentes
   const ans = Math.floor(mois / 12)
   return `${ans} ${ans > 1 ? 'ans' : 'an'} et ${mois % 12} mois`
 }
 
-/** JJ-MM-AAAA, comme dans l'application Windows. */
+/** JJ-MM-AAAA. */
 export function dateFrancaise(date: string): string {
   return date ? date.split('-').reverse().join('-') : ''
 }
@@ -175,6 +179,12 @@ export function objectifsPossibles(bilan: Bilan): string[] {
   return [...new Set(tous)]
 }
 
+/** Objectifs (finaux, des parents) encore possibles : ceux qui iront dans le bilan. */
+export function objectifsRetenus(bilan: Bilan, choisis: readonly string[]): string[] {
+  const possibles = objectifsPossibles(bilan)
+  return choisis.filter((objectif) => possibles.includes(objectif))
+}
+
 function phrase(liste: readonly { libelle: string; phrase: string }[], libelle: string): string {
   return liste.find((element) => element.libelle === libelle)?.phrase ?? ''
 }
@@ -223,10 +233,10 @@ export function champs(bilan: Bilan): Record<string, string> {
     matieres_moins_appreciees:
       dansLOrdre(scolarite.matieres, bilan.matieresDetestees, bilan.autreMatiereDetestee).join(', '),
 
-    objectifs_finaux: numerotes(bilan.objectifsFinaux.filter((o) => objectifsPossibles(bilan).includes(o))),
+    objectifs_finaux: numerotes(objectifsRetenus(bilan, bilan.objectifsFinaux)),
     accord_parents: phrase(objectifs.accordParents, bilan.accordParents).replace('{prenom}', bilan.prenom.trim()),
     objectifs_parents: [
-      numerotes(bilan.objectifsParents.filter((o) => objectifsPossibles(bilan).includes(o))),
+      numerotes(objectifsRetenus(bilan, bilan.objectifsParents)),
       bilan.remarquesParents.trim() ? `Remarques des parents : ${bilan.remarquesParents.trim()}` : '',
     ].filter(Boolean).join('\n'),
 
@@ -246,11 +256,16 @@ export function champs(bilan: Bilan): Record<string, string> {
   return valeurs
 }
 
-/** Bilan_ergotherapie_<nom>_<prénom>_<mois>_<année>.docx, comme sous Windows. */
+/** Bilan_ergotherapie_<nom>_<prénom>_<mois>_<année>.docx. */
 export function nomDuFichier(bilan: Bilan): string {
   const [annee, mois] = (bilan.datePassation || aujourdhui()).split('-').map(Number)
   const nomDuMois = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(new Date(annee, mois - 1, 1))
   const morceau = (texte: string) => texte.trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_')
   return ['Bilan_ergotherapie', morceau(bilan.nom), morceau(bilan.prenom), nomDuMois, annee]
     .filter(Boolean).join('_') + '.docx'
+}
+
+/** Bilan_….docx → Bilan_…_2.docx : copie enregistrée à côté d'un bilan existant. */
+export function copieNumerotee(nom: string, numero: number): string {
+  return nom.replace(/\.docx$/, '') + `_${numero}.docx`
 }

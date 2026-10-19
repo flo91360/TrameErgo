@@ -32,7 +32,9 @@ avec une capture d'écran ou le `.docx`.
       et accords suivent.
 - [ ] Fermer l'application en cours de saisie et la rouvrir : les réponses
       sont toujours là.
-- [ ] Recréer le même bilan pendant qu'il est ouvert dans Word : un message
+- [ ] Recréer le même bilan : l'application demande s'il faut le remplacer.
+      « Annuler » enregistre `…_2.docx` à côté ; « OK » le remplace.
+- [ ] Remplacer un bilan pendant qu'il est ouvert dans Word : un message
       demande s'il est déjà ouvert dans Word, sans plantage.
 - [ ] Wi-Fi coupé, créer un bilan : tout fonctionne.
 
