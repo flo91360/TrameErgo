@@ -21,8 +21,9 @@ Textes visibles, commentaires et messages de commit en français.
   brouillon reste sur l'appareil (localStorage).
   - `src-tauri/` : version Windows (Tauri 2, WebView2, installateur NSIS par
     utilisateur). `tauri.conf.json` prend la version de `package.json` ;
-    `capabilities/default.json` n'autorise que l'écriture dans
-    `Documents\TrameErgo` et l'ouverture des bilans.
+    `capabilities/default.json` n'autorise, dans `Documents\TrameErgo`, que
+    la création du dossier, le test d'existence d'un bilan, son écriture et
+    son ouverture.
   - `src/ordinateur.ts` : sous Tauri, le bilan est enregistré dans
     `Documents\TrameErgo` et ouvert dans Word ; dans un navigateur, il est
     téléchargé ou partagé. Tout le reste est commun.

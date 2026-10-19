@@ -40,7 +40,8 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
   await page.getByRole('button', { name: 'Dysgraphie' }).tap()
 
   await etape(page, /OT Hope : Activités de vie quotidienne/)
-  await page.getByRole('radiogroup', { name: 'Faire mes lacets' }).getByRole('radio', { name: 'Avec difficulté' }).tap()
+  await page.getByRole('radiogroup', { name: 'Faire mes lacets' })
+    .getByRole('radio', { name: 'Avec difficulté' }).tap()
   await expect(page.getByText('1 activité signalée.')).toBeVisible()
 
   await etape(page, 'Objectifs')
@@ -49,7 +50,8 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
   await page.locator('.carte', { hasText: 'Objectifs finaux' }).getByRole('button', { name: 'Faire mes lacets' }).tap()
 
   await etape(page, /^\d+\s*Bilan$/)
-  await expect(page.getByText(/À renseigner : l'établissement, l'entente dans la fratrie, le dossier MDPH/)).toBeVisible()
+  await expect(page.getByText("À renseigner : l'établissement, le nom de l'établissement, la fratrie, "
+    + "l'entente dans la fratrie, la ville du médecin traitant, le dossier MDPH, l'accord des parents.")).toBeVisible()
   const [telechargement] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Créer le bilan Word' }).tap(),
@@ -58,7 +60,8 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
 
   const docx = await readFile(await telechargement.path())
   const texte = new Docxtemplater(new PizZip(docx), { paragraphLoop: true, linebreaks: true }).getFullText()
-  expect(texte).toContain('Je rencontre Lucas né le 12-03-2012, il a 14 ans et 7 mois. Il est en 4ème. Lucas est gaucher. ')
+  expect(texte)
+    .toContain('Je rencontre Lucas né le 12-03-2012, il a 14 ans et 7 mois. Il est en 4ème. Lucas est gaucher. ')
   expect(texte).toContain('Il vit en garde alternée. ')
   expect(texte).toMatch(/Dr Durand\./)
   expect(texte).toContain('le bilan a été demandé par la mère.')
@@ -91,4 +94,13 @@ test('un ancien brouillon signale les réponses disparues du questionnaire', asy
   expect((await brouillon(page)).troubles).toEqual(['TSA'])
   await page.reload()
   await expect(page.getByText(/ont été retirées/)).toHaveCount(0)
+})
+
+test('un professionnel choisi n\'a pas de fréquence d\'office', async ({ page }) => {
+  await etape(page, 'Suivis')
+  await page.getByRole('button', { name: 'orthophoniste' }).tap()
+  await expect(page.getByLabel('orthophoniste')).toHaveValue('')
+  expect((await brouillon(page)).professionnels).toEqual({ orthophoniste: '' })
+  await etape(page, /^\d+\s*Bilan$/)
+  await expect(page.getByText(/la fréquence de suivi \(orthophoniste\)/)).toBeVisible()
 })

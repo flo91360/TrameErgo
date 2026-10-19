@@ -6,12 +6,13 @@ import Puces from '../composants/Puces.vue'
 
 const { suivis } = questionnaire
 
-// Les puces choisissent les professionnels ; chacun garde sa fréquence de suivi.
+// Les puces choisissent les professionnels ; chacun garde sa fréquence de suivi,
+// à renseigner pour un nouveau professionnel (pas de fréquence choisie d'office).
 const suivisChoisis = computed({
   get: () => Object.keys(bilan.professionnels),
   set: (choisis: string[]) => {
     bilan.professionnels = Object.fromEntries(
-      choisis.map((p) => [p, bilan.professionnels[p] ?? suivis.frequences[0]]))
+      choisis.map((p) => [p, bilan.professionnels[p] ?? '']))
   },
 })
 </script>

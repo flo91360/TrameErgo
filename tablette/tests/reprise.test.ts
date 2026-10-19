@@ -38,7 +38,8 @@ describe('reprise du brouillon', () => {
     expect([...retirees].sort()).toEqual([
       'Bonne entente (Entente)', 'CM3 (Classe)', 'Trouble disparu (Troubles)', 'choix n° 8 (Latéralité)',
       'chaque jour (Fréquence de suivi)', 'sophrologue (Professionnels)',
-      'Activité disparue (OT Hope : Activités de vie quotidienne)', 'Cuisiner (OT Hope : Activités de vie quotidienne)',
+      'Activité disparue (OT Hope : Activités de vie quotidienne)',
+      'Cuisiner (OT Hope : Activités de vie quotidienne)',
       'domaine « jardin » (OT Hope)',
     ].sort())
     expect(bilan.entente).toBe('')
@@ -52,7 +53,8 @@ describe('reprise du brouillon', () => {
   })
 
   it('ignore les valeurs de mauvaise forme et les brouillons illisibles', () => {
-    const { bilan } = reprendre(JSON.stringify({ prenom: 42, troubles: 'TSA', sexe: 'Autre', lateralite: 'droitier' }), date)!
+    const illisible = { prenom: 42, troubles: 'TSA', sexe: 'Autre', lateralite: 'droitier' }
+    const { bilan } = reprendre(JSON.stringify(illisible), date)!
     expect(bilan.prenom).toBe('')
     expect(bilan.troubles).toEqual([])
     expect(bilan.sexe).toBe('Femme')
@@ -60,5 +62,14 @@ describe('reprise du brouillon', () => {
     expect(reprendre('pas du JSON', date)).toBeNull()
     expect(reprendre('null', date)).toBeNull()
     expect(reprendre('[1, 2]', date)).toBeNull()
+  })
+
+  it('remplace une date illisible au lieu d\'écrire « NaN » dans le bilan', () => {
+    const ancien = { dateNaissance: 'pas une date', datePassation: '2026-13-45' }
+    const { bilan, retirees } = reprendre(JSON.stringify(ancien), date)!
+    expect(retirees).toEqual(['pas une date (Date de naissance)', '2026-13-45 (Date de passation)'])
+    expect(bilan.dateNaissance).toBe('')
+    expect(bilan.datePassation).toBe('2026-10-14')
+    expect(champs(bilan).age).toBe('')
   })
 })

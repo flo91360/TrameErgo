@@ -8,6 +8,7 @@ name: Application tablette et Windows
 # une PR et archive les .exe de chaque Release dans Google Drive.
 # Un commit de PR n'est construit qu'une fois (événement pull_request) ; les
 # push ne déclenchent la CI que sur main.
+# Actions en versions qui tournent sur Node 24 (Node 20 est retiré des runners).
 on:
   push:
     branches: [main]
@@ -31,11 +32,11 @@ jobs:
       run:
         working-directory: tablette
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -69,7 +70,7 @@ jobs:
           npx playwright install --with-deps chromium
           npm run e2e
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: tablette/dist
@@ -87,11 +88,11 @@ jobs:
       run:
         working-directory: tablette
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -122,7 +123,7 @@ jobs:
           New-Item -ItemType Directory installateur | Out-Null
           Copy-Item $exe[0].FullName "installateur\TrameErgo-Installation-${{ steps.version.outputs.version }}.exe"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: TrameErgo-Windows-Tauri
           path: tablette/installateur/*.exe
@@ -144,7 +145,7 @@ jobs:
 
       - name: Publier la version
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.published.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: TrameErgo ${{ steps.version.outputs.version }}
@@ -167,4 +168,4 @@ jobs:
       url: ${{ steps.deploiement.outputs.page_url }}
     steps:
       - id: deploiement
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -19,7 +19,8 @@ function texteDuBilan(docx: Uint8Array): string {
 function lucas(): Bilan {
   const bilan = nouveauBilan(new Date(2026, 9, 14))
   Object.assign(bilan, {
-    sexe: 'Homme', trancheAge: 'Ado', prenom: 'Lucas', dossierMdph: 'En création', accordParents: 'Pas tout à fait', nom: 'Martin', dateNaissance: '2012-03-12',
+    sexe: 'Homme', trancheAge: 'Ado', prenom: 'Lucas', nom: 'Martin', dateNaissance: '2012-03-12',
+    dossierMdph: 'En création', accordParents: 'Pas tout à fait',
     classe: '4ème', typeEtablissement: 'le collège', nomEtablissement: 'Jean Moulin', lateralite: 1,
     modeDeGarde: 'en garde alternée', fratrie: '1 sœur', entente: 'Mauvaise', medecinTraitant: 'Durand',
     ville: 'Massy', personneDemandeuse: 'la mère', motifs: [questionnaire.demande.motifs[2]],
@@ -141,12 +142,26 @@ describe('génération', () => {
   it('ne choisit rien à la place de l\'ergothérapeute', () => {
     const bilan = nouveauBilan()
     expect(nonRenseignes(bilan)).toEqual([
-      'la classe', "l'établissement", 'la latéralité', 'le mode de garde', "l'entente dans la fratrie",
-      'la personne demandeuse', 'le dossier MDPH', "l'accord des parents",
+      'la classe', "l'établissement", "le nom de l'établissement", 'la latéralité', 'le mode de garde',
+      'la fratrie', "l'entente dans la fratrie", 'le médecin traitant', 'la personne demandeuse',
+      'le dossier MDPH', "l'accord des parents",
     ])
     expect(champs(bilan).dossier_mdph).toBe('')
     expect(champs(bilan).accord_parents).toBe('')
     bilan.enfantUnique = true
+    expect(nonRenseignes(bilan)).not.toContain('la fratrie')
     expect(nonRenseignes(bilan)).not.toContain("l'entente dans la fratrie")
+    expect(nonRenseignes(lucas())).toEqual([])
+  })
+
+  it('signale ce que le modèle masquerait sans le dire', () => {
+    const bilan = lucas()
+    Object.assign(bilan, {
+      ville: '', professionnels: { psychologue: '', orthophoniste: "à raison d'une fois par mois" },
+    })
+    expect(nonRenseignes(bilan)).toEqual(['la ville du médecin traitant', 'la fréquence de suivi (psychologue)'])
+    expect(champs(bilan).professionnels).toBe("- orthophoniste : à raison d'une fois par mois\n- psychologue")
+    bilan.aucunProfessionnel = true
+    expect(nonRenseignes(bilan)).toEqual(['la ville du médecin traitant'])
   })
 })

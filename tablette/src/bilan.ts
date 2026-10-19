@@ -194,16 +194,30 @@ export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
 }
 
-/** Choix encore « à renseigner » : ils resteraient vides dans le bilan. */
+/**
+ * Réponses encore « à renseigner » : vides, elles manqueraient dans le bilan.
+ * Le modèle masque aussi ce qui en dépend : l'entente sans la fratrie, la
+ * ville sans le médecin traitant.
+ */
 export function nonRenseignes(bilan: Bilan): string[] {
+  const sansFrequence = bilan.aucunProfessionnel
+    ? []
+    : dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
+        .filter((professionnel) => !bilan.professionnels[professionnel])
+        .map((professionnel) => `la fréquence de suivi (${professionnel})`)
   return [
     !bilan.classe && 'la classe',
     !bilan.typeEtablissement && "l'établissement",
+    !bilan.nomEtablissement.trim() && "le nom de l'établissement",
     bilan.lateralite === null && 'la latéralité',
     !bilan.modeDeGarde && 'le mode de garde',
+    !bilan.enfantUnique && !bilan.fratrie.trim() && 'la fratrie',
     !bilan.enfantUnique && !bilan.entente && "l'entente dans la fratrie",
+    !bilan.medecinTraitant.trim() && 'le médecin traitant',
+    !!bilan.medecinTraitant.trim() && !bilan.ville.trim() && 'la ville du médecin traitant',
     !bilan.personneDemandeuse && 'la personne demandeuse',
     !bilan.dossierMdph && 'le dossier MDPH',
+    ...sansFrequence,
     !bilan.accordParents && "l'accord des parents",
   ].filter(Boolean) as string[]
 }
