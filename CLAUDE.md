@@ -48,7 +48,9 @@ PR vers `main` et à chaque push sur `main` :
 - job `tablette` : vérifie que `package.json`, `src-tauri/Cargo.toml`,
   `Cargo.lock` ont la même version et que `CHANGELOG.md` a sa section, puis
   `npm test`, `npm run build` et `npm run e2e` ; sur `main`, le job
-  `publier` met `dist/` sur GitHub Pages (sans numéro de version).
+  `publier` met `dist/` sur GitHub Pages (sans numéro de version). Le
+  brouillon est stocké pour toute l'adresse `flo91360.github.io` : ne publier
+  aucun autre site GitHub Pages depuis ce compte (voir le README).
 - job `build` (Windows, après `tablette`) : `npx tauri build`, installateur
   `TrameErgo-Installation-<version>.exe` en artefact
   (`TrameErgo-Windows-Tauri`). PlaniFiKateur exige ce job avant de fusionner.

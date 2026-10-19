@@ -99,6 +99,16 @@ mois et l'année de la passation.
 Les réponses ne sont pas envoyées à un serveur par l'application. Partager
 ensuite un document, par exemple par mail, passe par l'application choisie.
 
+> **Attention : un seul site GitHub Pages sur `flo91360.github.io`.** Le
+> brouillon (identité, troubles, dossier MDPH d'un enfant) est stocké par le
+> navigateur pour l'adresse `flo91360.github.io` entière, pas seulement pour
+> `/TrameErgo/`. Tout autre site publié depuis un dépôt de ce compte
+> (DefilOrdi, FunKart…) serait à la même adresse et pourrait le lire. En
+> octobre 2026, seul TrameErgo publie un site (*Settings* > *Pages* de
+> chaque dépôt). Avant d'en publier un autre : le mettre sur un autre
+> domaine ou un autre hébergeur (Netlify, Cloudflare Pages…), ou donner à
+> TrameErgo son propre domaine.
+
 Le bilan reste à relire et à compléter par l'ergothérapeute : le logiciel ne
 pose pas de diagnostic et ne calcule pas de scores cliniques. Les choix sans
 réponse évidente (classe, établissement, latéralité, mode de garde, entente,

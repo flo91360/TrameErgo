@@ -11,6 +11,8 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+## [1.2.2] - 2026-10-19
+
 ### Modifié
 
 - Aucun choix clinique n'est plus pré-rempli : classe, établissement,
@@ -139,6 +141,7 @@ Première version publiée : application Windows C++/Qt.
 - Message clair quand Word est absent ou qu'un modèle manque, au lieu d'un
   plantage ; dossier `Documents\TrameErgo` créé si besoin.
 
+[1.2.2]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.2
 [1.2.1]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.1
 [1.2.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.0
 [1.1.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.1.0
