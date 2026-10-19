@@ -11,6 +11,23 @@ passent sous un nouveau numéro de version au moment de la livraison.
 
 ## Non publié
 
+## [1.2.2] - 2026-10-19
+
+### Modifié
+
+- Aucun choix clinique n'est plus pré-rempli : classe, établissement,
+  latéralité, mode de garde, entente, personne demandeuse, dossier MDPH et
+  accord des parents commencent à « — à renseigner — ». L'écran Bilan liste
+  ceux qui restent vides.
+- Une réponse vide ne laisse plus de phrase cassée dans le bilan (« Dr , à
+  . », « Motif : . », « il a  () ») : la phrase est omise.
+
+### Corrigé
+
+- Un brouillon dont une réponse n'existe plus dans le questionnaire (option
+  renommée ou supprimée) ne l'écrit plus dans le bilan : elle est retirée et
+  signalée une fois à l'ouverture.
+
 ## [1.2.1] - 2026-10-19
 
 Corrections relevées par l'audit du projet.
@@ -124,6 +141,7 @@ Première version publiée : application Windows C++/Qt.
 - Message clair quand Word est absent ou qu'un modèle manque, au lieu d'un
   plantage ; dossier `Documents\TrameErgo` créé si besoin.
 
+[1.2.2]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.2
 [1.2.1]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.1
 [1.2.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.2.0
 [1.1.0]: https://github.com/flo91360/TrameErgo/releases/tag/v1.1.0

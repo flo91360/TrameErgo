@@ -1,6 +1,6 @@
 {
   "name": "trameergo-tablette",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "private": true,
   "description": "TrameErgo sur tablette : bilans d'ergothérapie générés sur l'appareil, hors ligne.",
   "type": "module",
@@ -9,6 +9,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "e2e": "playwright test",
     "tauri": "tauri"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "vue": "^3.5.44"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "@tauri-apps/cli": "^2.12.2",
     "@types/node": "^22.19.0",
     "@vitejs/plugin-vue": "^6.0.10",

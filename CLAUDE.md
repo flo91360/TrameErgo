@@ -27,13 +27,18 @@ Textes visibles, commentaires et messages de commit en français.
     `Documents\TrameErgo` et ouvert dans Word ; dans un navigateur, il est
     téléchargé ou partagé. Tout le reste est commun.
   - `src/bilan.ts` : réponses (`Bilan`) et valeur de chaque champ du modèle
-    (`champs`).
+    (`champs`). Pas de valeur par défaut pour les choix cliniques : une
+    réponse vide donne un champ vide, que le modèle masque avec
+    `{#champ}…{/champ}`.
+  - `src/reprise.ts` : relit le brouillon (format `VERSION_BROUILLON`) et
+    retire, en les signalant, les réponses absentes du questionnaire.
   - `src/etapes/` : un écran par étape, `src/composants/` : puces, segments,
     choix ordonnés (grosses cibles tactiles).
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
-    de `contenu/bilan.docx` et remplit le vrai modèle. Le relancer après avoir
-    modifié le contenu.
-  - `npm test`, `npm run build`, `npx tauri build` (Windows).
+    (et conditions) de `contenu/bilan.docx` et remplit le vrai modèle. Le
+    relancer après avoir modifié le contenu. `tests/reprise.test.ts` : reprise
+    des brouillons. `e2e/` : parcours Playwright sur l'application construite.
+  - `npm test`, `npm run build`, `npm run e2e`, `npx tauri build` (Windows).
 
 ## CI et livraison
 
@@ -42,8 +47,10 @@ PR vers `main` et à chaque push sur `main` :
 
 - job `tablette` : vérifie que `package.json`, `src-tauri/Cargo.toml`,
   `Cargo.lock` ont la même version et que `CHANGELOG.md` a sa section, puis
-  `npm test` et `npm run build` ; sur `main`, le job
-  `publier` met `dist/` sur GitHub Pages (sans numéro de version).
+  `npm test`, `npm run build` et `npm run e2e` ; sur `main`, le job
+  `publier` met `dist/` sur GitHub Pages (sans numéro de version). Le
+  brouillon est stocké pour toute l'adresse `flo91360.github.io` : ne publier
+  aucun autre site GitHub Pages depuis ce compte (voir le README).
 - job `build` (Windows, après `tablette`) : `npx tauri build`, installateur
   `TrameErgo-Installation-<version>.exe` en artefact
   (`TrameErgo-Windows-Tauri`). PlaniFiKateur exige ce job avant de fusionner.

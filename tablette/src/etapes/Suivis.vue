@@ -28,6 +28,7 @@ const suivisChoisis = computed({
     <div class="grille">
       <label v-for="p in suivisChoisis" :key="p">{{ p }}
         <select v-model="bilan.professionnels[p]">
+          <option value="" disabled>— à renseigner —</option>
           <option v-for="f in suivis.frequences" :key="f">{{ f }}</option>
         </select>
       </label>

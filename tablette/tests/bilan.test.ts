@@ -4,8 +4,8 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, objectifsPossibles,
-  objectifsRetenus, questionnaire, type Bilan,
+  calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nonRenseignes, nouveauBilan,
+  objectifsPossibles, objectifsRetenus, questionnaire, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 
@@ -19,7 +19,7 @@ function texteDuBilan(docx: Uint8Array): string {
 function lucas(): Bilan {
   const bilan = nouveauBilan(new Date(2026, 9, 14))
   Object.assign(bilan, {
-    sexe: 'Homme', trancheAge: 'Ado', prenom: 'Lucas', nom: 'Martin', dateNaissance: '2012-03-12',
+    sexe: 'Homme', trancheAge: 'Ado', prenom: 'Lucas', dossierMdph: 'En création', accordParents: 'Pas tout à fait', nom: 'Martin', dateNaissance: '2012-03-12',
     classe: '4ème', typeEtablissement: 'le collège', nomEtablissement: 'Jean Moulin', lateralite: 1,
     modeDeGarde: 'en garde alternée', fratrie: '1 sœur', entente: 'Mauvaise', medecinTraitant: 'Durand',
     ville: 'Massy', personneDemandeuse: 'la mère', motifs: [questionnaire.demande.motifs[2]],
@@ -33,7 +33,7 @@ function lucas(): Bilan {
     },
     objectifs: { maison: ['Faire mes lacets', 'Balayer'], ecole: ['Utiliser un compas'] },
     objectifsFinaux: ['Utiliser un compas', 'Faire mes lacets'],
-    accordParents: 'Pas tout à fait', objectifsParents: ['Faire mes lacets'], remarquesParents: 'Priorité au collège.',
+    objectifsParents: ['Faire mes lacets'], remarquesParents: 'Priorité au collège.',
     amenagements: ['Tiers temps', 'Ordinateur'], activitesExtraScolaires: 'foot, piano', difficultesLoisirs: 'fatigue',
   })
   return bilan
@@ -63,7 +63,8 @@ describe('âge', () => {
 describe('champs du bilan', () => {
   it('fournit exactement les champs du modèle bilan.docx', () => {
     const texte = new Docxtemplater(new PizZip(modele), { paragraphLoop: true, linebreaks: true }).getFullText()
-    const duModele = [...new Set([...texte.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort()
+    // Champs {champ} et conditions {#champ}…{/champ}, {^champ}…{/champ}.
+    const duModele = [...new Set([...texte.matchAll(/\{[#^/]?(\w+)\}/g)].map((m) => m[1]))].sort()
     expect(duModele.length).toBeGreaterThan(40)
     expect(Object.keys(champs(nouveauBilan())).sort()).toEqual(duModele)
   })
@@ -121,5 +122,31 @@ describe('génération', () => {
     const texte = texteDuBilan(remplirModele(modele, champs(nouveauBilan())))
     expect(texte).not.toMatch(/[{}]/)
     expect(texte).toContain('Bilan ergothérapie Enfant')
+  })
+
+  it('masque les phrases dont la réponse est vide', () => {
+    const bilan = nouveauBilan(new Date(2026, 9, 14))
+    Object.assign(bilan, { prenom: 'Léa', dateNaissance: '2015-10-14' })
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Je rencontre Léa née le 14-10-2015, elle a 11 ans et 0 mois. ')
+    expect(texte).not.toMatch(/Dr |est en|vit |demandé par|\(\)| \.|: \./)
+    expect(texte).toMatch(/Motif\s:\s+Connaissance/)
+
+    Object.assign(bilan, { enfantUnique: true, medecinTraitant: 'Durand', classe: 'CE2', lateralite: 0 })
+    const complete = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(complete).toContain('Elle est en CE2. Léa est droitière. Elle est enfant unique. ')
+    expect(complete).toMatch(/Nom du médecin traitant\s: Dr Durand\./)
+  })
+
+  it('ne choisit rien à la place de l\'ergothérapeute', () => {
+    const bilan = nouveauBilan()
+    expect(nonRenseignes(bilan)).toEqual([
+      'la classe', "l'établissement", 'la latéralité', 'le mode de garde', "l'entente dans la fratrie",
+      'la personne demandeuse', 'le dossier MDPH', "l'accord des parents",
+    ])
+    expect(champs(bilan).dossier_mdph).toBe('')
+    expect(champs(bilan).accord_parents).toBe('')
+    bilan.enfantUnique = true
+    expect(nonRenseignes(bilan)).not.toContain("l'entente dans la fratrie")
   })
 })

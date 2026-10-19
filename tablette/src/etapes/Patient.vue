@@ -32,21 +32,29 @@ const age = computed(() => calculerAge(bilan.dateNaissance, bilan.datePassation)
   <section class="carte">
     <div class="grille">
       <label>Classe
-        <select v-model="bilan.classe"><option v-for="c in identite.classes" :key="c">{{ c }}</option></select>
+        <select v-model="bilan.classe">
+          <option value="" disabled>— à renseigner —</option>
+          <option v-for="c in identite.classes" :key="c">{{ c }}</option>
+        </select>
       </label>
       <label>Établissement
         <select v-model="bilan.typeEtablissement">
+          <option value="" disabled>— à renseigner —</option>
           <option v-for="t in identite.typesEtablissement" :key="t">{{ t }}</option>
         </select>
       </label>
       <label class="large">Nom de l'établissement <input v-model="bilan.nomEtablissement" /></label>
       <label>Latéralité
-        <select v-model.number="bilan.lateralite">
+        <select v-model="bilan.lateralite">
+          <option :value="null" disabled>— à renseigner —</option>
           <option v-for="(l, i) in lateralites(bilan.sexe)" :key="l" :value="i">{{ l }}</option>
         </select>
       </label>
       <label>Mode de garde
-        <select v-model="bilan.modeDeGarde"><option v-for="m in identite.modesDeGarde" :key="m">{{ m }}</option></select>
+        <select v-model="bilan.modeDeGarde">
+          <option value="" disabled>— à renseigner —</option>
+          <option v-for="m in identite.modesDeGarde" :key="m">{{ m }}</option>
+        </select>
       </label>
     </div>
   </section>
