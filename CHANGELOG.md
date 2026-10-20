@@ -9,6 +9,26 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.3.0] - 2026-10-20
+
+### Ajouté
+
+- Écran d'accueil : « Nouveau bilan », « Reprendre le bilan en cours » ou
+  « Historique des bilans ».
+- Historique des bilans créés sur l'appareil : recherche par patient,
+  ouverture d'un bilan pour le corriger ou recréer le Word, réévaluation
+  (nouveau bilan daté du jour qui reprend l'identité de l'enfant),
+  sauvegarde et import en fichier `.json`.
+
+### Modifié
+
+- On ne passe à l'écran suivant que lorsque ses réponses obligatoires sont
+  remplies ; ce qui manque est listé en bas de l'écran.
+- Le modèle Word est allégé : plus aucune condition `{#…}{/…}`, seulement
+  des champs `{champ}` dans des phrases lisibles.
+- « Nouveau bilan » ne demande confirmation que si le bilan en cours n'a pas
+  été créé en Word depuis ses dernières modifications.
+
 ## [1.2.3] - 2026-10-19
 
 ### Modifié

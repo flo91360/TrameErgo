@@ -43,7 +43,7 @@ describe('reprise du brouillon', () => {
       'domaine « jardin » (OT Hope)',
     ].sort())
     expect(bilan.entente).toBe('')
-    expect(champs(bilan).entente).toBe('') // plus de « () » dans le bilan
+    expect(champs(bilan).fratrie).not.toContain('(') // plus de « () » dans le bilan
     expect(bilan.troubles).toEqual(['TSA'])
     expect(bilan.lateralite).toBeNull()
     expect(bilan.professionnels).toEqual({ psychologue: '' })

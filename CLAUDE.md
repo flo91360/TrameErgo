@@ -10,8 +10,9 @@ Textes visibles, commentaires et messages de commit en français.
 - `contenu/` : le contenu de l'application.
   - `questionnaire.json` : toutes les listes de choix et les phrases du bilan.
     Changer une liste ne demande que de modifier ce fichier.
-  - `bilan.docx` : modèle Word unique du bilan. Champs `{champ}` (syntaxe
-    docxtemplater), mots accordés au sexe par des champs (`{il_elle}`,
+  - `bilan.docx` : modèle Word unique du bilan, lisible par un humain :
+    champs simples `{champ}` (syntaxe docxtemplater), sans conditions
+    `{#…}` (un test les refuse), mots accordés au sexe par des champs (`{il_elle}`,
     `{Il_Elle}`, `{ne_e}`, `{seul_e}`, `{type_bilan}`). Les activités OT Hope
     vont dans `{niveau_domaine}` (`{aide_maison}`…), construits à partir des
     identifiants du questionnaire.
@@ -28,9 +29,13 @@ Textes visibles, commentaires et messages de commit en français.
     `Documents\TrameErgo` et ouvert dans Word ; dans un navigateur, il est
     téléchargé ou partagé. Tout le reste est commun.
   - `src/bilan.ts` : réponses (`Bilan`) et valeur de chaque champ du modèle
-    (`champs`). Pas de valeur par défaut pour les choix cliniques : une
-    réponse vide donne un champ vide, que le modèle masque avec
-    `{#champ}…{/champ}`.
+    (`champs`). Pas de valeur par défaut pour les choix cliniques.
+    `obligatoires` : réponses à remplir pour quitter chaque écran ; le
+    modèle les écrit sans condition. `reevaluation` : nouveau bilan d'un
+    enfant déjà vu.
+  - `src/historique.ts` : bilans créés sur l'appareil (localStorage), avec
+    leurs réponses ; sauvegarde et import en `.json`.
+  - `src/ecrans/` : accueil (nouveau, reprendre, historique) et historique.
   - `src/reprise.ts` : relit le brouillon (format `VERSION_BROUILLON`) et
     retire, en les signalant, les réponses absentes du questionnaire.
   - `src/etapes/` : un écran par étape, `src/composants/` : puces, segments,
@@ -38,7 +43,7 @@ Textes visibles, commentaires et messages de commit en français.
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
     (et conditions) de `contenu/bilan.docx` et remplit le vrai modèle. Le
     relancer après avoir modifié le contenu. `tests/reprise.test.ts` : reprise
-    des brouillons. `tests/questionnaire.test.ts` : règles de
+    des brouillons. `tests/historique.test.ts` : historique. `tests/questionnaire.test.ts` : règles de
     `questionnaire.json` (doublons, identifiants, latéralités, phrases).
     `e2e/` : parcours Playwright sur l'application construite, avec Chromium
     et WebKit (iPad).

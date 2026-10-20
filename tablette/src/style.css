@@ -134,3 +134,34 @@ button.lien { background: none; border: 0; color: var(--bleu); text-decoration: 
   background: #fff; border-top: 1px solid var(--bordure);
 }
 .navigation span { color: var(--gris); }
+
+/* Écran d'accueil et historique. */
+.accueil { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.accueil .action {
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start; text-align: left;
+  min-height: 140px; padding: 20px; cursor: pointer;
+  background: var(--carte); border: 1.5px solid var(--bordure); border-radius: var(--rayon);
+}
+.accueil .action strong { color: var(--bleu); font-size: 1.15rem; }
+.accueil .action span { color: var(--gris); }
+.accueil .action:not(:disabled):hover { border-color: var(--bleu-clair); }
+.entete .accueil-lien { margin-left: auto; background: none; border: 1px solid #fff; color: #fff;
+  border-radius: 999px; padding: 6px 14px; min-height: 40px; cursor: pointer; }
+.historique { list-style: none; margin: 12px 0 0; padding: 0; }
+.historique li {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 12px 0; border-top: 1px solid var(--bordure);
+}
+.historique li > div:first-child { display: flex; flex-direction: column; }
+.historique .aide { margin: 2px 0 0; }
+.boutons { display: flex; flex-wrap: wrap; gap: 10px; }
+.bouton-fichier {
+  flex-direction: row; align-items: center; margin: 0; min-height: var(--toucher); padding: 10px 22px;
+  border: 1.5px solid var(--bleu); border-radius: 10px; color: var(--bleu); cursor: pointer;
+}
+.bouton-fichier input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.bouton-fichier:focus-within { outline: 3px solid var(--bleu-pale); }
+.etapes button:disabled { opacity: .45; }
+.obligatoires { color: var(--gris); }
+.navigation { flex-wrap: wrap; }
+.navigation .bloque { flex-basis: 100%; order: -1; margin: 0 0 8px; }

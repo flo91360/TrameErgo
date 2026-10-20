@@ -11,19 +11,58 @@ async function brouillon(page: Page) {
   return page.evaluate(() => JSON.parse(localStorage.getItem('trameergo.brouillon') ?? '{}').bilan)
 }
 
+/** Brouillon enregistré avant l'ouverture : Patient et Demande remplis. */
+async function avecBrouillon(page: Page, reponses: Record<string, unknown> = {}) {
+  await page.evaluate((r) => localStorage.setItem('trameergo.brouillon', JSON.stringify({ version: 2, bilan: {
+    prenom: 'Léa', nom: 'Petit', dateNaissance: '2015-10-14', datePassation: '2026-10-14', classe: 'CE2',
+    typeEtablissement: "l'école", nomEtablissement: 'Jules Ferry', lateralite: 0, modeDeGarde: 'avec sa mère',
+    enfantUnique: true, medecinTraitant: 'Durand', ville: 'Massy', personneDemandeuse: 'la mère',
+    dossierMdph: 'Aucun', autreMotif: 'Lenteur', ...r,
+  } })), reponses)
+  await page.reload()
+}
+
+const accueil = (page: Page) => page.getByRole('heading', { name: 'Que voulez-vous faire ?' })
+
+async function nouveauBilan(page: Page) {
+  await page.getByRole('button', { name: /Nouveau bilan/ }).tap()
+  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('./')
-  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+  await expect(accueil(page)).toBeVisible()
+})
+
+test('l\'accueil propose les actions, sans bilan en cours à reprendre', async ({ page }) => {
+  await expect(page.getByRole('button', { name: /Nouveau bilan/ })).toBeEnabled()
+  await expect(page.getByRole('button', { name: /Reprendre le bilan en cours/ })).toBeDisabled()
+  await page.getByRole('button', { name: /Historique des bilans/ }).tap()
+  await expect(page.getByText(/Aucun bilan pour l'instant/)).toBeVisible()
+  await page.getByRole('button', { name: 'Accueil' }).tap()
+  await expect(accueil(page)).toBeVisible()
 })
 
 test('toucher le titre d\'un choix ne change pas la réponse', async ({ page }) => {
+  await nouveauBilan(page)
   await page.getByRole('radio', { name: 'Garçon' }).tap()
   // Le texte « Sexe » est en haut à gauche de son bloc, au-dessus des segments.
   await page.locator('.champ', { hasText: 'Sexe' }).tap({ position: { x: 5, y: 5 } })
   expect((await brouillon(page)).sexe).toBe('Homme')
 })
 
-test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) => {
+test('on ne passe à l\'écran suivant qu\'avec les réponses obligatoires', async ({ page }) => {
+  await nouveauBilan(page)
+  const etapes = page.getByRole('navigation', { name: 'Étapes du bilan' })
+  await expect(etapes.getByRole('button', { name: 'Demande' })).toBeDisabled()
+  await page.getByLabel('Prénom').fill('Lucas')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('Pour continuer, renseigner : le nom, ')
+})
+
+test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'historique', async ({ page }) => {
+  await nouveauBilan(page)
   await page.getByRole('radio', { name: 'Garçon' }).tap()
   await page.getByLabel('Prénom').fill('Lucas')
   await page.getByLabel('Nom', { exact: true }).fill('Martin')
@@ -31,13 +70,25 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
   await page.getByLabel('Date de passation').fill('2026-10-14')
   await expect(page.getByText('Âge à la passation : 14 ans et 7 mois')).toBeVisible()
   await page.getByLabel('Classe').selectOption('4ème')
+  await page.getByRole('combobox', { name: /^Établissement/ }).selectOption('le collège')
+  await page.getByLabel("Nom de l'établissement").fill('Jean Moulin')
   await page.getByLabel('Latéralité').selectOption({ label: 'gaucher' })
   await page.getByLabel('Mode de garde').selectOption('en garde alternée')
+  await page.getByLabel('Fratrie').fill('1 sœur')
+  await page.getByRole('radiogroup', { name: 'Entente' }).getByRole('radio', { name: 'Bonne' }).tap()
   await page.getByLabel('Médecin traitant').fill('Durand')
+  await page.getByLabel('Ville').fill('Massy')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
 
-  await etape(page, 'Demande')
+  await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
   await page.getByLabel('Personne demandeuse').selectOption('la mère')
+  await page.getByLabel('Dossier MDPH').selectOption('Aucun')
+  await page.getByLabel('Autre motif').fill('Lenteur en classe')
   await page.getByRole('button', { name: 'Dysgraphie' }).tap()
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+
+  await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
+  await page.getByLabel('Aucun', { exact: true }).tap()
 
   await etape(page, /OT Hope : Activités de vie quotidienne/)
   await page.getByRole('radiogroup', { name: 'Faire mes lacets' })
@@ -48,10 +99,9 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
   await page.locator('.carte', { hasText: 'Objectifs de Lucas : activités de vie quotidienne' })
     .getByRole('button', { name: 'Faire mes lacets' }).tap()
   await page.locator('.carte', { hasText: 'Objectifs finaux' }).getByRole('button', { name: 'Faire mes lacets' }).tap()
+  await page.getByRole('radiogroup', { name: 'Accord des parents' }).getByRole('radio', { name: 'Oui' }).tap()
 
   await etape(page, /^\d+\s*Bilan$/)
-  await expect(page.getByText("À renseigner : l'établissement, le nom de l'établissement, la fratrie, "
-    + "l'entente dans la fratrie, la ville du médecin traitant, le dossier MDPH, l'accord des parents.")).toBeVisible()
   const [telechargement] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Créer le bilan Word' }).tap(),
@@ -60,27 +110,38 @@ test('un bilan rempli de bout en bout donne le Word attendu', async ({ page }) =
 
   const docx = await readFile(await telechargement.path())
   const texte = new Docxtemplater(new PizZip(docx), { paragraphLoop: true, linebreaks: true }).getFullText()
-  expect(texte)
-    .toContain('Je rencontre Lucas né le 12-03-2012, il a 14 ans et 7 mois. Il est en 4ème. Lucas est gaucher. ')
-  expect(texte).toContain('Il vit en garde alternée. ')
-  expect(texte).toMatch(/Dr Durand\./)
+  expect(texte).toContain('Je rencontre Lucas né le 12-03-2012, il a 14 ans et 7 mois. Il est en 4ème dans '
+    + 'le collège Jean Moulin. Lucas est gaucher. Il vit en garde alternée, il a 1 sœur (bonne entente entre eux).')
+  expect(texte).toMatch(/Dr Durand, à Massy\./)
   expect(texte).toContain('le bilan a été demandé par la mère.')
+  expect(texte).toMatch(/Motif\s: Lenteur en classe\./)
   expect(texte).toContain('1 - Faire mes lacets')
   expect(texte).not.toMatch(/[{}]|\(\)| \./)
+
+  // Historique : réévaluation du même enfant, identité reprise, classe à revoir.
+  await page.getByRole('button', { name: "Retour à l'accueil" }).tap()
+  await page.getByRole('button', { name: /Historique des bilans/ }).tap()
+  await expect(page.getByText('Lucas Martin')).toBeVisible()
+  await expect(page.getByText(/Passation le 14-10-2026/)).toBeVisible()
+  await page.getByRole('button', { name: 'Réévaluation' }).tap()
+  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+  await expect(page.getByLabel('Prénom')).toHaveValue('Lucas')
+  await expect(page.getByLabel('Ville')).toHaveValue('Massy')
+  await expect(page.getByLabel('Classe')).toHaveValue('')
+  expect((await brouillon(page)).otHope).toEqual({})
 })
 
-test('le brouillon est repris, puis effacé par « Nouveau bilan »', async ({ page }) => {
+test('le bilan en cours est repris depuis l\'accueil, puis remplacé par un nouveau', async ({ page }) => {
+  await nouveauBilan(page)
   await page.getByLabel('Prénom').fill('Léa')
   await page.reload()
-  await expect(page.getByText('Bilan en cours repris (Léa )')).toBeVisible()
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
   await expect(page.getByLabel('Prénom')).toHaveValue('Léa')
 
-  await etape(page, /^\d+\s*Bilan$/)
+  await page.getByRole('button', { name: 'Accueil' }).tap()
   page.once('dialog', (dialogue) => dialogue.accept())
-  await page.getByRole('button', { name: 'Nouveau bilan' }).tap()
-  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+  await nouveauBilan(page)
   await expect(page.getByLabel('Prénom')).toHaveValue('')
-  await expect(page.locator('.bandeau')).toHaveCount(0)
 })
 
 test('un ancien brouillon signale les réponses disparues du questionnaire', async ({ page }) => {
@@ -88,24 +149,29 @@ test('un ancien brouillon signale les réponses disparues du questionnaire', asy
     prenom: 'Léa', classe: 'CM3', entente: 'Bonne', troubles: ['TSA', 'Trouble disparu'],
   })))
   await page.reload()
-  await expect(page.getByText(/ont été retirées du bilan en cours : CM3 \(Classe\), Trouble disparu \(Troubles\)\./))
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await expect(page.getByText(/ont été retirées du bilan : CM3 \(Classe\), Trouble disparu \(Troubles\)\./))
     .toBeVisible()
   await expect(page.getByLabel('Classe')).toHaveValue('')
   expect((await brouillon(page)).troubles).toEqual(['TSA'])
   await page.reload()
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
   await expect(page.getByText(/ont été retirées/)).toHaveCount(0)
 })
 
 test('un professionnel choisi n\'a pas de fréquence d\'office', async ({ page }) => {
-  await etape(page, 'Suivis')
+  await avecBrouillon(page)
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
   await page.getByRole('button', { name: 'orthophoniste' }).tap()
   await expect(page.getByLabel('orthophoniste')).toHaveValue('')
   expect((await brouillon(page)).professionnels).toEqual({ orthophoniste: '' })
-  await etape(page, /^\d+\s*Bilan$/)
-  await expect(page.getByText(/la fréquence de suivi \(orthophoniste\)/)).toBeVisible()
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('alert')).toContainText('la fréquence de suivi (orthophoniste)')
 })
 
 test('les flèches du clavier changent le choix d\'un groupe de segments', async ({ page }) => {
+  await nouveauBilan(page)
   const sexe = page.getByRole('radiogroup', { name: 'Sexe' })
   await expect(sexe.getByRole('radio', { name: 'Fille' })).toHaveAttribute('tabindex', '0')
   await expect(sexe.getByRole('radio', { name: 'Garçon' })).toHaveAttribute('tabindex', '-1')

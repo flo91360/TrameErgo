@@ -2,20 +2,18 @@
 import { computed, ref } from 'vue'
 import modeleUrl from '@contenu/bilan.docx?url'
 import {
-  activitesEnDifficulte, champs, datesIncoherentes, nomDuFichier, nonRenseignes, objectifsRetenus, questionnaire,
+  activitesEnDifficulte, aRenseigner, champs, nomDuFichier, objectifsRetenus, questionnaire,
 } from '../bilan'
-import { bilan, nouveauBilanVide } from '../brouillon'
+import { bilan } from '../brouillon'
 import { remplirModele, TYPE_DOCX } from '../generer'
+import { ajouterAHistorique } from '../historique'
 import { choisirSiExiste, enregistrerDansDocuments, existe, nomLibre, ouvrir, surOrdinateur } from '../ordinateur'
 
-const emit = defineEmits<{ recommencer: [] }>()
+defineEmits<{ terminer: [] }>()
 
-const manquants = computed(() => [
-  !bilan.prenom.trim() && 'le prénom',
-  !bilan.nom.trim() && 'le nom',
-  !bilan.dateNaissance && 'la date de naissance',
-  !bilan.datePassation && 'la date de passation',
-].filter(Boolean) as string[])
+// Les écrans ne laissent pas passer un bilan incomplet ; ceci protège un
+// brouillon d'une version précédente, qui pourrait l'être.
+const manquants = computed(() => aRenseigner(bilan))
 
 // Mêmes calculs que le bilan Word : un objectif dont l'activité est revenue
 // à « Rien à signaler » n'est pas compté.
@@ -39,7 +37,7 @@ function message(e: unknown): string {
 }
 
 async function generer() {
-  if (enCours.value) return
+  if (enCours.value || manquants.value.length) return
   enCours.value = true
   erreur.value = ''
   fichier.value = null
@@ -54,6 +52,7 @@ async function generer() {
       erreur.value = `Le bilan n'a pas pu être créé : ${message(e)}`
       return
     }
+    ajouterAHistorique(bilan)
     if (!surOrdinateur) {
       fichier.value = new File([docx as BlobPart], nomDuFichier(bilan), { type: TYPE_DOCX })
       telecharger()
@@ -108,15 +107,6 @@ async function partager() {
   if (fichier.value) await navigator.share({ files: [fichier.value], title: fichier.value.name }).catch(() => {})
 }
 
-function recommencer() {
-  if (confirm('Effacer ce bilan de cet appareil et en commencer un nouveau ?')) {
-    nouveauBilanVide()
-    fichier.value = null
-    chemin.value = ''
-    erreur.value = ''
-    emit('recommencer')
-  }
-}
 </script>
 
 <template>
@@ -127,16 +117,10 @@ function recommencer() {
       </template>
     </dl>
     <p v-if="manquants.length" class="alerte">Il manque {{ manquants.join(', ') }}.</p>
-    <p v-if="nonRenseignes(bilan).length" class="alerte">
-      À renseigner : {{ nonRenseignes(bilan).join(', ') }}. Sinon, ces passages seront absents du bilan.
-    </p>
-    <p v-if="datesIncoherentes(bilan)" class="alerte">
-      La date de naissance est après la date de passation : l'âge ne peut pas être calculé.
-    </p>
   </section>
 
   <section class="carte actions">
-    <button type="button" class="principal" :disabled="enCours" @click="generer">
+    <button type="button" class="principal" :disabled="enCours || !!manquants.length" @click="generer">
       {{ enCours ? 'Création du bilan…' : 'Créer le bilan Word' }}
     </button>
     <template v-if="fichier && surOrdinateur">
@@ -153,8 +137,8 @@ function recommencer() {
 
   <section class="carte">
     <p class="aide">
-      Les réponses restent sur cet appareil, jusqu'au prochain bilan : rien n'est envoyé sur Internet.
+      Chaque bilan créé est gardé dans l'historique de cet appareil : rien n'est envoyé sur Internet.
     </p>
-    <button type="button" class="danger" @click="recommencer">Nouveau bilan</button>
+    <button type="button" class="secondaire" @click="$emit('terminer')">Retour à l'accueil</button>
   </section>
 </template>
