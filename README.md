@@ -47,10 +47,34 @@ paramètres de Windows (Applications) pour ne garder qu'un TrameErgo.
 
 ## Comment fonctionne l'application commune
 
+### L'écran d'accueil
+
+À l'ouverture, l'accueil propose trois actions :
+
+- **Nouveau bilan** : un bilan vide. Si le bilan en cours n'a pas été créé
+  en Word depuis ses dernières modifications, l'application demande d'abord
+  de confirmer son effacement.
+- **Reprendre le bilan en cours** : le brouillon, à l'écran où il en était.
+- **Historique des bilans** : chaque bilan Word créé sur l'appareil y garde
+  ses réponses. On peut chercher un patient, **ouvrir** un bilan (pour le
+  corriger ou recréer le Word), préparer une **réévaluation** (nouveau
+  bilan daté du jour, qui reprend l'identité et l'environnement de l'enfant
+  mais pas la classe ni la partie clinique) ou le retirer de l'historique.
+  « Sauvegarder l'historique » crée un fichier `.json` (dans
+  `Documents\TrameErgo` sous Windows), que « Importer une sauvegarde »
+  relit sur le même appareil ou sur un autre.
+
 ### Les étapes d'un bilan
 
 On avance avec « Suivant », on revient avec « Précédent » ou on touche
-directement le nom d'une étape. Les dix étapes actuelles sont :
+directement le nom d'une étape déjà accessible. **On ne passe à l'écran
+suivant que lorsque ses réponses obligatoires sont remplies** : la liste de
+ce qui manque est affichée en bas de l'écran. Sont obligatoires toute
+l'identité de l'écran Patient (fratrie et entente, sauf « Enfant unique »),
+la personne demandeuse, le dossier MDPH et au moins un motif, les
+professionnels (ou « Aucun ») et leur fréquence, l'accord des parents et au
+moins un objectif final quand une activité est signalée. Les dix étapes
+actuelles sont :
 
 | Étape | Ce que l'on renseigne |
 | --- | --- |
@@ -63,7 +87,7 @@ directement le nom d'une étape. Les dix étapes actuelles sont :
 | OT Hope : activités de loisirs | Activités du domaine `loisirs`. |
 | Objectifs | Priorités par domaine, objectifs finaux, accord et remarques des parents. |
 | Aménagements et loisirs | Aménagements scolaires, activités extra-scolaires, temps libre et difficultés pendant les loisirs. |
-| Bilan | Récapitulatif, création du Word, téléchargement ou ouverture, puis « Nouveau bilan ». |
+| Bilan | Récapitulatif, création du Word (gardé dans l'historique), téléchargement ou ouverture. |
 
 Dans OT Hope, seules les activités cotées « Avec aide », « Avec difficulté »
 ou « Avec grande difficulté » sont reprises dans le bilan. « Rien à signaler »
@@ -80,12 +104,12 @@ listes du bilan suivent généralement l'ordre du questionnaire, pas les clics.
 
 Les réponses sont sauvegardées automatiquement sur l'appareil, dans le
 stockage local de l'application. À la réouverture, le brouillon est repris.
-Il existe **un seul bilan en cours**, sans liste de dossiers patients ni
-synchronisation entre tablette et ordinateur. Effacer les données du
-navigateur peut faire perdre le brouillon. Si le stockage est indisponible,
+Il existe **un seul bilan en cours** ; les bilans créés vont dans
+l'historique de l'appareil, sans synchronisation automatique entre tablette
+et ordinateur (la sauvegarde `.json` permet de les transférer). Effacer les
+données du navigateur peut faire perdre le brouillon et l'historique. Si le stockage est indisponible,
 les réponses restent seulement en mémoire pendant la session.
 
-« Nouveau bilan » demande confirmation, puis remplace les réponses en cours.
 Les fichiers Word déjà enregistrés restent indépendants. Une correction dans
 Word ne revient pas dans le questionnaire. Pour tenir compte de nouvelles
 réponses, il faut générer un nouveau document. Sous Windows, si un bilan du
@@ -287,13 +311,13 @@ dans le projet. Modifier un bilan déjà généré ne change pas le modèle.
   que les repères du modèle et du code correspondent exactement.
 - Un repère peut recevoir plusieurs lignes. Prévoir assez de place dans les
   tableaux et vérifier la mise en page avec des réponses longues.
-- Pour qu'un texte n'apparaisse que si une réponse est remplie, l'encadrer
-  par `{#champ}` et `{/champ}` : `{#medecin_traitant}Nom du médecin
-  traitant : Dr {medecin_traitant}.{/medecin_traitant}`. À l'inverse,
-  `{^champ}…{/champ}` n'apparaît que si la réponse est vide. Le modèle
-  utilise déjà ces conditions dans la phrase d'identité, la personne
-  demandeuse et le motif. Une réponse vide ne supprime pas, en revanche, un
-  titre ou un tableau placé hors de ces conditions.
+- Le modèle reste lisible : **pas de conditions** `{#champ}…{/champ}`. Les
+  réponses dont dépendent ses phrases sont obligatoires à l'écran
+  (`obligatoires` dans [`bilan.ts`](tablette/src/bilan.ts)) et sont donc
+  toujours remplies ; un test refuse toute condition dans le modèle. Pour
+  une nouvelle phrase qui dépend d'une réponse, rendre cette réponse
+  obligatoire dans `obligatoires`. Une liste facultative (troubles,
+  aménagements…) vide laisse simplement son paragraphe vide.
 
 Écrire `{nouvelle_information}` dans Word ne crée pas de question à l'écran.
 Sans correspondance dans `champs()`, elle ne sera pas renseignée et peut

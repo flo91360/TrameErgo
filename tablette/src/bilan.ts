@@ -194,39 +194,84 @@ export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
 }
 
+type Manquants = (bilan: Bilan) => string[]
+
+function presents(liste: (string | false)[]): string[] {
+  return liste.filter(Boolean) as string[]
+}
+
 /**
- * Réponses encore « à renseigner » : vides, elles manqueraient dans le bilan.
- * Le modèle masque aussi ce qui en dépend : l'entente sans la fratrie, la
- * ville sans le médecin traitant.
+ * Réponses obligatoires de chaque écran : tant qu'il en manque, on ne passe
+ * pas à l'écran suivant. Le modèle Word peut ainsi écrire ses phrases sans
+ * conditions ({#champ}…{/champ}), et rester lisible.
  */
-export function nonRenseignes(bilan: Bilan): string[] {
-  const sansFrequence = bilan.aucunProfessionnel
-    ? []
-    : dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
-        .filter((professionnel) => !bilan.professionnels[professionnel])
-        .map((professionnel) => `la fréquence de suivi (${professionnel})`)
-  return [
+export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs', Manquants> = {
+  patient: (bilan) => presents([
+    !bilan.prenom.trim() && 'le prénom',
+    !bilan.nom.trim() && 'le nom',
+    !bilan.dateNaissance && 'la date de naissance',
+    !bilan.datePassation && 'la date de passation',
+    datesIncoherentes(bilan) && 'une date de naissance avant la date de passation',
     !bilan.classe && 'la classe',
     !bilan.typeEtablissement && "l'établissement",
     !bilan.nomEtablissement.trim() && "le nom de l'établissement",
     bilan.lateralite === null && 'la latéralité',
     !bilan.modeDeGarde && 'le mode de garde',
-    !bilan.enfantUnique && !bilan.fratrie.trim() && 'la fratrie',
+    !bilan.enfantUnique && !bilan.fratrie.trim() && 'la fratrie (ou « Enfant unique »)',
     !bilan.enfantUnique && !bilan.entente && "l'entente dans la fratrie",
     !bilan.medecinTraitant.trim() && 'le médecin traitant',
-    !!bilan.medecinTraitant.trim() && !bilan.ville.trim() && 'la ville du médecin traitant',
+    !bilan.ville.trim() && 'la ville du médecin traitant',
+  ]),
+  demande: (bilan) => presents([
     !bilan.personneDemandeuse && 'la personne demandeuse',
     !bilan.dossierMdph && 'le dossier MDPH',
-    ...sansFrequence,
+    !bilan.motifs.length && !bilan.autreMotif.trim() && 'au moins un motif',
+  ]),
+  suivis: (bilan) => bilan.aucunProfessionnel
+    ? []
+    : Object.keys(bilan.professionnels).length
+      ? dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
+          .filter((professionnel) => !bilan.professionnels[professionnel])
+          .map((professionnel) => `la fréquence de suivi (${professionnel})`)
+      : ['les professionnels qui suivent l\'enfant (ou « Aucun »)'],
+  objectifs: (bilan) => presents([
+    objectifsPossibles(bilan).length > 0 && !objectifsRetenus(bilan, bilan.objectifsFinaux).length
+      && 'au moins un objectif final',
     !bilan.accordParents && "l'accord des parents",
-  ].filter(Boolean) as string[]
+  ]),
+}
+
+/** Toutes les réponses obligatoires encore absentes : le bilan Word ne peut pas être créé. */
+export function aRenseigner(bilan: Bilan): string[] {
+  return Object.values(obligatoires).flatMap((manquants) => manquants(bilan))
+}
+
+/** Un bilan entamé : il a au moins un prénom ou un nom. */
+export function entame(bilan: Bilan): boolean {
+  return !!(bilan.prenom.trim() || bilan.nom.trim())
+}
+
+/**
+ * Réévaluation : nouveau bilan du même enfant, daté du jour. Il garde
+ * l'identité et l'environnement (à vérifier) ; la classe et toute la partie
+ * clinique sont à refaire.
+ */
+export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
+  const { sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville } = ancien
+  return {
+    ...nouveauBilan(date),
+    sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville,
+  }
 }
 
 /** Valeur de chaque champ {…} du modèle bilan.docx. */
 export function champs(bilan: Bilan): Record<string, string> {
   const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
-  // Une réponse vide donne un champ vide : le modèle masque alors la phrase ({#champ}…{/champ}).
-  const entente = bilan.enfantUnique ? '' : phrase(identite.entente, bilan.entente)
+  // Les réponses obligatoires (voir obligatoires) sont toujours remplies : le
+  // modèle les écrit sans condition. Les listes facultatives peuvent être vides.
+  const entente = phrase(identite.entente, bilan.entente)
   const valeurs: Record<string, string> = {
     il_elle: accord(bilan, 'il', 'elle'),
     Il_Elle: accord(bilan, 'Il', 'Elle'),
@@ -244,8 +289,9 @@ export function champs(bilan: Bilan): Record<string, string> {
     nom_etablissement: bilan.nomEtablissement.trim(),
     lateralite: bilan.lateralite === null ? '' : lateralites(bilan.sexe)[bilan.lateralite] ?? '',
     mode_de_garde: bilan.modeDeGarde,
-    fratrie: bilan.enfantUnique ? 'est enfant unique' : bilan.fratrie.trim() && `a ${bilan.fratrie.trim()}`,
-    entente: entente && `(${entente})`,
+    fratrie: bilan.enfantUnique
+      ? 'est enfant unique'
+      : [`a ${bilan.fratrie.trim()}`, entente && `(${entente})`].filter(Boolean).join(' '),
     medecin_traitant: bilan.medecinTraitant.trim(),
     ville: bilan.ville.trim(),
 

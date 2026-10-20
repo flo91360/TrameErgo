@@ -4,8 +4,8 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nonRenseignes, nouveauBilan,
-  objectifsPossibles, objectifsRetenus, questionnaire, type Bilan,
+  aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
+  objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 
@@ -64,8 +64,7 @@ describe('âge', () => {
 describe('champs du bilan', () => {
   it('fournit exactement les champs du modèle bilan.docx', () => {
     const texte = new Docxtemplater(new PizZip(modele), { paragraphLoop: true, linebreaks: true }).getFullText()
-    // Champs {champ} et conditions {#champ}…{/champ}, {^champ}…{/champ}.
-    const duModele = [...new Set([...texte.matchAll(/\{[#^/]?(\w+)\}/g)].map((m) => m[1]))].sort()
+    const duModele = [...new Set([...texte.matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort()
     expect(duModele.length).toBeGreaterThan(40)
     expect(Object.keys(champs(nouveauBilan())).sort()).toEqual(duModele)
   })
@@ -74,7 +73,7 @@ describe('champs du bilan', () => {
     const valeurs = champs(lucas())
     expect(valeurs.type_bilan).toBe('Adolescent')
     expect(valeurs.lateralite).toBe('gaucher')
-    expect(valeurs.entente).toBe('(mauvaise entente entre eux)')
+    expect(valeurs.fratrie).toBe('a 1 sœur (mauvaise entente entre eux)')
     expect(valeurs.troubles).toBe('- Dysgraphie\n- TSA\n- Trouble visuel')
     expect(valeurs.professionnels).toBe(
       "- orthophoniste : à raison d'une fois par semaine\n- psychologue : à raison d'une fois par mois")
@@ -119,49 +118,64 @@ describe('génération', () => {
     expect(texte).toMatch(/Les moins appréciées\s: Français/)
   })
 
-  it('remplit un bilan vide sans laisser de champ', () => {
-    const texte = texteDuBilan(remplirModele(modele, champs(nouveauBilan())))
-    expect(texte).not.toMatch(/[{}]/)
-    expect(texte).toContain('Bilan ergothérapie Enfant')
-  })
-
-  it('masque les phrases dont la réponse est vide', () => {
-    const bilan = nouveauBilan(new Date(2026, 9, 14))
-    Object.assign(bilan, { prenom: 'Léa', dateNaissance: '2015-10-14' })
-    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
-    expect(texte).toContain('Je rencontre Léa née le 14-10-2015, elle a 11 ans et 0 mois. ')
-    expect(texte).not.toMatch(/Dr |est en|vit |demandé par|\(\)| \.|: \./)
-    expect(texte).toMatch(/Motif\s:\s+Connaissance/)
-
-    Object.assign(bilan, { enfantUnique: true, medecinTraitant: 'Durand', classe: 'CE2', lateralite: 0 })
-    const complete = texteDuBilan(remplirModele(modele, champs(bilan)))
-    expect(complete).toContain('Elle est en CE2. Léa est droitière. Elle est enfant unique. ')
-    expect(complete).toMatch(/Nom du médecin traitant\s: Dr Durand\./)
-  })
-
-  it('ne choisit rien à la place de l\'ergothérapeute', () => {
-    const bilan = nouveauBilan()
-    expect(nonRenseignes(bilan)).toEqual([
-      'la classe', "l'établissement", "le nom de l'établissement", 'la latéralité', 'le mode de garde',
-      'la fratrie', "l'entente dans la fratrie", 'le médecin traitant', 'la personne demandeuse',
-      'le dossier MDPH', "l'accord des parents",
-    ])
-    expect(champs(bilan).dossier_mdph).toBe('')
-    expect(champs(bilan).accord_parents).toBe('')
-    bilan.enfantUnique = true
-    expect(nonRenseignes(bilan)).not.toContain('la fratrie')
-    expect(nonRenseignes(bilan)).not.toContain("l'entente dans la fratrie")
-    expect(nonRenseignes(lucas())).toEqual([])
-  })
-
-  it('signale ce que le modèle masquerait sans le dire', () => {
+  it('écrit l\'enfant unique et les choix de la personne demandeuse', () => {
     const bilan = lucas()
-    Object.assign(bilan, {
-      ville: '', professionnels: { psychologue: '', orthophoniste: "à raison d'une fois par mois" },
-    })
-    expect(nonRenseignes(bilan)).toEqual(['la ville du médecin traitant', 'la fréquence de suivi (psychologue)'])
-    expect(champs(bilan).professionnels).toBe("- orthophoniste : à raison d'une fois par mois\n- psychologue")
+    Object.assign(bilan, { enfantUnique: true, fratrie: '', entente: '', sexe: 'Femme', prenom: 'Léa' })
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Elle vit en garde alternée, elle est enfant unique. ')
+    expect(texte).toMatch(/Nom du médecin traitant\s: Dr Durand, à Massy\./)
+    expect(texte).toContain('le bilan a été demandé par la mère.')
+    expect(texte).not.toMatch(/[{}]|\(\)| \./)
+  })
+})
+
+describe('modèle lisible', () => {
+  it('n\'a que des champs simples, sans conditions', () => {
+    const texte = new Docxtemplater(new PizZip(modele), { paragraphLoop: true, linebreaks: true }).getFullText()
+    expect(texte).not.toMatch(/\{[#^/]/)
+    expect(texte).toContain('Je rencontre {prenom} {ne_e} le {date_de_naissance}, {il_elle} a {age}.')
+  })
+})
+
+describe('réponses obligatoires', () => {
+  it('ne laisse pas passer un écran incomplet', () => {
+    const bilan = nouveauBilan()
+    expect(obligatoires.patient(bilan)).toEqual([
+      'le prénom', 'le nom', 'la date de naissance', 'la classe', "l'établissement", "le nom de l'établissement",
+      'la latéralité', 'le mode de garde', 'la fratrie (ou « Enfant unique »)', "l'entente dans la fratrie",
+      'le médecin traitant', 'la ville du médecin traitant',
+    ])
+    expect(obligatoires.demande(bilan)).toEqual(['la personne demandeuse', 'le dossier MDPH', 'au moins un motif'])
+    expect(obligatoires.suivis(bilan)).toEqual(["les professionnels qui suivent l'enfant (ou « Aucun »)"])
+    expect(obligatoires.objectifs(bilan)).toEqual(["l'accord des parents"])
+    expect(champs(bilan).dossier_mdph).toBe('')
+    expect(aRenseigner(lucas())).toEqual([])
+  })
+
+  it('suit les réponses qui en dispensent ou en ajoutent', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { fratrie: '', entente: '', enfantUnique: true, motifs: [], autreMotif: 'Lenteur' })
+    expect(aRenseigner(bilan)).toEqual([])
+    bilan.dateNaissance = '2027-01-01'
+    expect(obligatoires.patient(bilan)).toEqual(['une date de naissance avant la date de passation'])
+    bilan.professionnels = { psychologue: '', orthophoniste: "à raison d'une fois par mois" }
+    expect(obligatoires.suivis(bilan)).toEqual(['la fréquence de suivi (psychologue)'])
     bilan.aucunProfessionnel = true
-    expect(nonRenseignes(bilan)).toEqual(['la ville du médecin traitant'])
+    expect(obligatoires.suivis(bilan)).toEqual([])
+    bilan.objectifsFinaux = []
+    expect(obligatoires.objectifs(bilan)).toEqual(['au moins un objectif final'])
+    bilan.otHope = {}
+    expect(obligatoires.objectifs(bilan)).toEqual([])
+  })
+})
+
+describe('réévaluation', () => {
+  it('garde l\'identité et refait la classe et la partie clinique', () => {
+    const nouveau = reevaluation(lucas(), new Date(2027, 9, 1))
+    expect(nouveau).toMatchObject({
+      prenom: 'Lucas', nom: 'Martin', dateNaissance: '2012-03-12', sexe: 'Homme', medecinTraitant: 'Durand',
+      datePassation: '2027-10-01', classe: '', troubles: [], otHope: {}, objectifsFinaux: [], accordParents: '',
+    })
+    expect(obligatoires.patient(nouveau)).toEqual(['la classe'])
   })
 })

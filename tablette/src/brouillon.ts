@@ -1,6 +1,6 @@
 // Bilan en cours, enregistré sur l'appareil (localStorage) à chaque modification :
 // il survit à une fermeture de l'application et ne quitte jamais l'appareil.
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { nouveauBilan, type Bilan } from './bilan'
 import { enregistrement, reprendre, type Reprise } from './reprise'
 
@@ -17,10 +17,8 @@ function lire(): Reprise | null {
 
 const reprise = lire()
 
-export const brouillonTrouve = reprise !== null
-
-/** Réponses du brouillon qui n'existent plus dans le questionnaire. */
-export const reponsesRetirees = reprise?.retirees ?? []
+/** Réponses du bilan repris (brouillon, historique) qui n'existent plus dans le questionnaire. */
+export const reponsesRetirees = ref<string[]>(reprise?.retirees ?? [])
 
 export const bilan = reactive<Bilan>(reprise?.bilan ?? nouveauBilan())
 
@@ -37,7 +35,8 @@ function enregistrer(valeur: Bilan): void {
 if (reprise) enregistrer(bilan)
 watch(bilan, enregistrer, { deep: true })
 
-/** Efface le brouillon et repart d'un bilan vide. */
-export function nouveauBilanVide(): void {
-  Object.assign(bilan, nouveauBilan())
+/** Remplace le bilan en cours (nouveau bilan, bilan de l'historique, réévaluation). */
+export function remplacerBilan(nouveau: Bilan, retirees: string[] = []): void {
+  Object.assign(bilan, nouveau)
+  reponsesRetirees.value = retirees
 }
