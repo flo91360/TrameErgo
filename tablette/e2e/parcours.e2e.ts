@@ -245,3 +245,18 @@ test('sans questionnaire à ce nom, ou sans connexion, le bilan commence vide', 
   await expect(page.getByLabel('Nom', { exact: true })).toHaveValue('Martine')
   expect((await brouillon(page)).reponsesParents).toEqual([])
 })
+
+test('le lien de liaison collé une fois relie le questionnaire des parents', async ({ page }) => {
+  await expect(page.getByText('Questionnaire des parents : non relié.')).toBeVisible()
+  await page.getByRole('button', { name: 'Régler' }).tap()
+  await page.getByLabel('Lien de liaison').fill('https://script.google.com/macros/s/essai/exec')
+  await page.getByRole('button', { name: 'Enregistrer' }).tap()
+  await expect(page.getByRole('alert')).toContainText("Ce n'est pas un lien de liaison")
+  await page.getByLabel('Lien de liaison').fill(`${SCRIPT}#cle=cle-essai`)
+  await page.getByRole('button', { name: 'Enregistrer' }).tap()
+  await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('trameergo.questionnaireParents') ?? '{}')))
+    .toEqual({ adresse: SCRIPT, cle: 'cle-essai' })
+})

@@ -55,6 +55,26 @@ export function enregistrerReglages(nouveaux: Reglages): void {
   }
 }
 
+/** Lien de liaison affiché par le script (lienDeLiaison) : adresse de l'application web, puis #cle=…. */
+export function lienDeLiaison({ adresse, cle }: Reglages): string {
+  return adresse && cle ? `${adresse}#cle=${encodeURIComponent(cle)}` : ''
+}
+
+/** Réglages tirés d'un lien de liaison collé (null : ce n'en est pas un). */
+export function lireLien(lien: string): Reglages | null {
+  let url: URL
+  try {
+    url = new URL(lien.trim())
+  } catch {
+    return null
+  }
+  const cle = new URLSearchParams(url.hash.slice(1)).get('cle')?.trim()
+  if (url.protocol !== 'https:' || !url.pathname.endsWith('/exec') || !cle) return null
+  url.hash = ''
+  url.search = ''
+  return { adresse: url.toString(), cle }
+}
+
 /** Libellés égaux aux majuscules, accents, apostrophes et espaces près. */
 export function semblable(texte: string): string {
   return texte.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’`]/g, "'")

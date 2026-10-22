@@ -22,8 +22,9 @@ et ajoute ici sa section, datée.
   aménagements et les loisirs quand la réponse est un choix de
   l'application. Toutes les réponses restent consultables pendant la saisie
   (« Réponses des parents au questionnaire »).
-- Réglage « Questionnaire des parents » à l'accueil : adresse et clé du
-  script Google, propres à chaque appareil.
+- Réglage « Questionnaire des parents » à l'accueil : un lien de liaison
+  (affiché par le script Google), collé une fois par appareil et gardé après
+  les mises à jour.
 - `formulaire/` : script qui crée le formulaire, script de lecture des
   réponses à publier en application web, et leur mode d'emploi.
 

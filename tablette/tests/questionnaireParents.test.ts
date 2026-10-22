@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nouveauBilan, questionnaire } from '../src/bilan'
 import {
-  chercher, dateDeNaissance, enLignes, preRemplir, QUESTIONS, semblable, type QuestionnaireParents,
+  chercher, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
+  type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
 const script = (nom: string) => readFileSync(new URL(`../../formulaire/${nom}`, import.meta.url), 'utf8')
@@ -44,6 +45,16 @@ describe('questionnaire des parents', () => {
     expect(semblable('  Étendre  le LINGE ')).toBe(semblable('etendre le linge'))
     expect(semblable('S’occuper des animaux')).toBe(semblable("s'occuper des animaux"))
     expect(semblable('Faire son cartable')).not.toBe(semblable('Préparer mon cartable'))
+  })
+
+  it('lit le lien de liaison affiché par le script', () => {
+    const reglages = { adresse: 'https://script.google.com/macros/s/AKfy-1/exec', cle: '3f2a-9c1e' }
+    expect(lienDeLiaison(reglages)).toBe('https://script.google.com/macros/s/AKfy-1/exec#cle=3f2a-9c1e')
+    expect(lireLien(`  ${lienDeLiaison(reglages)} `)).toEqual(reglages)
+    expect(lireLien('https://script.google.com/macros/s/AKfy-1/exec')).toBeNull()
+    expect(lireLien('http://script.google.com/macros/s/AKfy-1/exec#cle=k')).toBeNull()
+    expect(lireLien('https://script.google.com/macros/s/AKfy-1/dev#cle=k')).toBeNull()
+    expect(lireLien('3f2a-9c1e')).toBeNull()
   })
 
   it('lit les dates de naissance saisies librement', () => {

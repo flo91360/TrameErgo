@@ -19,13 +19,26 @@ function installer() {
   proprietes.setProperty('FORMULAIRE', form.getId());
   if (!proprietes.getProperty('CLE')) proprietes.setProperty('CLE', Utilities.getUuid());
   Logger.log('Formulaire : ' + form.getTitle() + ' (' + form.getResponses().length + ' réponses)');
-  Logger.log('Clé à coller dans TrameErgo : ' + proprietes.getProperty('CLE'));
+  Logger.log('Déployer maintenant le script en application web, puis exécuter lienDeLiaison.');
+}
+
+/**
+ * Après le déploiement en application web : le lien à coller une fois dans
+ * TrameErgo, sur chaque appareil (adresse de l'application web et clé).
+ */
+function lienDeLiaison() {
+  const adresse = ScriptApp.getService().getUrl();
+  if (!adresse || !/\/exec$/.test(adresse)) {
+    throw new Error("Script pas encore déployé en application web : Déployer > Nouveau déploiement.");
+  }
+  Logger.log('Lien de liaison à coller dans TrameErgo : ' + adresse + '#cle='
+    + PropertiesService.getScriptProperties().getProperty('CLE'));
 }
 
 /** Nouvelle clé : les appareils qui avaient l'ancienne n'ont plus accès aux réponses. */
 function changerCle() {
   PropertiesService.getScriptProperties().setProperty('CLE', Utilities.getUuid());
-  Logger.log('Nouvelle clé à coller dans TrameErgo : ' + PropertiesService.getScriptProperties().getProperty('CLE'));
+  lienDeLiaison();
 }
 
 const QUESTION_NOM = "Nom et Prénom de l'enfant";

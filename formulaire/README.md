@@ -20,13 +20,16 @@ formulaire.
 2. Coller l'adresse de modification du formulaire (celle qui finit par
    `/edit`) dans `ADRESSE_FORMULAIRE`, enregistrer.
 3. Choisir `installer`, puis « Exécuter », et autoriser l'accès. Le journal
-   d'exécution affiche le nombre de réponses et la **clé** à coller dans
-   TrameErgo.
+   d'exécution affiche le titre du formulaire et son nombre de réponses.
 4. « Déployer » > « Nouveau déploiement » > type « Application web » :
-   exécuter en tant que « Moi », accès « Tout le monde ». Copier l'**adresse
-   de l'application web** (elle finit par `/exec`).
-5. Dans TrameErgo, à l'accueil, « Questionnaire des parents : Régler » :
-   coller l'adresse et la clé, sur chaque appareil.
+   exécuter en tant que « Moi », accès « Tout le monde ».
+5. Choisir `lienDeLiaison`, puis « Exécuter » : le journal affiche le **lien
+   de liaison** (adresse de l'application web suivie de `#cle=…`).
+6. Dans TrameErgo, à l'accueil, « Questionnaire des parents : Régler » :
+   coller ce lien, une fois par appareil. Il reste sur l'appareil après les
+   mises à jour de TrameErgo ; il faut le recoller seulement après avoir
+   effacé les données du navigateur, désinstallé l'application ou changé
+   d'appareil.
 
 Changer de formulaire : refaire les étapes avec la nouvelle adresse, puis un
 nouveau déploiement.
@@ -36,7 +39,8 @@ nouveau déploiement.
 Le script ne répond qu'aux demandes qui portent la bonne clé, et ne renvoie
 que les réponses de l'enfant demandé (comparaison du nom sans majuscules,
 accents ni espaces, dans les deux ordres). `changerCle` crée une nouvelle
-clé : les appareils qui avaient l'ancienne perdent l'accès.
+clé et affiche le nouveau lien : les appareils qui avaient l'ancien perdent
+l'accès.
 
 Le nom est lu dans la question « Nom et Prénom de l'enfant ». Les lignes des
 grilles ne sont pré-remplies que si l'activité existe dans
