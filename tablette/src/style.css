@@ -165,3 +165,17 @@ button.lien { background: none; border: 0; color: var(--bleu); text-decoration: 
 .obligatoires { color: var(--gris); }
 .navigation { flex-wrap: wrap; }
 .navigation .bloque { flex-basis: 100%; order: -1; margin: 0 0 8px; }
+
+/* Nouveau bilan : questionnaire des parents trouvé, absent ou non vérifié. */
+.questionnaire { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: var(--toucher); margin: 14px 0 6px; }
+.indicateur {
+  display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  font-weight: 700; color: #fff; background: var(--gris);
+}
+.indicateur.trouve { background: #2e7d32; }
+.indicateur.absent { background: var(--grande); }
+.indicateur.attente { background: var(--bleu-pale); color: var(--bleu); }
+.boutons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.reponses-parents summary { font-weight: 600; color: var(--bleu); cursor: pointer; min-height: var(--toucher); display: flex; align-items: center; }
+.reponses-parents ul { margin: 8px 0 0; padding-left: 20px; }
+.reponses-parents li { margin: 4px 0; }

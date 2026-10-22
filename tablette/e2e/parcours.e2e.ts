@@ -26,7 +26,33 @@ const accueil = (page: Page) => page.getByRole('heading', { name: 'Que voulez-vo
 
 async function nouveauBilan(page: Page) {
   await page.getByRole('button', { name: /Nouveau bilan/ }).tap()
+  await expect(page.getByRole('heading', { name: 'Nouveau bilan' })).toBeVisible()
+  await page.getByRole('button', { name: 'Commencer le bilan' }).tap()
   await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+}
+
+const SCRIPT = 'https://script.google.com/macros/s/essai/exec'
+
+/** Script du questionnaire des parents relié, qui connaît le questionnaire de Léa Petit. */
+async function avecQuestionnaire(page: Page) {
+  await page.route(`${SCRIPT}?*`, (route) => {
+    const parametres = new URL(route.request().url()).searchParams
+    const lea = parametres.get('cle') === 'cle-essai' && parametres.get('prenom') === 'Léa'
+      && parametres.get('nom') === 'Petit'
+    return route.fulfill({ headers: { 'Access-Control-Allow-Origin': '*' }, json: { reponses: lea ? [{
+      envoi: '2026-10-12T08:30:00.000Z',
+      questions: [
+        { titre: "Nom et Prénom de l'enfant", reponse: 'Petit Léa' },
+        { titre: 'Classe', reponse: 'CE2' },
+        { titre: 'Fraterie', reponse: '1 frère' },
+        { titre: "Niveau d'aide pour chaque activité", lignes: ['balayer', 'Faire son cartable'],
+          reponse: ['Avec aide', 'Avec difficulté'] },
+      ],
+    }] : [] } })
+  })
+  await page.evaluate((adresse) => localStorage.setItem('trameergo.questionnaireParents',
+    JSON.stringify({ adresse, cle: 'cle-essai' })), SCRIPT)
+  await page.reload()
 }
 
 test.beforeEach(async ({ page }) => {
@@ -181,4 +207,56 @@ test('les flèches du clavier changent le choix d\'un groupe de segments', async
   expect((await brouillon(page)).sexe).toBe('Homme')
   await page.keyboard.press('ArrowRight') // On revient au début.
   expect((await brouillon(page)).sexe).toBe('Femme')
+})
+
+test('le questionnaire des parents trouvé au nom de l\'enfant pré-remplit le bilan', async ({ page }) => {
+  await avecQuestionnaire(page)
+  await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
+  await page.getByRole('button', { name: /Nouveau bilan/ }).tap()
+  await page.getByLabel('Prénom').fill('Léa')
+  await page.getByLabel('Nom', { exact: true }).fill('Petit')
+  await expect(page.getByRole('status')).toContainText('Questionnaire des parents trouvé, envoyé le 12 octobre 2026')
+  await page.getByRole('button', { name: 'Importer et pré-remplir' }).tap()
+
+  await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
+  await expect(page.getByLabel('Prénom')).toHaveValue('Léa')
+  await expect(page.getByLabel('Classe')).toHaveValue('CE2')
+  await expect(page.getByText(/Pré-rempli avec le questionnaire des parents \(1 activité OT Hope reprise\)/))
+    .toBeVisible()
+  await page.getByText('Réponses des parents au questionnaire').tap()
+  await expect(page.getByText('Fraterie : 1 frère')).toBeVisible()
+  // « Faire son cartable » n'est pas une activité de l'application : pas reprise.
+  expect((await brouillon(page)).otHope).toEqual({ maison: { Balayer: 'aide' } })
+})
+
+test('sans questionnaire à ce nom, ou sans connexion, le bilan commence vide', async ({ page }) => {
+  await avecQuestionnaire(page)
+  await page.getByRole('button', { name: /Nouveau bilan/ }).tap()
+  await page.getByLabel('Prénom').fill('Paul')
+  await page.getByLabel('Nom', { exact: true }).fill('Martin')
+  await expect(page.getByRole('status')).toContainText('Aucun questionnaire des parents à ce nom.')
+  await expect(page.getByRole('button', { name: 'Importer et pré-remplir' })).toHaveCount(0)
+
+  await page.unroute(`${SCRIPT}?*`)
+  await page.route(`${SCRIPT}?*`, (route) => route.abort('internetdisconnected'))
+  await page.getByLabel('Nom', { exact: true }).fill('Martine')
+  await expect(page.getByRole('status')).toContainText('Questionnaire des parents non vérifié')
+  await page.getByRole('button', { name: 'Commencer le bilan' }).tap()
+  await expect(page.getByLabel('Nom', { exact: true })).toHaveValue('Martine')
+  expect((await brouillon(page)).reponsesParents).toEqual([])
+})
+
+test('le lien de liaison collé une fois relie le questionnaire des parents', async ({ page }) => {
+  await expect(page.getByText('Questionnaire des parents : non relié.')).toBeVisible()
+  await page.getByRole('button', { name: 'Régler' }).tap()
+  await page.getByLabel('Lien de liaison').fill('https://script.google.com/macros/s/essai/exec')
+  await page.getByRole('button', { name: 'Enregistrer' }).tap()
+  await expect(page.getByRole('alert')).toContainText("Ce n'est pas un lien de liaison")
+  await page.getByLabel('Lien de liaison').fill(`${SCRIPT}#cle=cle-essai`)
+  await page.getByRole('button', { name: 'Enregistrer' }).tap()
+  await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('trameergo.questionnaireParents') ?? '{}')))
+    .toEqual({ adresse: SCRIPT, cle: 'cle-essai' })
 })
