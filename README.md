@@ -28,6 +28,14 @@ prévue pour fonctionner hors ligne. Le bilan est créé sur l'appareil, puis
 téléchargé. Le bouton de partage apparaît si le navigateur le permet. On peut
 ensuite l'ouvrir dans Word, Pages ou une application compatible.
 
+### Questionnaire des parents
+
+Les parents peuvent remplir le questionnaire pré-bilan en ligne (Google
+Forms). Une fois le script de lecture installé et relié (voir
+[`formulaire/README.md`](formulaire/README.md)), « Nouveau bilan » cherche
+leurs réponses au nom de l'enfant et propose de pré-remplir le bilan. Il
+faut alors une connexion ; sans elle, le bilan se remplit comme d'habitude.
+
 ### Sur Windows
 
 Télécharger `TrameErgo-Installation-<version>.exe` dans les

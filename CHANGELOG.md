@@ -9,6 +9,28 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.4.0] - 2026-10-22
+
+### Ajouté
+
+- Questionnaire des parents : à la création d'un bilan, TrameErgo cherche
+  les réponses du questionnaire Google Forms au nom de l'enfant (coche verte,
+  croix rouge, ou « non vérifié » sans connexion) et propose de les importer.
+- L'import pré-remplit les activités OT Hope dont le libellé est celui de
+  l'application (aux majuscules et aux accents près), ainsi que la date de
+  naissance, la latéralité, la classe, les troubles, les matières, les
+  aménagements et les loisirs quand la réponse est un choix de
+  l'application. Toutes les réponses restent consultables pendant la saisie
+  (« Réponses des parents au questionnaire »).
+- Réglage « Questionnaire des parents » à l'accueil : adresse et clé du
+  script Google, propres à chaque appareil.
+- `formulaire/` : script qui crée le formulaire, script de lecture des
+  réponses à publier en application web, et leur mode d'emploi.
+
+### Modifié
+
+- « Nouveau bilan » demande d'abord le prénom et le nom de l'enfant.
+
 ## [1.3.0] - 2026-10-20
 
 ### Ajouté

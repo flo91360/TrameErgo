@@ -1,25 +1,35 @@
 # Questionnaire des parents (Google Forms)
 
-Les parents remplissent le questionnaire pré-bilan en ligne. À la création
-d'un bilan, TrameErgo retrouve leurs réponses au nom de l'enfant et
-pré-remplit les écrans. Tout passe par un seul script Google,
-[`questionnaire-parents.gs`](questionnaire-parents.gs), à installer une fois.
+Les parents remplissent le questionnaire pré-bilan en ligne, avant le bilan.
+À la création d'un bilan, TrameErgo retrouve leurs réponses au nom de
+l'enfant et pré-remplit les écrans. Il ne fait que lire les réponses.
 
-## Installer le script
+- [`creer-formulaire.gs`](creer-formulaire.gs) crée le formulaire, une fois,
+  dans le Google Drive de celui qui l'exécute (activités en grilles, comme
+  les écrans OT Hope).
+- [`questionnaire-parents.gs`](questionnaire-parents.gs) laisse TrameErgo
+  lire les réponses : à installer une fois par formulaire.
+
+## Relier un formulaire à TrameErgo
+
+Le compte qui installe le script doit être propriétaire ou éditeur du
+formulaire.
 
 1. Ouvrir [script.google.com](https://script.google.com), « Nouveau projet ».
-   Effacer le contenu, coller tout `questionnaire-parents.gs`, enregistrer.
-2. Choisir `creerFormulaire` en haut, puis « Exécuter », et autoriser l'accès.
-   Le journal d'exécution affiche le lien du formulaire à envoyer aux parents
-   et la **clé** à coller dans TrameErgo.
-   Formulaire déjà créé par une version précédente du script : coller son
-   adresse de modification dans `ADRESSE_FORMULAIRE_EXISTANT` et exécuter
-   `relierFormulaireExistant` à la place.
-3. « Déployer » > « Nouveau déploiement » > type « Application web » :
+   Effacer le contenu, coller tout `questionnaire-parents.gs`.
+2. Coller l'adresse de modification du formulaire (celle qui finit par
+   `/edit`) dans `ADRESSE_FORMULAIRE`, enregistrer.
+3. Choisir `installer`, puis « Exécuter », et autoriser l'accès. Le journal
+   d'exécution affiche le nombre de réponses et la **clé** à coller dans
+   TrameErgo.
+4. « Déployer » > « Nouveau déploiement » > type « Application web » :
    exécuter en tant que « Moi », accès « Tout le monde ». Copier l'**adresse
    de l'application web** (elle finit par `/exec`).
-4. Dans TrameErgo, à l'accueil, « Questionnaire des parents » : coller
-   l'adresse et la clé, sur chaque appareil.
+5. Dans TrameErgo, à l'accueil, « Questionnaire des parents : Régler » :
+   coller l'adresse et la clé, sur chaque appareil.
+
+Changer de formulaire : refaire les étapes avec la nouvelle adresse, puis un
+nouveau déploiement.
 
 ## Ce que voit l'application
 
@@ -28,7 +38,11 @@ que les réponses de l'enfant demandé (comparaison du nom sans majuscules,
 accents ni espaces, dans les deux ordres). `changerCle` crée une nouvelle
 clé : les appareils qui avaient l'ancienne perdent l'accès.
 
-Les lignes des grilles ne sont pré-remplies que si l'activité existe dans
+Le nom est lu dans la question « Nom et Prénom de l'enfant ». Les lignes des
+grilles ne sont pré-remplies que si l'activité existe dans
 `contenu/questionnaire.json` avec le même libellé, aux majuscules et aux
-accents près. Les colonnes doivent rester les niveaux de l'application
-(« Rien à signaler » puis ceux de `otHope.niveaux`) : un test le vérifie.
+accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de
+`otHope.niveaux` (« Avec aide »…). Les listes « cotation 0 à 4 » de l'ancien
+formulaire ne sont pas reprises : leurs niveaux n'ont pas d'équivalent dans
+l'application. Les autres réponses sont montrées telles quelles dans
+l'encadré « Réponses des parents ».

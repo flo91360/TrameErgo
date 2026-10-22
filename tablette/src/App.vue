@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from 'vue'
-import { entame, nouveauBilan, obligatoires, questionnaire, reevaluation, type Bilan } from './bilan'
+import { entame, obligatoires, questionnaire, reevaluation, type Bilan } from './bilan'
 import { bilan, remplacerBilan, reponsesRetirees } from './brouillon'
 import Accueil from './ecrans/Accueil.vue'
 import Historique from './ecrans/Historique.vue'

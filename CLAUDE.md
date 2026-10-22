@@ -16,15 +16,22 @@ Textes visibles, commentaires et messages de commit en français.
     `{Il_Elle}`, `{ne_e}`, `{seul_e}`, `{type_bilan}`). Les activités OT Hope
     vont dans `{niveau_domaine}` (`{aide_maison}`…), construits à partir des
     identifiants du questionnaire.
+- `formulaire/` : questionnaire des parents. `creer-formulaire.gs` crée le
+  Google Form (grilles aux niveaux OT Hope), `questionnaire-parents.gs` est
+  le script de lecture publié en application web ; mode d'emploi dans
+  `formulaire/README.md`.
 - `tablette/` : l'application (Vue 3, TypeScript, Vite), installable depuis
   le navigateur et utilisable hors ligne (service worker, vite-plugin-pwa).
   Aucun serveur : le bilan est rempli sur l'appareil par docxtemplater et le
-  brouillon reste sur l'appareil (localStorage).
+  brouillon reste sur l'appareil (localStorage). Seul accès réseau : le script
+  Google du questionnaire des parents, s'il est relié.
   - `src-tauri/` : version Windows (Tauri 2, WebView2, installateur NSIS par
     utilisateur). `tauri.conf.json` prend la version de `package.json` ;
     `capabilities/default.json` n'autorise, dans `Documents\TrameErgo`, que
     la création du dossier, le test d'existence d'un bilan, son écriture et
-    son ouverture, plus une fenêtre de message (plugin dialog).
+    son ouverture, plus une fenêtre de message (plugin dialog). La CSP de
+    `tauri.conf.json` n'ouvre le réseau qu'à `script.google.com` (et
+    `script.googleusercontent.com`, où il redirige).
   - `src/ordinateur.ts` : sous Tauri, le bilan est enregistré dans
     `Documents\TrameErgo` et ouvert dans Word ; dans un navigateur, il est
     téléchargé ou partagé. Tout le reste est commun.
@@ -33,9 +40,14 @@ Textes visibles, commentaires et messages de commit en français.
     `obligatoires` : réponses à remplir pour quitter chaque écran ; le
     modèle les écrit sans condition. `reevaluation` : nouveau bilan d'un
     enfant déjà vu.
+  - `src/questionnaireParents.ts` : questionnaire des parents (Google Forms) :
+    recherche par nom auprès du script `formulaire/questionnaire-parents.gs`
+    (adresse et clé propres à l'appareil, seul accès réseau de l'application)
+    et pré-remplissage des réponses au même libellé que l'application.
   - `src/historique.ts` : bilans créés sur l'appareil (localStorage), avec
     leurs réponses ; sauvegarde et import en `.json`.
-  - `src/ecrans/` : accueil (nouveau, reprendre, historique) et historique.
+  - `src/ecrans/` : accueil (nouveau, reprendre, historique), nouveau bilan
+    (nom de l'enfant, questionnaire des parents), réglages et historique.
   - `src/reprise.ts` : relit le brouillon (format `VERSION_BROUILLON`) et
     retire, en les signalant, les réponses absentes du questionnaire.
   - `src/etapes/` : un écran par étape, `src/composants/` : puces, segments,
@@ -43,7 +55,8 @@ Textes visibles, commentaires et messages de commit en français.
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
     (et conditions) de `contenu/bilan.docx` et remplit le vrai modèle. Le
     relancer après avoir modifié le contenu. `tests/reprise.test.ts` : reprise
-    des brouillons. `tests/historique.test.ts` : historique. `tests/questionnaire.test.ts` : règles de
+    des brouillons. `tests/historique.test.ts` : historique. `tests/questionnaireParents.test.ts` :
+    questionnaire des parents. `tests/questionnaire.test.ts` : règles de
     `questionnaire.json` (doublons, identifiants, latéralités, phrases).
     `e2e/` : parcours Playwright sur l'application construite, avec Chromium
     et WebKit (iPad).

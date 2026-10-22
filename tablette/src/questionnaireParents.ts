@@ -92,6 +92,26 @@ export async function chercher(prenom: string, nom: string, { adresse, cle } = r
   return questionnaires.length ? { etat: 'trouve', questionnaires } : { etat: 'absent' }
 }
 
+/** Intitulés des questions du formulaire (formulaire/creer-formulaire.gs) reprises dans le bilan. */
+export const QUESTIONS = {
+  dateNaissance: 'Date de naissance',
+  lateralite: 'Latéralité',
+  classe: 'Classe',
+  modeDeGarde: 'Mode de garde (si parents séparés)',
+  personneDemandeuse: "Qui est à l'origine de la demande de réalisation du bilan (médecin traitant ou autre "
+    + 'professionnel de santé, instituteurs/professeurs…) ?',
+  dossierMdph: 'Dossier MDPH',
+  motifs: 'Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?',
+  troubles: 'A ce jour, quel(s) trouble(s) ont été diagnostiqués ?',
+  matieresPreferees: 'Matières préférées',
+  matieresDetestees: 'Matières moins appréciées',
+  difficultes: "Qu'est-ce qui est difficile en classe ?",
+  amenagements: 'Y a t il eu des aménagements ?',
+  activitesExtraScolaires: 'Quelles sont les activités extra-scolaire ? A quelle fréquence ?',
+  activitesTempsLibre: 'Quelles sont les activités de temps libre ?',
+  difficultesLoisirs: 'Y a t il des difficultés lors des loisirs ?',
+} as const
+
 function texte(reponse: unknown): string {
   return typeof reponse === 'string' ? reponse.trim() : ''
 }
@@ -110,10 +130,9 @@ function choix(liste: readonly string[], reponse: string): string | undefined {
 export function dateDeNaissance(reponse: string): string {
   const francaise = reponse.trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/)
   const iso = reponse.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  const [annee, mois, jour] = francaise
-    ? [francaise[3], francaise[2], francaise[1]]
-    : iso ? [iso[1], iso[2], iso[3]] : []
-  if (!annee) return ''
+  const morceaux = francaise ? [francaise[3], francaise[2], francaise[1]] : iso ? [iso[1], iso[2], iso[3]] : null
+  if (!morceaux) return ''
+  const [annee, mois, jour] = morceaux
   const date = `${annee}-${mois.padStart(2, '0')}-${jour.padStart(2, '0')}`
   const verifiee = new Date(`${date}T00:00:00Z`)
   return !Number.isNaN(verifiee.getTime()) && verifiee.toISOString().startsWith(date) ? date : ''
@@ -144,10 +163,10 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
   const { identite, demande, scolarite, otHope, amenagements } = questionnaire
   const question = (titre: string) => reponses.questions.find((q) => semblable(q.titre) === semblable(titre))?.reponse
 
-  const naissance = dateDeNaissance(texte(question('Date de naissance')))
+  const naissance = dateDeNaissance(texte(question(QUESTIONS.dateNaissance)))
   if (naissance) bilan.dateNaissance = naissance
 
-  const lateralite = texte(question('Latéralité'))
+  const lateralite = texte(question(QUESTIONS.lateralite))
   const position = (['Femme', 'Homme'] as const)
     .map((sexe) => lateralites(sexe).findIndex((l) => semblable(l) === semblable(lateralite)))
     .find((i) => i >= 0)
@@ -155,11 +174,10 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
 
   const simples: [keyof Bilan & ('classe' | 'modeDeGarde' | 'personneDemandeuse' | 'dossierMdph'), string,
     readonly string[]][] = [
-    ['classe', 'Classe', identite.classes],
-    ['modeDeGarde', 'Mode de garde (si parents séparés)', identite.modesDeGarde],
-    ['personneDemandeuse', "Qui est à l'origine de la demande de réalisation du bilan (médecin traitant ou "
-      + 'autre professionnel de santé, instituteurs/professeurs…) ?', demande.personnesDemandeuses],
-    ['dossierMdph', 'Dossier MDPH', demande.dossierMdph],
+    ['classe', QUESTIONS.classe, identite.classes],
+    ['modeDeGarde', QUESTIONS.modeDeGarde, identite.modesDeGarde],
+    ['personneDemandeuse', QUESTIONS.personneDemandeuse, demande.personnesDemandeuses],
+    ['dossierMdph', QUESTIONS.dossierMdph, demande.dossierMdph],
   ]
   for (const [cle, titre, liste] of simples) {
     const trouve = choix(liste, texte(question(titre)))
@@ -168,12 +186,12 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
 
   const multiples: [keyof Bilan & ('troubles' | 'matieresPreferees' | 'matieresDetestees' | 'difficultes'
     | 'amenagements'), string[], readonly string[]][] = [
-    ['troubles', ['Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?',
-      'A ce jour, quel(s) trouble(s) ont été diagnostiqués ?'], demande.troubles],
-    ['matieresPreferees', ['Matières préférées'], scolarite.matieres],
-    ['matieresDetestees', ['Matières moins appréciées'], scolarite.matieres],
-    ['difficultes', ["Qu'est-ce qui est difficile en classe ?"], scolarite.difficultes],
-    ['amenagements', ['Y a t il eu des aménagements ?'], amenagements],
+    // Les motifs du formulaire (« difficulté d'écriture »…) sont des troubles de l'application.
+    ['troubles', [QUESTIONS.motifs, QUESTIONS.troubles], demande.troubles],
+    ['matieresPreferees', [QUESTIONS.matieresPreferees], scolarite.matieres],
+    ['matieresDetestees', [QUESTIONS.matieresDetestees], scolarite.matieres],
+    ['difficultes', [QUESTIONS.difficultes], scolarite.difficultes],
+    ['amenagements', [QUESTIONS.amenagements], amenagements],
   ]
   for (const [cle, titres, liste] of multiples) {
     const trouves = titres.flatMap((titre) => cases(question(titre)))
@@ -183,9 +201,9 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
 
   const textes: [keyof Bilan & ('activitesExtraScolaires' | 'activitesTempsLibre' | 'difficultesLoisirs'),
     string][] = [
-    ['activitesExtraScolaires', 'Quelles sont les activités extra-scolaire ? A quelle fréquence ?'],
-    ['activitesTempsLibre', 'Quelles sont les activités de temps libre ?'],
-    ['difficultesLoisirs', 'Y a t il des difficultés lors des loisirs ?'],
+    ['activitesExtraScolaires', QUESTIONS.activitesExtraScolaires],
+    ['activitesTempsLibre', QUESTIONS.activitesTempsLibre],
+    ['difficultesLoisirs', QUESTIONS.difficultesLoisirs],
   ]
   for (const [cle, titre] of textes) {
     const valeur = texte(question(titre))
