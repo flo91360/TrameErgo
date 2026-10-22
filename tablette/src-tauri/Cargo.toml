@@ -1,6 +1,6 @@
 [package]
 name = "trameergo"
-version = "1.4.0"
+version = "1.4.1"
 description = "Bilans d'ergothérapie : application Windows (Tauri) de TrameErgo"
 edition = "2021"
 publish = false

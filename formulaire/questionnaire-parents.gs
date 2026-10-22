@@ -27,12 +27,17 @@ function installer() {
  * TrameErgo, sur chaque appareil (adresse de l'application web et clé).
  */
 function lienDeLiaison() {
-  const adresse = ScriptApp.getService().getUrl();
-  if (!adresse || !/\/exec$/.test(adresse)) {
-    throw new Error("Script pas encore déployé en application web : Déployer > Nouveau déploiement.");
+  const cle = PropertiesService.getScriptProperties().getProperty('CLE');
+  if (!cle) throw new Error("Exécuter d'abord installer.");
+  // Lancé depuis l'éditeur, getUrl renvoie souvent l'adresse de test (…/dev),
+  // pas celle de l'application web déployée (…/exec).
+  const adresse = ScriptApp.getService().getUrl() || '';
+  if (/\/exec$/.test(adresse)) {
+    Logger.log('Lien de liaison à coller dans TrameErgo : ' + adresse + '#cle=' + cle);
+  } else {
+    Logger.log("Lien de liaison : copier l'URL de l'application web (Déployer > Gérer les déploiements, "
+      + "elle finit par /exec), puis y ajouter, sans espace : #cle=" + cle);
   }
-  Logger.log('Lien de liaison à coller dans TrameErgo : ' + adresse + '#cle='
-    + PropertiesService.getScriptProperties().getProperty('CLE'));
 }
 
 /** Nouvelle clé : les appareils qui avaient l'ancienne n'ont plus accès aux réponses. */

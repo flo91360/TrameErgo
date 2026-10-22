@@ -9,6 +9,15 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.4.1] - 2026-10-22
+
+### Corrigé
+
+- Questionnaire des parents : `lienDeLiaison` ne s'arrête plus en erreur
+  quand Google lui donne l'adresse de test du script au lieu de celle de
+  l'application web ; il affiche alors la clé à ajouter à l'URL copiée dans
+  « Gérer les déploiements ».
+
 ## [1.4.0] - 2026-10-22
 
 ### Ajouté
