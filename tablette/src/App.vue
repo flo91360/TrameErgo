@@ -4,6 +4,8 @@ import { entame, nouveauBilan, obligatoires, questionnaire, reevaluation, type B
 import { bilan, remplacerBilan, reponsesRetirees } from './brouillon'
 import Accueil from './ecrans/Accueil.vue'
 import Historique from './ecrans/Historique.vue'
+import NouveauBilan from './ecrans/NouveauBilan.vue'
+import Reglages from './ecrans/Reglages.vue'
 import Amenagements from './etapes/Amenagements.vue'
 import Demande from './etapes/Demande.vue'
 import Generation from './etapes/Generation.vue'
@@ -37,10 +39,12 @@ const etapes: Etape[] = [
   { titre: 'Bilan', composant: Generation },
 ]
 
-const ecran = ref<'accueil' | 'saisie' | 'historique'>('accueil')
+const ecran = ref<'accueil' | 'nouveau' | 'reglages' | 'saisie' | 'historique'>('accueil')
 const courante = ref(0)
 const etape = computed(() => etapes[courante.value])
 const retireesVues = ref(false)
+/** Bilan pré-rempli par le questionnaire des parents : nombre d'activités reprises (null : non pré-rempli). */
+const preRempli = ref<number | null>(null)
 /** « Suivant » touché alors qu'il manquait des réponses : la liste passe en alerte. */
 const tentative = ref(false)
 
@@ -77,16 +81,24 @@ function remplacementAccepte(): boolean {
 function commencer(nouveau: Bilan, retirees: string[] = [], numero = 0) {
   remplacerBilan(nouveau, retirees)
   retireesVues.value = false
+  preRempli.value = null
   ecran.value = 'saisie'
   aller(numero)
 }
 
-function nouveauBilanVide() {
-  if (remplacementAccepte()) commencer(nouveauBilan())
+// Le nom de l'enfant d'abord : il sert à retrouver le questionnaire des parents.
+function nouveauBilanDemande() {
+  if (remplacementAccepte()) ecran.value = 'nouveau'
+}
+
+function commencerNouveau(nouveau: Bilan, activites?: number) {
+  commencer(nouveau)
+  if (activites !== undefined) preRempli.value = activites
 }
 
 function reprendreEnCours() {
   retireesVues.value = reponsesRetirees.value.length === 0
+  preRempli.value = null
   ecran.value = 'saisie'
   aller(accessible.value)
 }
@@ -129,7 +141,10 @@ function reevaluer(entree: EntreeHistorique) {
 
   <main>
     <Accueil v-if="ecran === 'accueil'"
-             @nouveau="nouveauBilanVide" @reprendre="reprendreEnCours" @historique="ecran = 'historique'" />
+             @nouveau="nouveauBilanDemande" @reprendre="reprendreEnCours" @historique="ecran = 'historique'"
+             @reglages="ecran = 'reglages'" />
+    <NouveauBilan v-else-if="ecran === 'nouveau'" @commencer="commencerNouveau" @reglages="ecran = 'reglages'" />
+    <Reglages v-else-if="ecran === 'reglages'" @retour="ecran = 'accueil'" />
     <Historique v-else-if="ecran === 'historique'" @ouvrir="ouvrir" @reevaluer="reevaluer" />
     <template v-else>
       <p v-if="reponsesRetirees.length && !retireesVues" class="bandeau alerte">
@@ -137,7 +152,18 @@ function reevaluer(entree: EntreeHistorique) {
         {{ reponsesRetirees.join(', ') }}. Les choisir à nouveau si besoin.
         <button type="button" class="lien" @click="retireesVues = true">Fermer</button>
       </p>
+      <p v-if="preRempli !== null" class="bandeau">
+        Pré-rempli avec le questionnaire des parents ({{ preRempli }} activité{{ preRempli > 1 ? 's' : '' }}
+        OT Hope reprise{{ preRempli > 1 ? 's' : '' }}) : à vérifier.
+        <button type="button" class="lien" @click="preRempli = null">Fermer</button>
+      </p>
       <h2>{{ etape.titre }}</h2>
+      <details v-if="bilan.reponsesParents.length" class="carte reponses-parents">
+        <summary>Réponses des parents au questionnaire</summary>
+        <ul>
+          <li v-for="ligne in bilan.reponsesParents" :key="ligne">{{ ligne }}</li>
+        </ul>
+      </details>
       <Generation v-if="etape.composant === Generation" @terminer="ecran = 'accueil'" />
       <component :is="etape.composant" v-else v-bind="etape.proprietes ?? {}" :key="courante" />
       <p v-if="manquants.length" class="obligatoires">

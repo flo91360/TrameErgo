@@ -52,6 +52,8 @@ export interface Bilan {
   activitesExtraScolaires: string
   activitesTempsLibre: string
   difficultesLoisirs: string
+  /** Réponses du questionnaire des parents, « Question : réponse », montrées pendant la saisie. */
+  reponsesParents: string[]
 }
 
 export const NOMBRE_OBJECTIFS = 5
@@ -105,6 +107,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     activitesExtraScolaires: '',
     activitesTempsLibre: '',
     difficultesLoisirs: '',
+    reponsesParents: [],
   }
 }
 
