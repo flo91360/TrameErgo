@@ -24,7 +24,11 @@ formulaire.
 4. « Déployer » > « Nouveau déploiement » > type « Application web » :
    exécuter en tant que « Moi », accès « Tout le monde ».
 5. Choisir `lienDeLiaison`, puis « Exécuter » : le journal affiche le **lien
-   de liaison** (adresse de l'application web suivie de `#cle=…`).
+   de liaison** (adresse de l'application web suivie de `#cle=…`). Si Google
+   ne lui donne pas l'adresse de l'application web, il affiche seulement
+   `#cle=…` : le coller à la fin de l'URL copiée dans « Déployer » > « Gérer
+   les déploiements » (elle finit par `/exec`). La clé est aussi visible dans
+   « Paramètres du projet » > « Propriétés du script » (`CLE`).
 6. Dans TrameErgo, à l'accueil, « Questionnaire des parents : Régler » :
    coller ce lien, une fois par appareil. Il reste sur l'appareil après les
    mises à jour de TrameErgo ; il faut le recoller seulement après avoir
