@@ -97,6 +97,22 @@ describe('questionnaire des parents', () => {
     expect(preRemplir(nouveauBilan(), reponse).bilan.reponsesParents).toEqual(lignes)
   })
 
+  it('précise de qui parle une question au même intitulé qu\'une autre', () => {
+    const lignes = enLignes({
+      envoi: reponse.envoi,
+      questions: [
+        { titre: 'Nom', partie: 'Enfant', reponse: 'Petit' },
+        { titre: 'Date de naissance', partie: 'Enfant', reponse: '2016-10-14' },
+        { titre: 'Nom', partie: 'Parent 1', reponse: 'Petit' },
+        { titre: 'Profession', partie: 'Parent 1', reponse: 'Infirmière' },
+      ],
+    })
+    expect(lignes).toEqual([
+      'Enfant - Nom : Petit', 'Date de naissance : 2016-10-14', 'Parent 1 - Nom : Petit', 'Profession : Infirmière',
+    ])
+    expect(dateDeNaissance('2016-10-14')).toBe('2016-10-14')
+  })
+
   it('cherche les questionnaires d\'un enfant auprès du script, avec la clé', async () => {
     const appel = vi.fn(async (_url: URL) => new Response(JSON.stringify({
       reponses: [{ ...reponse, envoi: '2026-09-01T10:00:00.000Z' }, reponse],
@@ -131,5 +147,7 @@ describe('questionnaire des parents', () => {
     const lecture = script('questionnaire-parents.gs')
     const question = lecture.match(/const QUESTION_NOM = "(.*)";/)?.[1]
     expect(creation).toContain(`texte(form, "${question}")`)
+    // Ou le nom découpé (« Nom » et « Prénom » sous le titre « Enfant »).
+    expect(lecture).toContain("const PARTIE_ENFANT = 'Enfant';")
   })
 })
