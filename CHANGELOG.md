@@ -9,6 +9,14 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.4.3] - 2026-10-23
+
+### Corrigé
+
+- Questionnaire des parents : les intitulés suivis de deux-points
+  (« Date de naissance : », « Nom et Prénom de l’enfant : ») sont reconnus,
+  pour retrouver l'enfant comme pour pré-remplir les réponses.
+
 ## [1.4.2] - 2026-10-23
 
 ### Modifié

@@ -102,7 +102,8 @@ function partiesDesQuestions(form) {
 function nomDeLEnfant(questions) {
   const texte = function (titre, partie) {
     const question = questions.filter(function (q) {
-      return q.titre === titre && (!partie || comparable(q.partie || '') === comparable(partie));
+      // Comparaison sans majuscules, accents ni ponctuation : « Nom et Prénom de l’enfant : » convient.
+      return comparable(q.titre) === comparable(titre) && (!partie || comparable(q.partie || '') === comparable(partie));
     })[0];
     return question ? String(question.reponse) : '';
   };
