@@ -19,6 +19,21 @@ describe('reprise du brouillon', () => {
     expect(champs(reprise.bilan)).toEqual(champs(bilan))
   })
 
+  it('relit et vérifie le caractère du patient', () => {
+    const bilan = { ...nouveauBilan(date), prenom: 'Léa', caractereParents: ['curieux', 'Trait disparu'],
+      caractereEnfant: ['bavard'] }
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.bilan.caractereParents).toEqual(['curieux'])
+    expect(reprise.bilan.caractereEnfant).toEqual(['bavard'])
+    expect(reprise.retirees).toEqual(['Trait disparu (Caractère selon les parents)'])
+    // Brouillon d'avant l'étape : pas de caractère, rien de coché.
+    const { caractereParents, caractereEnfant, ...ancien } = nouveauBilan(date)
+    expect(caractereParents.length + caractereEnfant.length).toBe(0)
+    const sansCaractere = reprendre(JSON.stringify({ version: 2, bilan: ancien }), date)!
+    expect(sansCaractere.bilan.caractereParents).toEqual([])
+    expect(sansCaractere.retirees).toEqual([])
+  })
+
   it('reprend un brouillon de la version 1 (réponses à la racine)', () => {
     const ancien = { ...nouveauBilan(date), prenom: 'Lucas', entente: 'Bonne', dossierMdph: 'Actif', lateralite: 0 }
     const reprise = reprendre(JSON.stringify(ancien), date)!

@@ -156,6 +156,164 @@
       "Arts plastiques"
     ]
   },
+  "caractere": [
+    {
+      "libelle": "curieux",
+      "feminin": "curieuse",
+      "enfant": "J'aime découvrir et apprendre des choses",
+      "type": "qualite"
+    },
+    {
+      "libelle": "impatient",
+      "feminin": "impatiente",
+      "enfant": "J'ai du mal à attendre",
+      "type": "defaut"
+    },
+    {
+      "libelle": "gentil",
+      "feminin": "gentille",
+      "enfant": "Je suis sympa avec les autres",
+      "type": "qualite"
+    },
+    {
+      "libelle": "têtu",
+      "feminin": "têtue",
+      "enfant": "Quand j'ai une idée, je ne change pas d'avis",
+      "type": "defaut"
+    },
+    {
+      "libelle": "drôle",
+      "feminin": "drôle",
+      "enfant": "Je fais rire les autres",
+      "type": "qualite"
+    },
+    {
+      "libelle": "colérique",
+      "feminin": "colérique",
+      "enfant": "Je me fâche vite",
+      "type": "defaut"
+    },
+    {
+      "libelle": "serviable",
+      "feminin": "serviable",
+      "enfant": "J'aime aider les autres",
+      "type": "qualite"
+    },
+    {
+      "libelle": "timide",
+      "feminin": "timide",
+      "enfant": "Je n'ose pas parler aux gens que je ne connais pas",
+      "type": "defaut"
+    },
+    {
+      "libelle": "joyeux",
+      "feminin": "joyeuse",
+      "enfant": "Je suis souvent de bonne humeur",
+      "type": "qualite"
+    },
+    {
+      "libelle": "distrait",
+      "feminin": "distraite",
+      "enfant": "J'ai souvent la tête ailleurs",
+      "type": "defaut"
+    },
+    {
+      "libelle": "courageux",
+      "feminin": "courageuse",
+      "enfant": "J'essaie même quand c'est difficile",
+      "type": "qualite"
+    },
+    {
+      "libelle": "bavard",
+      "feminin": "bavarde",
+      "enfant": "Je parle beaucoup",
+      "type": "defaut"
+    },
+    {
+      "libelle": "créatif",
+      "feminin": "créative",
+      "enfant": "J'ai plein d'idées pour inventer des choses",
+      "type": "qualite"
+    },
+    {
+      "libelle": "désordonné",
+      "feminin": "désordonnée",
+      "enfant": "Je range rarement mes affaires",
+      "type": "defaut"
+    },
+    {
+      "libelle": "sociable",
+      "feminin": "sociable",
+      "enfant": "Je me fais facilement des copains",
+      "type": "qualite"
+    },
+    {
+      "libelle": "susceptible",
+      "feminin": "susceptible",
+      "enfant": "Je me vexe facilement",
+      "type": "defaut"
+    },
+    {
+      "libelle": "calme",
+      "feminin": "calme",
+      "enfant": "Je reste calme",
+      "type": "qualite"
+    },
+    {
+      "libelle": "agité",
+      "feminin": "agitée",
+      "enfant": "J'ai du mal à rester tranquille",
+      "type": "defaut"
+    },
+    {
+      "libelle": "autonome",
+      "feminin": "autonome",
+      "enfant": "J'aime faire les choses sans aide",
+      "type": "qualite"
+    },
+    {
+      "libelle": "anxieux",
+      "feminin": "anxieuse",
+      "enfant": "Je m'inquiète souvent",
+      "type": "defaut"
+    },
+    {
+      "libelle": "affectueux",
+      "feminin": "affectueuse",
+      "enfant": "J'aime faire des câlins",
+      "type": "qualite"
+    },
+    {
+      "libelle": "peu motivé par l'effort",
+      "feminin": "peu motivée par l'effort",
+      "enfant": "Je n'aime pas faire d'efforts",
+      "type": "defaut"
+    },
+    {
+      "libelle": "honnête",
+      "feminin": "honnête",
+      "enfant": "Je dis la vérité",
+      "type": "qualite"
+    },
+    {
+      "libelle": "jaloux",
+      "feminin": "jalouse",
+      "enfant": "Je veux souvent ce que les autres ont",
+      "type": "defaut"
+    },
+    {
+      "libelle": "généreux",
+      "feminin": "généreuse",
+      "enfant": "J'aime partager",
+      "type": "qualite"
+    },
+    {
+      "libelle": "mauvais perdant",
+      "feminin": "mauvaise perdante",
+      "enfant": "Je n'aime pas perdre",
+      "type": "defaut"
+    }
+  ],
   "otHope": {
     "neutre": "Rien à signaler",
     "niveaux": [

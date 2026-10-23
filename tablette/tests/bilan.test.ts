@@ -35,6 +35,7 @@ function lucas(): Bilan {
     objectifs: { maison: ['Faire mes lacets', 'Balayer'], ecole: ['Utiliser un compas'] },
     objectifsFinaux: ['Utiliser un compas', 'Faire mes lacets'],
     objectifsParents: ['Faire mes lacets'], remarquesParents: 'Priorité au collège.',
+    caractereParents: ['têtu', 'curieux', 'joyeux'], caractereEnfant: ['bavard', 'drôle', 'curieux'],
     amenagements: ['Tiers temps', 'Ordinateur'], activitesExtraScolaires: 'foot, piano', difficultesLoisirs: 'fatigue',
   })
   return bilan
@@ -102,6 +103,41 @@ describe('champs du bilan', () => {
     expect(nomDuFichier(lucas())).toBe('Bilan_ergotherapie_Martin_Lucas_octobre_2026.docx')
     expect(copieNumerotee('Bilan_ergotherapie_Martin_Lucas_octobre_2026.docx', 2))
       .toBe('Bilan_ergotherapie_Martin_Lucas_octobre_2026_2.docx')
+  })
+})
+
+describe('caractère du patient', () => {
+  it('rédige les choix des parents et de l\'enfant, accordés au sexe', () => {
+    const bilan = lucas()
+    expect(champs(bilan).caractere_parents).toBe('D\'après ses parents, Lucas est curieux, têtu et joyeux.')
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Lucas se reconnaît comme qualités '
+      + 'd\'être curieux et drôle, et comme défaut d\'être bavard.')
+    Object.assign(bilan, { sexe: 'Femme', prenom: 'Léa', caractereParents: ['curieux'], caractereEnfant: ['jaloux'] })
+    expect(champs(bilan).caractere_parents).toBe('D\'après ses parents, Léa est curieuse.')
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme défaut '
+      + 'd\'être jalouse.')
+    bilan.caractereEnfant = ['gentil']
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme qualité '
+      + 'd\'être gentille.')
+  })
+
+  it('n\'écrit rien quand rien n\'est coché (étape facultative)', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { caractereParents: [], caractereEnfant: [] })
+    expect(champs(bilan).caractere_parents).toBe('')
+    expect(champs(bilan).caractere_enfant).toBe('')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Comportement de l’enfant de manière générale')
+    expect(texte).not.toMatch(/[{}]|D'après ses parents|auto-évaluation/)
+  })
+
+  it('place la nouvelle partie juste avant le comportement en classe', () => {
+    const texte = texteDuBilan(remplirModele(modele, champs(lucas())))
+    const debut = texte.indexOf('Comportement de l’enfant de manière générale')
+    expect(debut).toBeGreaterThan(-1)
+    const partie = texte.slice(debut, texte.indexOf('Comportement en classe'))
+    expect(partie).toContain('D\'après ses parents, Lucas est curieux, têtu et joyeux.')
+    expect(partie).toContain('Lors de son auto-évaluation, Lucas se reconnaît comme qualités')
   })
 })
 

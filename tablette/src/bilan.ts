@@ -40,6 +40,10 @@ export interface Bilan {
   autreMatierePreferee: string
   matieresDetestees: string[]
   autreMatiereDetestee: string
+  /** Caractère de l'enfant selon ses parents : libellés de questionnaire.caractere. */
+  caractereParents: string[]
+  /** Caractère de l'enfant selon lui-même : libellés (pas les formulations pour l'enfant) de questionnaire.caractere. */
+  caractereEnfant: string[]
   /** Domaine OT Hope → activité → identifiant du niveau (absente : rien à signaler). */
   otHope: Record<string, Record<string, string>>
   /** Domaine OT Hope → objectifs choisis, dans l'ordre du choix. */
@@ -101,6 +105,8 @@ export function nouveauBilan(date = new Date()): Bilan {
     autreMatierePreferee: '',
     matieresDetestees: [],
     autreMatiereDetestee: '',
+    caractereParents: [],
+    caractereEnfant: [],
     otHope: {},
     objectifs: {},
     objectifsFinaux: [],
@@ -193,6 +199,43 @@ export function objectifsPossibles(bilan: Bilan): string[] {
 export function objectifsRetenus(bilan: Bilan, choisis: readonly string[]): string[] {
   const possibles = objectifsPossibles(bilan)
   return choisis.filter((objectif) => possibles.includes(objectif))
+}
+
+export type TypeCaractere = 'qualite' | 'defaut'
+
+/** Libellés du caractère, dans l'ordre du questionnaire (d'un seul type si précisé). */
+export function libellesCaractere(type?: TypeCaractere): string[] {
+  return questionnaire.caractere.filter((item) => !type || item.type === type).map((item) => item.libelle)
+}
+
+/** Libellé accordé au sexe de l'enfant (« curieux » → « curieuse »). */
+export function caractereAccorde(bilan: Bilan, libelle: string): string {
+  const item = questionnaire.caractere.find((element) => element.libelle === libelle)
+  return item ? accord(bilan, item.libelle, item.feminin) : libelle
+}
+
+/** « a », « a et b », « a, b et c ». */
+export function enumeration(elements: readonly string[]): string {
+  if (elements.length < 2) return elements.join('')
+  return `${elements.slice(0, -1).join(', ')} et ${elements[elements.length - 1]}`
+}
+
+/** Phrase du caractère selon les parents (vide si rien n'est coché). */
+export function phraseCaractereParents(bilan: Bilan): string {
+  const traits = dansLOrdre(libellesCaractere(), bilan.caractereParents).map((l) => caractereAccorde(bilan, l))
+  return traits.length ? `D'après ses parents, ${bilan.prenom.trim()} est ${enumeration(traits)}.` : ''
+}
+
+/** Phrase de l'auto-évaluation de l'enfant : qualités puis défauts cochés (vide si rien n'est coché). */
+export function phraseCaractereEnfant(bilan: Bilan): string {
+  const partie = (type: TypeCaractere, singulier: string) => {
+    const traits = dansLOrdre(libellesCaractere(type), bilan.caractereEnfant).map((l) => caractereAccorde(bilan, l))
+    return traits.length ? `comme ${singulier}${traits.length > 1 ? 's' : ''} d'être ${enumeration(traits)}` : ''
+  }
+  const parties = [partie('qualite', 'qualité'), partie('defaut', 'défaut')].filter(Boolean)
+  return parties.length
+    ? `Lors de son auto-évaluation, ${bilan.prenom.trim()} se reconnaît ${parties.join(', et ')}.`
+    : ''
 }
 
 function phrase(liste: readonly { libelle: string; phrase: string }[], libelle: string): string {
@@ -332,6 +375,10 @@ export function champs(bilan: Bilan): Record<string, string> {
     matieres_preferees: dansLOrdre(scolarite.matieres, bilan.matieresPreferees, bilan.autreMatierePreferee).join(', '),
     matieres_moins_appreciees:
       dansLOrdre(scolarite.matieres, bilan.matieresDetestees, bilan.autreMatiereDetestee).join(', '),
+
+    // Étape facultative : une phrase sans case cochée reste vide.
+    caractere_parents: phraseCaractereParents(bilan),
+    caractere_enfant: phraseCaractereEnfant(bilan),
 
     objectifs_finaux: numerotes(objectifsRetenus(bilan, bilan.objectifsFinaux)),
     accord_parents: phrase(objectifs.accordParents, bilan.accordParents).replace('{prenom}', bilan.prenom.trim()),
