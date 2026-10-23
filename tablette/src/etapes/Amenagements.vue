@@ -8,6 +8,9 @@ import Puces from '../composants/Puces.vue'
   <section class="carte">
     <h3>Aménagements scolaires</h3>
     <Puces v-model="bilan.amenagements" :options="questionnaire.amenagements" />
+    <label>Autre / aménagement scolaire (un par ligne)
+      <textarea v-model="bilan.autreAmenagement" rows="3" />
+    </label>
   </section>
 
   <section class="carte">

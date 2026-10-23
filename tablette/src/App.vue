@@ -35,7 +35,7 @@ const etapes: Etape[] = [
     titre: `OT Hope : ${d.titre}`, composant: OtHope, proprietes: { domaine: d.id },
   })),
   { titre: 'Objectifs', composant: Objectifs, manquants: obligatoires.objectifs },
-  { titre: 'Aménagements et loisirs', composant: Amenagements },
+  { titre: 'Aménagements et loisirs', composant: Amenagements, manquants: obligatoires.amenagements },
   { titre: 'Bilan', composant: Generation },
 ]
 

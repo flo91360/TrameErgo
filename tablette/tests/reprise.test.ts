@@ -27,6 +27,22 @@ describe('reprise du brouillon', () => {
     expect(reprise.retirees).toEqual([])
   })
 
+  it('reprend un bilan enregistré avant l\'aménagement scolaire libre', () => {
+    const { autreAmenagement: _, ...ancien } = { ...nouveauBilan(date), amenagements: ['AESH'] }
+    const reprise = reprendre(enregistrement(ancien as never), date)!
+    expect(reprise.bilan.autreAmenagement).toBe('')
+    expect(reprise.bilan.amenagements).toEqual(['AESH'])
+    expect(champs(reprise.bilan).amenagements_scolaires).toBe('- AESH')
+    expect(reprise.retirees).toEqual([])
+  })
+
+  it('relit l\'aménagement scolaire libre', () => {
+    const bilan = { ...nouveauBilan(date), amenagements: ['Autre / aménagement scolaire'], autreAmenagement: 'Pupitre' }
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.bilan.amenagements).toEqual(['Autre / aménagement scolaire'])
+    expect(reprise.bilan.autreAmenagement).toBe('Pupitre')
+  })
+
   it('retire et signale les réponses qui n\'existent plus dans le questionnaire', () => {
     const ancien = {
       ...nouveauBilan(date), entente: 'Bonne entente', classe: 'CM3', troubles: ['TSA', 'Trouble disparu'],
