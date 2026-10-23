@@ -181,6 +181,40 @@ export function enLignes(reponses: QuestionnaireParents): string[] {
   })
 }
 
+/** Partie de la fiche patient d'après le titre de l'encadré (« Parent 1 » → parent1), sinon null. */
+function groupe(partie: string): string | null {
+  const titre = semblable(partie)
+  const parent = titre.match(/parent\s*(\d)/)
+  if (parent) return `parent${parent[1]}`
+  if (/medecin/.test(titre)) return 'medecin'
+  if (/famille/.test(titre)) return 'famille'
+  if (/enfant/.test(titre)) return 'enfant'
+  return null
+}
+
+/** « Adresse mail » → adresse_mail, « Mode de garde (si parents séparés) » → mode_de_garde. */
+function information(titre: string): string {
+  const cle = semblable(titre.replace(/\([^)]*\)/g, '').replace(/\s*:\s*$/, ''))
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+  return cle === 'fraterie' ? 'fratrie' : cle
+}
+
+/**
+ * Réponses texte des encadrés Enfant, Médecin traitant, Parent 1, Parent 2 et
+ * Famille, par « partie.information » (parent1.telephone, medecin.ville…) :
+ * l'intitulé seul (« Nom ») ne dit pas de qui il s'agit.
+ */
+export function coordonnees(reponses: QuestionnaireParents): Record<string, string> {
+  const resultat: Record<string, string> = {}
+  for (const question of reponses.questions) {
+    const partie = question.partie ? groupe(question.partie) : null
+    const valeur = cases(question.reponse).join(', ')
+    if (!partie || question.lignes || !valeur) continue
+    resultat[`${partie}.${information(question.titre)}`] = valeur
+  }
+  return resultat
+}
+
 /**
  * Bilan pré-rempli avec les réponses des parents. Seules les réponses qui
  * reprennent un choix de l'application (activité, niveau, classe…) au même
@@ -260,6 +294,11 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
       activites += 1
     })
   }
+
+  // Médecin traitant découpé en « Nom » et « Ville » sous son titre.
+  bilan.coordonnees = coordonnees(reponses)
+  if (bilan.coordonnees['medecin.nom']) bilan.medecinTraitant = bilan.coordonnees['medecin.nom']
+  if (bilan.coordonnees['medecin.ville']) bilan.ville = bilan.coordonnees['medecin.ville']
 
   bilan.reponsesParents = enLignes(reponses)
   return { bilan, activites }

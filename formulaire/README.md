@@ -54,7 +54,11 @@ Le nom est lu dans la question « Nom et Prénom de l'enfant », ou dans les
 questions « Nom » et « Prénom » placées sous un titre « Enfant ». Chaque
 réponse est envoyée avec le titre de l'encadré ou de la section où elle se
 trouve (« Parent 1 »…) : des questions courtes comme « Nom » peuvent donc se
-répéter d'un encadré à l'autre. Les lignes des
+répéter d'un encadré à l'autre. Les réponses des encadrés « Enfant »,
+« Médecin traitant », « Parent 1 », « Parent 2 » et « Famille » remplissent la
+fiche patient (`contenu/fiche.docx`) : garder ces mots dans les titres et des
+intitulés courts (« Nom », « Prénom », « Adresse », « Téléphone », « Adresse
+mail », « Profession », « Ville », « Fratrie », « Mode de garde »). Les lignes des
 grilles ne sont pré-remplies que si l'activité existe dans
 `contenu/questionnaire.json` avec le même libellé, aux majuscules et aux
 accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de

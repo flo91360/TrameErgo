@@ -59,6 +59,8 @@ describe('reprise du brouillon', () => {
     expect(bilan.troubles).toEqual([])
     expect(bilan.sexe).toBe('Femme')
     expect(bilan.lateralite).toBeNull()
+    const coordonnees = { 'parent1.nom': 'Petit', 'parent1.telephone': 612345678 }
+    expect(reprendre(JSON.stringify({ coordonnees }), date)!.bilan.coordonnees).toEqual({ 'parent1.nom': 'Petit' })
     expect(reprendre('pas du JSON', date)).toBeNull()
     expect(reprendre('null', date)).toBeNull()
     expect(reprendre('[1, 2]', date)).toBeNull()

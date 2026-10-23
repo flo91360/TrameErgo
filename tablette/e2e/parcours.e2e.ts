@@ -104,6 +104,16 @@ test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'histor
   await page.getByRole('radiogroup', { name: 'Entente' }).getByRole('radio', { name: 'Bonne' }).tap()
   await page.getByLabel('Médecin traitant').fill('Durand')
   await page.getByLabel('Ville').fill('Massy')
+  const [fiche] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Créer la fiche patient' }).tap(),
+  ])
+  expect(fiche.suggestedFilename()).toBe('Fiche_patient_Martin_Lucas.docx')
+  const texteFiche = new Docxtemplater(new PizZip(await readFile(await fiche.path())), { linebreaks: true })
+    .getFullText()
+  expect(texteFiche).toContain('12-03-2012')
+  expect(texteFiche).toContain('Durand')
+  expect(texteFiche).not.toMatch(/[{}]/)
   await page.getByRole('button', { name: 'Suivant' }).tap()
 
   await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
