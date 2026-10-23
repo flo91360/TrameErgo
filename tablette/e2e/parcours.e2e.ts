@@ -126,6 +126,19 @@ test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'histor
   await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
   await page.getByLabel('Aucun', { exact: true }).tap()
 
+  // Caractère du patient : entre Scolarité et OT Hope, facultatif.
+  const titres = await page.getByRole('navigation', { name: 'Étapes du bilan' }).getByRole('button').allInnerTexts()
+  const position = titres.findIndex((t) => t.includes('Caractère du patient'))
+  expect(titres[position - 1]).toContain('Scolarité')
+  expect(titres[position + 1]).toContain('OT Hope')
+  await etape(page, 'Caractère du patient')
+  await page.locator('.carte', { hasText: 'Selon les parents' }).getByRole('button', { name: 'curieux', exact: true }).tap()
+  await page.locator('.carte', { hasText: 'Selon les parents' }).getByRole('button', { name: 'têtu', exact: true }).tap()
+  await page.getByRole('button', { name: 'Je fais rire les autres' }).tap()
+  await page.getByRole('button', { name: 'Je parle beaucoup' }).tap()
+  expect((await brouillon(page)).caractereParents).toEqual(['curieux', 'têtu'])
+  expect((await brouillon(page)).caractereEnfant).toEqual(['drôle', 'bavard'])
+
   await etape(page, /OT Hope : Activités de vie quotidienne/)
   await page.getByRole('radiogroup', { name: 'Faire mes lacets' })
     .getByRole('radio', { name: 'Avec difficulté' }).tap()
@@ -152,6 +165,9 @@ test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'histor
   expect(texte).toContain('le bilan a été demandé par la mère.')
   expect(texte).toMatch(/Motif\s: Lenteur en classe\./)
   expect(texte).toContain('1 - Faire mes lacets')
+  expect(texte).toContain('D\'après ses parents, Lucas est curieux et têtu.')
+  expect(texte).toContain('Lors de son auto-évaluation, Lucas se reconnaît comme qualité d\'être drôle, '
+    + 'et comme défaut d\'être bavard.')
   expect(texte).not.toMatch(/[{}]|\(\)| \./)
 
   // Historique : réévaluation du même enfant, identité reprise, classe à revoir.
@@ -204,6 +220,17 @@ test('un professionnel choisi n\'a pas de fréquence d\'office', async ({ page }
   expect((await brouillon(page)).professionnels).toEqual({ orthophoniste: '' })
   await page.getByRole('button', { name: 'Suivant' }).tap()
   await expect(page.getByRole('alert')).toContainText('la fréquence de suivi (orthophoniste)')
+})
+
+test('l\'étape Caractère du patient se passe sans rien cocher', async ({ page }) => {
+  await avecBrouillon(page, { aucunProfessionnel: true })
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await etape(page, 'Caractère du patient')
+  await expect(page.getByRole('heading', { name: 'Caractère du patient' })).toBeVisible()
+  // Léa : les choix des parents sont accordés au féminin.
+  await expect(page.getByRole('button', { name: 'curieuse', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: /OT Hope : Activités de vie quotidienne/ })).toBeVisible()
 })
 
 test('les flèches du clavier changent le choix d\'un groupe de segments', async ({ page }) => {

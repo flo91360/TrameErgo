@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest'
 import { questionnaire } from '../src/bilan'
 
-const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
+const { identite, demande, suivis, scolarite, caractere, otHope, objectifs, amenagements } = questionnaire
 
 /** Liste non vide, sans doublon ni texte vide ou entouré d'espaces. */
 function listeValide(liste: readonly string[]) {
@@ -28,6 +28,15 @@ describe('questionnaire.json', () => {
       expect(liste, nom).toBeDefined()
       listeValide(liste)
     }
+  })
+
+  it('a un caractère mélangé, chaque item reformulé pour l\'enfant', () => {
+    listeValide(caractere.map((c) => c.libelle))
+    listeValide(caractere.map((c) => c.feminin))
+    listeValide(caractere.map((c) => c.enfant))
+    for (const item of caractere) expect(['qualite', 'defaut'], item.libelle).toContain(item.type)
+    expect(caractere.some((c) => c.type === 'qualite')).toBe(true)
+    expect(caractere.some((c) => c.type === 'defaut')).toBe(true)
   })
 
   it('garde les latéralités féminine et masculine dans le même ordre', () => {

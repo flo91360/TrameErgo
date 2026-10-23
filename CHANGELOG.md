@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.5.2] - 2026-10-23
+<!-- planifikateur:22e27d62-42ee-44e8-abbc-1f5a107d652e -->
+
+- **nouvel onglet appelé caractère du patient** : J'ai ajouté l'étape facultative « Caractère du patient », placée entre Scolarité et la première étape OT Hope, et ses deux phrases dans le bilan Word. Le modèle ne contient pas de partie « comportement de l'enfant durant le bilan ». J'ai donc placé la nouvelle partie juste avant « Comportement en classe », la seule partie du modèle qui traite du comportement. À vous de confirmer ou de m'indiquer une autre place. `npm test` et `npm run build` passent. Les parcours dans le navigateur (`npm run e2e`) n'ont pas pu être lancés ici, car les navigateurs Playwright ne sont pas installés : leurs nouveaux contrôles n'ont donc pas encore tourné. **Liste proposée (à faire valider)** : 26 items dans `contenu/questionnaire.json`, 13 qualités et 13 défauts, en une seule liste mélangée. - Qualités : curieux, gentil, drôle, serviable, joyeux, courageux, créatif, sociable, calme, autonome, affectueux, honnête, généreux. - Défauts : impatient, têtu, colérique, timide, distrait, bavard, désordonné, susceptible, agité, anxieux, peu motivé par l'effort, jaloux, mauvais perdant. - Chaque item a une forme masculine, une forme féminine et une phrase simple pour l'enfant (« Je parle beaucoup », « Je fais rire les autres »…). Les phrases pour l'enfant ne dépendent pas du sexe. - Pour changer la liste, il suffit de modifier ce fichier. **Écran** - Partie parents : une seule liste de puces, affichée au masculin ou au féminin selon le sexe de l'enfant. - Partie enfant : deux blocs séparés, « mes qualités » et « mes défauts », avec les mêmes items en mots simples. Chaque case de l'enfant correspond à un item de la partie parents. - Aucune réponse n'est obligatoire : on passe à l'écran suivant sans rien cocher. **Bilan Word** : nouvelle partie « Comportement de l'enfant de manière générale » dans `contenu/bilan.docx`, avec deux champs simples, sans conditions. - `{caractere_parents}` : « D'après ses parents, Lucas est curieux, têtu et joyeux. » - `{caractere_enfant}` : « Lors de son auto-évaluatio
+
 ## [1.5.1] - 2026-10-23
 
 ### Modifié
