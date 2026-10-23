@@ -35,8 +35,12 @@ formulaire.
    effacé les données du navigateur, désinstallé l'application ou changé
    d'appareil.
 
-Changer de formulaire : refaire les étapes avec la nouvelle adresse, puis un
-nouveau déploiement.
+Changer de formulaire : coller la nouvelle adresse dans `ADRESSE_FORMULAIRE`,
+enregistrer et exécuter `installer` ; le lien de liaison ne change pas.
+
+Mettre à jour le script : remplacer son code, enregistrer, puis « Déployer » >
+« Gérer les déploiements » > crayon > Version : « Nouvelle version » >
+« Déployer ». L'adresse et le lien de liaison ne changent pas.
 
 ## Ce que voit l'application
 
@@ -46,7 +50,11 @@ accents ni espaces, dans les deux ordres). `changerCle` crée une nouvelle
 clé et affiche le nouveau lien : les appareils qui avaient l'ancien perdent
 l'accès.
 
-Le nom est lu dans la question « Nom et Prénom de l'enfant ». Les lignes des
+Le nom est lu dans la question « Nom et Prénom de l'enfant », ou dans les
+questions « Nom » et « Prénom » placées sous un titre « Enfant ». Chaque
+réponse est envoyée avec le titre de l'encadré ou de la section où elle se
+trouve (« Parent 1 »…) : des questions courtes comme « Nom » peuvent donc se
+répéter d'un encadré à l'autre. Les lignes des
 grilles ne sont pré-remplies que si l'activité existe dans
 `contenu/questionnaire.json` avec le même libellé, aux majuscules et aux
 accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de

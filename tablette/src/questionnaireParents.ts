@@ -11,6 +11,8 @@ export interface Question {
   reponse: unknown
   /** Lignes d'une grille. */
   lignes?: string[]
+  /** Titre de l'encadré ou de la section où se trouve la question (« Parent 1 »…). */
+  partie?: string
 }
 
 export interface QuestionnaireParents {
@@ -160,16 +162,22 @@ export function dateDeNaissance(reponse: string): string {
 
 /** Une ligne « Question : réponse » par question répondue, pour l'encadré « Réponses des parents ». */
 export function enLignes(reponses: QuestionnaireParents): string[] {
+  // « Nom » sous « Enfant », « Parent 1 »… : l'intitulé seul ne dit pas de qui il s'agit.
+  const titres = reponses.questions.map((question) => question.titre)
+  const libelle = (question: Question) =>
+    question.partie && titres.indexOf(question.titre) !== titres.lastIndexOf(question.titre)
+      ? `${question.partie} - ${question.titre}`
+      : question.titre
   return reponses.questions.flatMap((question) => {
     if (question.lignes && Array.isArray(question.reponse)) {
       const cotees = question.lignes
         .map((ligne, i) => [ligne, (question.reponse as unknown[])[i]])
         .filter(([, colonne]) => typeof colonne === 'string' && colonne)
         .map(([ligne, colonne]) => `${ligne} : ${colonne}`)
-      return cotees.length ? [`${question.titre} : ${cotees.join(' ; ')}`] : []
+      return cotees.length ? [`${libelle(question)} : ${cotees.join(' ; ')}`] : []
     }
     const valeur = cases(question.reponse).join(', ')
-    return valeur ? [`${question.titre} : ${valeur}`] : []
+    return valeur ? [`${libelle(question)} : ${valeur}`] : []
   })
 }
 

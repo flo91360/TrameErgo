@@ -9,6 +9,20 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.4.2] - 2026-10-23
+
+### Modifié
+
+- Questionnaire des parents : le script de lecture retrouve aussi l'enfant
+  quand son nom est découpé en deux questions « Nom » et « Prénom » sous un
+  titre « Enfant ». Il indique pour chaque réponse le titre de l'encadré ou
+  de la section où elle se trouve (« Parent 1 »…).
+- Encadré « Réponses des parents » : une question au même intitulé qu'une
+  autre (« Nom » de l'enfant, d'un parent, du médecin) est précédée de ce
+  titre (« Parent 1 - Nom »).
+- Script de lecture : retrait de fonctions de création du formulaire qui n'y
+  servaient pas.
+
 ## [1.4.1] - 2026-10-22
 
 ### Corrigé

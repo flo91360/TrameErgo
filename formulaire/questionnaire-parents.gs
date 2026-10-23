@@ -47,11 +47,14 @@ function changerCle() {
 }
 
 const QUESTION_NOM = "Nom et Prénom de l'enfant";
+// Ou, si le nom est découpé : questions « Nom » et « Prénom » sous le titre « Enfant ».
+const PARTIE_ENFANT = 'Enfant';
 
 /**
  * Réponse à TrameErgo : …/exec?cle=…&prenom=…&nom=…
- * Renvoie { reponses: [{ envoi, questions: [{ titre, reponse, lignes? }] }] },
- * les questionnaires de cet enfant seulement, ou { erreur }.
+ * Renvoie { reponses: [{ envoi, questions: [{ titre, partie?, reponse, lignes? }] }] },
+ * les questionnaires de cet enfant seulement, ou { erreur }. partie : titre de
+ * l'encadré ou de la section où se trouve la question (« Parent 1 »…).
  */
 function doGet(e) {
   const parametres = e.parameter || {};
@@ -66,23 +69,44 @@ function doGet(e) {
   if (!recherche[0]) return enJson({ erreur: 'nom' });
 
   const form = FormApp.openById(proprietes.getProperty('FORMULAIRE'));
-  const reponses = form.getResponses().filter(function (reponse) {
-    const nom = reponse.getItemResponses().filter(function (r) {
-      return r.getItem().getTitle() === QUESTION_NOM;
-    })[0];
-    return nom && recherche.indexOf(comparable(String(nom.getResponse()))) !== -1;
-  }).map(function (reponse) {
+  const parties = partiesDesQuestions(form);
+  const reponses = form.getResponses().map(function (reponse) {
     return {
       envoi: reponse.getTimestamp().toISOString(),
       questions: reponse.getItemResponses().map(function (r) {
         const item = r.getItem();
         const question = { titre: item.getTitle(), reponse: r.getResponse() };
+        if (parties[item.getId()]) question.partie = parties[item.getId()];
         if (item.getType() === FormApp.ItemType.GRID) question.lignes = item.asGridItem().getRows();
         return question;
       }),
     };
+  }).filter(function (reponse) {
+    return recherche.indexOf(comparable(nomDeLEnfant(reponse.questions))) !== -1;
   });
   return enJson({ reponses: reponses });
+}
+
+/** Pour chaque question, le titre du dernier encadré ou début de section placé au-dessus. */
+function partiesDesQuestions(form) {
+  const parties = {};
+  let partie = '';
+  form.getItems().forEach(function (item) {
+    const type = item.getType();
+    if (type === FormApp.ItemType.SECTION_HEADER || type === FormApp.ItemType.PAGE_BREAK) partie = item.getTitle();
+    else if (partie) parties[item.getId()] = partie;
+  });
+  return parties;
+}
+
+function nomDeLEnfant(questions) {
+  const texte = function (titre, partie) {
+    const question = questions.filter(function (q) {
+      return q.titre === titre && (!partie || comparable(q.partie || '') === comparable(partie));
+    })[0];
+    return question ? String(question.reponse) : '';
+  };
+  return texte(QUESTION_NOM) || texte('Prénom', PARTIE_ENFANT) + texte('Nom', PARTIE_ENFANT);
 }
 
 /** « Léa  DUPONT-Martin » et « lea dupont martin » se valent. */
@@ -92,24 +116,4 @@ function comparable(texte) {
 
 function enJson(valeur) {
   return ContentService.createTextOutput(JSON.stringify(valeur)).setMimeType(ContentService.MimeType.JSON);
-}
-
-function grille(form, activites) {
-  form.addGridItem()
-    .setTitle("Niveau d'aide pour chaque activité")
-    .setHelpText(CONSIGNE_GRILLE)
-    .setRows(activites)
-    .setColumns(NIVEAUX);
-}
-
-function texte(form, titre) {
-  form.addTextItem().setTitle(titre);
-}
-
-function choix(form, titre, options, autre) {
-  form.addMultipleChoiceItem().setTitle(titre).setChoiceValues(options).showOtherOption(autre);
-}
-
-function cases(form, titre, options) {
-  form.addCheckboxItem().setTitle(titre).setChoiceValues(options).showOtherOption(true);
 }
