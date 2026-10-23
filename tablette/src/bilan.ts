@@ -53,6 +53,8 @@ export interface Bilan {
   objectifsParents: string[]
   remarquesParents: string
   amenagements: string[]
+  /** Aménagements scolaires précis, en texte libre (une ligne par aménagement). */
+  autreAmenagement: string
   activitesExtraScolaires: string
   activitesTempsLibre: string
   difficultesLoisirs: string
@@ -112,6 +114,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     objectifsParents: [],
     remarquesParents: '',
     amenagements: [],
+    autreAmenagement: '',
     activitesExtraScolaires: '',
     activitesTempsLibre: '',
     difficultesLoisirs: '',
@@ -243,6 +246,16 @@ export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
 }
 
+/** Case des aménagements scolaires qui renvoie au texte libre : elle n'est pas écrite dans le bilan. */
+export const AUTRE_AMENAGEMENT = 'Autre / aménagement scolaire'
+
+/** Aménagements scolaires du bilan : ceux de la liste, puis une ligne par ligne du texte libre. */
+export function amenagementsScolaires(bilan: Bilan): string[] {
+  const liste = questionnaire.amenagements.filter((amenagement) => amenagement !== AUTRE_AMENAGEMENT)
+  const precis = bilan.autreAmenagement.split('\n').map((ligne) => ligne.trim()).filter(Boolean)
+  return [...dansLOrdre(liste, bilan.amenagements), ...precis]
+}
+
 type Manquants = (bilan: Bilan) => string[]
 
 function presents(liste: (string | false)[]): string[] {
@@ -254,7 +267,7 @@ function presents(liste: (string | false)[]): string[] {
  * pas à l'écran suivant. Le modèle Word peut ainsi écrire ses phrases sans
  * conditions ({#champ}…{/champ}), et rester lisible.
  */
-export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs', Manquants> = {
+export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs' | 'amenagements', Manquants> = {
   patient: (bilan) => presents([
     !bilan.prenom.trim() && 'le prénom',
     !bilan.nom.trim() && 'le nom',
@@ -288,6 +301,10 @@ export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs'
       && 'au moins un objectif final',
     !bilan.accordParents && "l'accord des parents",
   ]),
+  amenagements: (bilan) => presents([
+    bilan.amenagements.includes(AUTRE_AMENAGEMENT) && !bilan.autreAmenagement.trim()
+      && "l'aménagement scolaire « Autre » à préciser",
+  ]),
 }
 
 /** Toutes les réponses obligatoires encore absentes : le bilan Word ne peut pas être créé. */
@@ -317,7 +334,7 @@ export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
 
 /** Valeur de chaque champ {…} du modèle bilan.docx. */
 export function champs(bilan: Bilan): Record<string, string> {
-  const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
+  const { identite, demande, suivis, scolarite, otHope, objectifs } = questionnaire
   // Les réponses obligatoires (voir obligatoires) sont toujours remplies : le
   // modèle les écrit sans condition. Les listes facultatives peuvent être vides.
   const entente = phrase(identite.entente, bilan.entente)
@@ -370,7 +387,7 @@ export function champs(bilan: Bilan): Record<string, string> {
       bilan.remarquesParents.trim() ? `Remarques des parents : ${bilan.remarquesParents.trim()}` : '',
     ].filter(Boolean).join('\n'),
 
-    amenagements_scolaires: enListe(dansLOrdre(amenagements, bilan.amenagements)),
+    amenagements_scolaires: enListe(amenagementsScolaires(bilan)),
     activites_extra_scolaires: enListe(activitesSaisies(bilan.activitesExtraScolaires)),
     activites_temps_libre: enListe(activitesSaisies(bilan.activitesTempsLibre)),
     difficultes_loisirs: bilan.difficultesLoisirs.trim()

@@ -4,7 +4,7 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
+  AUTRE_AMENAGEMENT, aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
   objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
@@ -163,6 +163,22 @@ describe('génération', () => {
     expect(texte).toContain('le bilan a été demandé par la mère.')
     expect(texte).not.toMatch(/[{}]|\(\)| \./)
   })
+
+  it('écrit l\'aménagement scolaire libre à la suite de la liste, sans la case « Autre »', () => {
+    const bilan = lucas()
+    Object.assign(bilan, {
+      amenagements: ['Tiers temps', AUTRE_AMENAGEMENT, 'Ordinateur'],
+      autreAmenagement: 'Place au premier rang\n\n  Consignes reformulées ',
+    })
+    expect(champs(bilan).amenagements_scolaires)
+      .toBe('- Ordinateur\n- Tiers temps\n- Place au premier rang\n- Consignes reformulées')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Place au premier rang')
+    expect(texte).not.toContain(AUTRE_AMENAGEMENT)
+    // Texte saisi sans cocher la case : écrit quand même, comme « Autre motif ».
+    bilan.amenagements = []
+    expect(champs(bilan).amenagements_scolaires).toBe('- Place au premier rang\n- Consignes reformulées')
+  })
 })
 
 describe('modèle lisible', () => {
@@ -184,6 +200,7 @@ describe('réponses obligatoires', () => {
     expect(obligatoires.demande(bilan)).toEqual(['la personne demandeuse', 'le dossier MDPH', 'au moins un motif'])
     expect(obligatoires.suivis(bilan)).toEqual(["les professionnels qui suivent l'enfant (ou « Aucun »)"])
     expect(obligatoires.objectifs(bilan)).toEqual(["l'accord des parents"])
+    expect(obligatoires.amenagements(bilan)).toEqual([])
     expect(champs(bilan).dossier_mdph).toBe('')
     expect(aRenseigner(lucas())).toEqual([])
   })
@@ -202,6 +219,11 @@ describe('réponses obligatoires', () => {
     expect(obligatoires.objectifs(bilan)).toEqual(['au moins un objectif final'])
     bilan.otHope = {}
     expect(obligatoires.objectifs(bilan)).toEqual([])
+    bilan.amenagements = [AUTRE_AMENAGEMENT]
+    bilan.autreAmenagement = '  '
+    expect(obligatoires.amenagements(bilan)).toEqual(["l'aménagement scolaire « Autre » à préciser"])
+    bilan.autreAmenagement = 'Place au premier rang'
+    expect(obligatoires.amenagements(bilan)).toEqual([])
   })
 })
 

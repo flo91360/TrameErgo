@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.5.3] - 2026-10-23
+<!-- planifikateur:053b7866-0f1a-4e36-b900-066880ba1e4c -->
+
+- **dans l'onglet 9 aménagement scolaire** : L'option « Autre / aménagement scolaire » est ajoutée à l'étape 9, avec une zone de texte libre. Les tests (`npm test`, 45 réussis) et `npm run build` passent ; le parcours Playwright n'a pas été lancé. **Point « À préciser » : j'ai tranché moi-même, à vous de confirmer.** Si du texte est saisi sans que la case soit cochée, il va quand même dans le Word. C'est déjà ce que font « Autre motif », « Autre trouble » et les « Autre » des matières, j'ai donc gardé la même règle. Si vous préférez ignorer ce texte ou cocher la case automatiquement, c'est un petit changement. **Ce qui change :** - **Liste** : « Autre / aménagement scolaire » est ajouté en fin de liste des aménagements dans `contenu/questionnaire.json`. - **Écran** : une zone de texte multiligne « Autre / aménagement scolaire (un par ligne) » s'affiche toujours sous la liste, que la case soit cochée ou non. - **Blocage** : si la case est cochée et la zone vide (ou seulement des espaces), « Suivant » reste bloqué. La liste en bas de l'écran indique « l'aménagement scolaire « Autre » à préciser ». Ce manque bloque aussi la création du Word. - **Bilan Word** : rien ne change dans le modèle `bilan.docx`. Le texte libre s'ajoute à la fin de la liste « - … » des aménagements scolaires, une puce par ligne saisie (lignes vides ignorées). Le libellé « Autre / aménagement scolaire » lui-même n'apparaît pas dans le Word. - **Brouillons et historique** : un nouveau champ `autreAmenagement` (vide au départ) s'ajoute aux réponses. Les brouillons et bilans enregistrés avant ce changement se rouvrent normalement : le champ y est simplement vide. Aucun numéro de version du brouillon n'a dû être changé. **Tests ajoutés** (`tests/bilan.test.ts`, `tests/reprise.test.ts`) : le blocage case cochée / zone vide, l'ordre et le contenu de la liste dans le Word généré, le texte saisi sans case cochée, et la reprise d'un ancien brouillon sans ce champ.
+
 ## [1.5.2] - 2026-10-23
 <!-- planifikateur:22e27d62-42ee-44e8-abbc-1f5a107d652e -->
 
