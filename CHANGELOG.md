@@ -9,6 +9,14 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.5.1] - 2026-10-23
+
+### Modifié
+
+- Fiche patient sous Windows : le bouton « Créer la fiche patient »
+  l'enregistre dans Documents\TrameErgo sans l'ouvrir dans Word ; le bouton
+  « Ouvrir dans Word » reste proposé.
+
 ## [1.5.0] - 2026-10-23
 
 ### Ajouté
