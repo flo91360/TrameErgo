@@ -17,6 +17,8 @@ const props = defineProps<{
   nom: () => string
   valeurs: () => Record<string, string>
   desactive?: boolean
+  /** Windows : enregistrer sans ouvrir dans Word (fiche patient). */
+  sansOuvrir?: boolean
 }>()
 
 const emit = defineEmits<{ cree: [] }>()
@@ -64,7 +66,7 @@ async function creer() {
       return
     }
     fichier.value = new File([docx as BlobPart], chemin.value.split(/[\\/]/).pop()!, { type: TYPE_DOCX })
-    await ouvrirDansWord()
+    if (!props.sansOuvrir) await ouvrirDansWord()
   } finally {
     enCours.value = false
   }

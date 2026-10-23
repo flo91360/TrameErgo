@@ -89,6 +89,6 @@ const valeursFiche = () => champsFiche(bilan)
     </p>
     <CreerDocument libelle="Créer la fiche patient" libelle-en-cours="Création de la fiche…" quoi="La fiche patient"
                    accord="e" :modele="modeleFiche" :nom="nomFiche" :valeurs="valeursFiche"
-                   :desactive="!bilan.prenom.trim() || !bilan.nom.trim()" />
+                   :desactive="!bilan.prenom.trim() || !bilan.nom.trim()" sans-ouvrir />
   </section>
 </template>
