@@ -189,7 +189,9 @@ export function enLignes(reponses: QuestionnaireParents): string[] {
 export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bilan: Bilan; activites: number } {
   const bilan: Bilan = JSON.parse(JSON.stringify(depart))
   const { identite, demande, scolarite, otHope, amenagements } = questionnaire
-  const question = (titre: string) => reponses.questions.find((q) => semblable(q.titre) === semblable(titre))?.reponse
+  // Intitulé du formulaire de l'ergo : « Date de naissance : », avec deux-points.
+  const intitule = (titre: string) => semblable(titre.replace(/\s*:\s*$/, ''))
+  const question = (titre: string) => reponses.questions.find((q) => intitule(q.titre) === intitule(titre))?.reponse
 
   const naissance = dateDeNaissance(texte(question(QUESTIONS.dateNaissance)))
   if (naissance) bilan.dateNaissance = naissance

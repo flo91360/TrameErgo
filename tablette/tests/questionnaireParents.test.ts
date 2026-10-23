@@ -113,6 +113,15 @@ describe('questionnaire des parents', () => {
     expect(dateDeNaissance('2016-10-14')).toBe('2016-10-14')
   })
 
+  it('reconnaît les intitulés suivis de deux-points', () => {
+    const { bilan } = preRemplir(nouveauBilan(), {
+      envoi: reponse.envoi,
+      questions: [{ titre: 'Date de naissance :', partie: 'Enfant', reponse: '2016-10-14' }, { titre: 'Classe :', reponse: 'CE2' }],
+    })
+    expect(bilan.dateNaissance).toBe('2016-10-14')
+    expect(bilan.classe).toBe('CE2')
+  })
+
   it('cherche les questionnaires d\'un enfant auprès du script, avec la clé', async () => {
     const appel = vi.fn(async (_url: URL) => new Response(JSON.stringify({
       reponses: [{ ...reponse, envoi: '2026-09-01T10:00:00.000Z' }, reponse],
