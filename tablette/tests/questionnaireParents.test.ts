@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nouveauBilan, questionnaire } from '../src/bilan'
 import {
-  chercher, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
+  chercher, coordonnees, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
   type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
@@ -111,6 +111,33 @@ describe('questionnaire des parents', () => {
       'Enfant - Nom : Petit', 'Date de naissance : 2016-10-14', 'Parent 1 - Nom : Petit', 'Profession : Infirmière',
     ])
     expect(dateDeNaissance('2016-10-14')).toBe('2016-10-14')
+  })
+
+  it('range les coordonnées par partie pour la fiche patient, et reprend le médecin', () => {
+    const formulaire: QuestionnaireParents = {
+      envoi: reponse.envoi,
+      questions: [
+        { titre: 'Nom', partie: 'Enfant', reponse: 'Petit' },
+        { titre: 'Nom', partie: 'Médecin traitant', reponse: 'Durand' },
+        { titre: 'Ville', partie: 'Médecin traitant', reponse: 'Massy' },
+        { titre: 'Nom', partie: 'Parent 1', reponse: 'Petit' },
+        { titre: 'Adresse mail', partie: 'Parent 1', reponse: 'a.petit@exemple.fr' },
+        { titre: 'Téléphone :', partie: 'Parent 2', reponse: '06 12 34 56 78' },
+        { titre: 'Profession', partie: 'Parent 2', reponse: '' },
+        { titre: 'Fraterie', partie: 'Famille', reponse: '1 frère' },
+        { titre: 'Mode de garde (si parents séparés)', partie: 'Famille', reponse: 'Garde alternée' },
+        { titre: 'Classe', partie: 'Bilan', reponse: 'CE2' },
+        { titre: "Niveau d'aide", partie: 'Enfant', lignes: ['Balayer'], reponse: ['Avec aide'] },
+      ],
+    }
+    expect(coordonnees(formulaire)).toEqual({
+      'enfant.nom': 'Petit', 'medecin.nom': 'Durand', 'medecin.ville': 'Massy', 'parent1.nom': 'Petit',
+      'parent1.adresse_mail': 'a.petit@exemple.fr', 'parent2.telephone': '06 12 34 56 78',
+      'famille.fratrie': '1 frère', 'famille.mode_de_garde': 'Garde alternée',
+    })
+    const { bilan } = preRemplir(nouveauBilan(), formulaire)
+    expect(bilan.coordonnees['parent2.telephone']).toBe('06 12 34 56 78')
+    expect([bilan.medecinTraitant, bilan.ville]).toEqual(['Durand', 'Massy'])
   })
 
   it('reconnaît les intitulés suivis de deux-points', () => {

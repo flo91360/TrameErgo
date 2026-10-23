@@ -54,6 +54,8 @@ export interface Bilan {
   difficultesLoisirs: string
   /** Réponses du questionnaire des parents, « Question : réponse », montrées pendant la saisie. */
   reponsesParents: string[]
+  /** Réponses des parents rangées par partie du questionnaire, pour la fiche patient (« parent1.nom » → « Martin »). */
+  coordonnees: Record<string, string>
 }
 
 export const NOMBRE_OBJECTIFS = 5
@@ -108,6 +110,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     activitesTempsLibre: '',
     difficultesLoisirs: '',
     reponsesParents: [],
+    coordonnees: {},
   }
 }
 
@@ -256,16 +259,16 @@ export function entame(bilan: Bilan): boolean {
 
 /**
  * Réévaluation : nouveau bilan du même enfant, daté du jour. Il garde
- * l'identité et l'environnement (à vérifier) ; la classe et toute la partie
+ * l'identité, l'environnement et les coordonnées de la famille (à vérifier) ; la classe et toute la partie
  * clinique sont à refaire.
  */
 export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
   const { sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
-    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville } = ancien
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville, coordonnees } = ancien
   return {
     ...nouveauBilan(date),
     sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
-    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville,
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville, coordonnees: { ...coordonnees },
   }
 }
 
@@ -336,13 +339,22 @@ export function champs(bilan: Bilan): Record<string, string> {
   return valeurs
 }
 
+/** Morceau de nom de fichier : sans caractère interdit sous Windows, espaces en « _ ». */
+function morceau(texte: string): string {
+  return texte.trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_')
+}
+
 /** Bilan_ergotherapie_<nom>_<prénom>_<mois>_<année>.docx. */
 export function nomDuFichier(bilan: Bilan): string {
   const [annee, mois] = (bilan.datePassation || aujourdhui()).split('-').map(Number)
   const nomDuMois = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(new Date(annee, mois - 1, 1))
-  const morceau = (texte: string) => texte.trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '_')
   return ['Bilan_ergotherapie', morceau(bilan.nom), morceau(bilan.prenom), nomDuMois, annee]
     .filter(Boolean).join('_') + '.docx'
+}
+
+/** Fiche_patient_<nom>_<prénom>.docx. */
+export function nomDeLaFiche(bilan: Bilan): string {
+  return ['Fiche_patient', morceau(bilan.nom), morceau(bilan.prenom)].filter(Boolean).join('_') + '.docx'
 }
 
 /** Bilan_….docx → Bilan_…_2.docx : copie enregistrée à côté d'un bilan existant. */

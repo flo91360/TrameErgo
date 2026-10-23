@@ -9,6 +9,21 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.5.0] - 2026-10-23
+
+### Ajouté
+
+- Fiche patient Word (`contenu/fiche.docx`) : bouton « Créer la fiche
+  patient » sur l'écran Patient. Elle reprend les coordonnées de l'enfant,
+  du médecin traitant, des parents 1 et 2 (nom, prénom, adresse, téléphone,
+  adresse mail, profession) et de la famille (fratrie, mode de garde).
+  L'écran Patient l'emporte sur le questionnaire des parents ; elle est
+  enregistrée comme le bilan (Documents\TrameErgo ou téléchargement).
+- Questionnaire des parents : les réponses des encadrés « Enfant »,
+  « Médecin traitant », « Parent 1 », « Parent 2 » et « Famille » sont
+  gardées par partie (`parent1.telephone`, `medecin.ville`…) et le médecin
+  traitant (nom, ville) pré-remplit l'écran Patient.
+
 ## [1.4.3] - 2026-10-23
 
 ### Corrigé

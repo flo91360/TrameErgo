@@ -6,7 +6,7 @@ import { copieNumerotee } from './bilan'
 
 export const surOrdinateur = isTauri()
 
-/** Un bilan de ce nom existe déjà dans Documents\TrameErgo. */
+/** Un document (bilan, fiche patient) de ce nom existe déjà dans Documents\TrameErgo. */
 export async function existe(nom: string): Promise<boolean> {
   const { BaseDirectory, exists } = await import('@tauri-apps/plugin-fs')
   return exists(`TrameErgo/${nom}`, { baseDir: BaseDirectory.Document })
@@ -33,8 +33,8 @@ export async function choisirSiExiste(nom: string): Promise<ChoixBilanExistant> 
   const reponse = await message(
     `${nom} existe déjà dans Documents\\TrameErgo et a peut-être été complété dans Word.\n\n`
       + `« ${remplacer} » efface ce fichier, avec les modifications faites dans Word.\n`
-      + `« ${copie} » enregistre le nouveau bilan à côté, sous un autre nom.`,
-    { title: 'Bilan déjà enregistré', kind: 'warning', buttons: { yes: remplacer, no: copie, cancel: 'Annuler' } },
+      + `« ${copie} » enregistre le nouveau document à côté, sous un autre nom.`,
+    { title: 'Document déjà enregistré', kind: 'warning', buttons: { yes: remplacer, no: copie, cancel: 'Annuler' } },
   )
   // Réponse : le libellé du bouton (ou Yes / No selon le système) ; fermer la fenêtre annule.
   if (reponse === remplacer || reponse === 'Yes') return 'remplacer'
