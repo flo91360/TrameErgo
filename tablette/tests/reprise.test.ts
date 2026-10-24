@@ -11,6 +11,7 @@ describe('reprise du brouillon', () => {
       prenom: 'Léa', classe: 'CE2', lateralite: 1, troubles: ['TSA'],
       professionnels: { orthophoniste: "à raison d'une fois par semaine" },
       autresProfessionnels: [{ nom: 'ostéopathe', frequence: "à raison d'une fois par mois" }],
+      personneDemandeuse: 'Autre', autrePersonneDemandeuse: "l'orthoptiste",
       otHope: { maison: { Balayer: 'aide' } }, objectifs: { maison: ['Balayer'] }, objectifsFinaux: ['Balayer'],
     })
     const texte = enregistrement(bilan)
@@ -19,6 +20,7 @@ describe('reprise du brouillon', () => {
     expect(reprise.retirees).toEqual([])
     expect(champs(reprise.bilan)).toEqual(champs(bilan))
     expect(reprise.bilan.autresProfessionnels).toEqual(bilan.autresProfessionnels)
+    expect(reprise.bilan.autrePersonneDemandeuse).toBe("l'orthoptiste")
   })
 
   it('garde au plus 3 autres thérapeutes et retire une fréquence inconnue', () => {

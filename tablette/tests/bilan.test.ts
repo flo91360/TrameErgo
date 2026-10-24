@@ -4,7 +4,7 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  AUTRE_AMENAGEMENT, aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
+  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
   objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
@@ -178,6 +178,28 @@ describe('génération', () => {
     // Texte saisi sans cocher la case : écrit quand même, comme « Autre motif ».
     bilan.amenagements = []
     expect(champs(bilan).amenagements_scolaires).toBe('- Place au premier rang\n- Consignes reformulées')
+  })
+})
+
+describe('personne demandeuse « Autre »', () => {
+  it('écrit le texte saisi, et non « Autre »', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { personneDemandeuse: AUTRE_PERSONNE_DEMANDEUSE, autrePersonneDemandeuse: '  l\'orthoptiste ' })
+    expect(questionnaire.demande.personnesDemandeuses).toContain(AUTRE_PERSONNE_DEMANDEUSE)
+    expect(obligatoires.demande(bilan)).toEqual([])
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain("le bilan a été demandé par l'orthoptiste.")
+    expect(texte).not.toContain('demandé par Autre')
+  })
+
+  it('demande le texte libre pour quitter l\'écran', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { personneDemandeuse: AUTRE_PERSONNE_DEMANDEUSE, autrePersonneDemandeuse: ' ' })
+    expect(obligatoires.demande(bilan)).toEqual(['la personne demandeuse (Autre)'])
+    // Le texte libre ne sert qu'avec « Autre ».
+    bilan.personneDemandeuse = 'la mère'
+    bilan.autrePersonneDemandeuse = "l'orthoptiste"
+    expect(champs(bilan).personne_demandeuse).toBe('la mère')
   })
 })
 
