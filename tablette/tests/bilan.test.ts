@@ -131,6 +131,26 @@ describe('caractère du patient', () => {
       + 'd\'être gentille.')
   })
 
+  it('accorde les nouveaux traits et écrit « teste souvent le cadre » sans « est »', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { caractereParents: ['provocateur', 'peu sociable', 'teste souvent le cadre'] })
+    expect(champs(bilan).caractere_parents)
+      .toBe('D\'après ses parents, Lucas est peu sociable et provocateur, et teste souvent le cadre.')
+    Object.assign(bilan, { sexe: 'Femme', prenom: 'Léa', caractereParents: ['teste souvent le cadre'] })
+    expect(champs(bilan).caractere_parents).toBe('D\'après ses parents, Léa teste souvent le cadre.')
+    bilan.caractereParents = ['intolérant à l\'injustice', 'teste souvent le cadre']
+    expect(champs(bilan).caractere_parents)
+      .toBe('D\'après ses parents, Léa est intolérante à l\'injustice et teste souvent le cadre.')
+    bilan.caractereEnfant = ['empathique', 'influençable', 'teste souvent le cadre']
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme qualité '
+      + 'd\'être empathique, et comme défauts d\'être influençable et de tester souvent le cadre.')
+    bilan.caractereEnfant = ['teste souvent le cadre']
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme défaut '
+      + 'de tester souvent le cadre.')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Léa est intolérante à l\'injustice et teste souvent le cadre.')
+  })
+
   it('n\'écrit rien quand rien n\'est coché (étape facultative)', () => {
     const bilan = lucas()
     Object.assign(bilan, { caractereParents: [], caractereEnfant: [] })

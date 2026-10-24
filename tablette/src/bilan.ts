@@ -232,17 +232,40 @@ export function enumeration(elements: readonly string[]): string {
   return `${elements.slice(0, -1).join(', ')} et ${elements[elements.length - 1]}`
 }
 
+/**
+ * Infinitif d'un trait formulé avec un verbe (« teste souvent le cadre » → « tester souvent le cadre »),
+ * vide pour un adjectif. Ces traits s'écrivent sans « est » ni « d'être » dans le bilan.
+ */
+export function infinitifCaractere(libelle: string): string {
+  const item = questionnaire.caractere.find((element) => element.libelle === libelle)
+  return (item && 'infinitif' in item && item.infinitif) || ''
+}
+
+/** « est a et b » puis « teste … » : « , et » après une énumération d'adjectifs, « et » sinon. */
+function relier(adjectifs: string, nombreAdjectifs: number, verbes: string): string {
+  if (!adjectifs || !verbes) return adjectifs || verbes
+  return `${adjectifs}${nombreAdjectifs > 1 ? ', et ' : ' et '}${verbes}`
+}
+
 /** Phrase du caractère selon les parents (vide si rien n'est coché). */
 export function phraseCaractereParents(bilan: Bilan): string {
-  const traits = dansLOrdre(libellesCaractere(), bilan.caractereParents).map((l) => caractereAccorde(bilan, l))
-  return traits.length ? `D'après ses parents, ${bilan.prenom.trim()} est ${enumeration(traits)}.` : ''
+  const libelles = dansLOrdre(libellesCaractere(), bilan.caractereParents)
+  const adjectifs = libelles.filter((l) => !infinitifCaractere(l)).map((l) => caractereAccorde(bilan, l))
+  const verbes = libelles.filter((l) => infinitifCaractere(l)).map((l) => caractereAccorde(bilan, l))
+  const description = relier(adjectifs.length ? `est ${enumeration(adjectifs)}` : '', adjectifs.length, enumeration(verbes))
+  return description ? `D'après ses parents, ${bilan.prenom.trim()} ${description}.` : ''
 }
 
 /** Phrase de l'auto-évaluation de l'enfant : qualités puis défauts cochés (vide si rien n'est coché). */
 export function phraseCaractereEnfant(bilan: Bilan): string {
   const partie = (type: TypeCaractere, singulier: string) => {
-    const traits = dansLOrdre(libellesCaractere(type), bilan.caractereEnfant).map((l) => caractereAccorde(bilan, l))
-    return traits.length ? `comme ${singulier}${traits.length > 1 ? 's' : ''} d'être ${enumeration(traits)}` : ''
+    const libelles = dansLOrdre(libellesCaractere(type), bilan.caractereEnfant)
+    const adjectifs = libelles.filter((l) => !infinitifCaractere(l)).map((l) => caractereAccorde(bilan, l))
+    const infinitifs = libelles.map(infinitifCaractere).filter(Boolean)
+    const etre = adjectifs.length ? `d'être ${enumeration(adjectifs)}` : ''
+    const faire = infinitifs.length ? `${/^[aeiouyhàâéèêîïôû]/i.test(infinitifs[0]) ? "d'" : 'de '}${enumeration(infinitifs)}` : ''
+    const traits = relier(etre, adjectifs.length, faire)
+    return traits ? `comme ${singulier}${libelles.length > 1 ? 's' : ''} ${traits}` : ''
   }
   const parties = [partie('qualite', 'qualité'), partie('defaut', 'défaut')].filter(Boolean)
   return parties.length
