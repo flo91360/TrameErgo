@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Bouton de création d'un document Word (bilan, fiche patient) : rempli sur
+// Bouton de création d'un document Word (le bilan) : rempli sur
 // l'appareil, puis enregistré dans Documents\TrameErgo et ouvert dans Word
 // (Windows), ou téléchargé et partageable (tablette).
 import { computed, ref } from 'vue'
@@ -9,7 +9,7 @@ import { choisirSiExiste, enregistrerDansDocuments, existe, nomLibre, ouvrir, su
 const props = defineProps<{
   libelle: string
   libelleEnCours: string
-  /** « Le bilan », « La fiche patient » : sujet des messages. */
+  /** « Le bilan » : sujet des messages. */
   quoi: string
   /** « e » si quoi est féminin : « créée », « enregistrée ». */
   accord?: string
@@ -17,8 +17,6 @@ const props = defineProps<{
   nom: () => string
   valeurs: () => Record<string, string>
   desactive?: boolean
-  /** Windows : enregistrer sans ouvrir dans Word (fiche patient). */
-  sansOuvrir?: boolean
 }>()
 
 const emit = defineEmits<{ cree: [] }>()
@@ -66,7 +64,7 @@ async function creer() {
       return
     }
     fichier.value = new File([docx as BlobPart], chemin.value.split(/[\\/]/).pop()!, { type: TYPE_DOCX })
-    if (!props.sansOuvrir) await ouvrirDansWord()
+    await ouvrirDansWord()
   } finally {
     enCours.value = false
   }

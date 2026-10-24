@@ -113,7 +113,7 @@ describe('questionnaire des parents', () => {
     expect(dateDeNaissance('2016-10-14')).toBe('2016-10-14')
   })
 
-  it('range les coordonnées par partie pour la fiche patient, et reprend le médecin', () => {
+  it('range les réponses par partie, et reprend le médecin', () => {
     const formulaire: QuestionnaireParents = {
       envoi: reponse.envoi,
       questions: [
@@ -136,7 +136,6 @@ describe('questionnaire des parents', () => {
       'famille.fratrie': '1 frère', 'famille.mode_de_garde': 'Garde alternée',
     })
     const { bilan } = preRemplir(nouveauBilan(), formulaire)
-    expect(bilan.coordonnees['parent2.telephone']).toBe('06 12 34 56 78')
     expect([bilan.medecinTraitant, bilan.ville]).toEqual(['Durand', 'Massy'])
   })
 

@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import modeleFiche from '@contenu/fiche.docx?url'
-import { calculerAge, datesIncoherentes, lateralites, nomDeLaFiche, questionnaire } from '../bilan'
+import { calculerAge, datesIncoherentes, lateralites, questionnaire } from '../bilan'
 import { bilan } from '../brouillon'
-import CreerDocument from '../composants/CreerDocument.vue'
-import { champsFiche } from '../fiche'
 import Segments from '../composants/Segments.vue'
 
 const { identite } = questionnaire
 const age = computed(() => calculerAge(bilan.dateNaissance, bilan.datePassation))
-const nomFiche = () => nomDeLaFiche(bilan)
-const valeursFiche = () => champsFiche(bilan)
 </script>
 
 <template>
@@ -80,15 +75,5 @@ const valeursFiche = () => champsFiche(bilan)
       <label>Médecin traitant <input v-model="bilan.medecinTraitant" placeholder="Nom, sans « Dr »" /></label>
       <label>Ville <input v-model="bilan.ville" /></label>
     </div>
-  </section>
-
-  <section class="carte actions">
-    <p class="aide">
-      Fiche patient : coordonnées de l'enfant, du médecin traitant et des parents, reprises de cet écran et du
-      questionnaire des parents.
-    </p>
-    <CreerDocument libelle="Créer la fiche patient" libelle-en-cours="Création de la fiche…" quoi="La fiche patient"
-                   accord="e" :modele="modeleFiche" :nom="nomFiche" :valeurs="valeursFiche"
-                   :desactive="!bilan.prenom.trim() || !bilan.nom.trim()" sans-ouvrir />
   </section>
 </template>

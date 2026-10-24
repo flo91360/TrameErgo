@@ -16,9 +16,6 @@ Textes visibles, commentaires et messages de commit en français.
     `{Il_Elle}`, `{ne_e}`, `{seul_e}`, `{type_bilan}`). Les activités OT Hope
     vont dans `{niveau_domaine}` (`{aide_maison}`…), construits à partir des
     identifiants du questionnaire.
-  - `fiche.docx` : modèle de la fiche patient, champs `{partie.information}`
-    (`{enfant.nom}`, `{medecin.ville}`, `{parent1.telephone}`…) remplis par
-    `src/fiche.ts`, sans conditions.
 - `formulaire/` : questionnaire des parents. `creer-formulaire.gs` crée le
   Google Form (grilles aux niveaux OT Hope), `questionnaire-parents.gs` est
   le script de lecture publié en application web ; mode d'emploi dans
@@ -47,9 +44,6 @@ Textes visibles, commentaires et messages de commit en français.
     recherche par nom auprès du script `formulaire/questionnaire-parents.gs`
     (adresse et clé propres à l'appareil, seul accès réseau de l'application)
     et pré-remplissage des réponses au même libellé que l'application.
-  - `src/fiche.ts` : valeur de chaque champ de `fiche.docx` : l'écran
-    Patient, sinon les réponses des parents rangées par partie
-    (`Bilan.coordonnees`, tirées des titres d'encadré « Parent 1 »…).
   - `src/historique.ts` : bilans créés sur l'appareil (localStorage), avec
     leurs réponses ; sauvegarde et import en `.json`.
   - `src/ecrans/` : accueil (nouveau, reprendre, historique), nouveau bilan
@@ -60,8 +54,8 @@ Textes visibles, commentaires et messages de commit en français.
     choix ordonnés (grosses cibles tactiles).
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs
     (et conditions) de `contenu/bilan.docx` et remplit le vrai modèle. Le
-    relancer après avoir modifié le contenu. `tests/fiche.test.ts` : idem pour
-    `contenu/fiche.docx`. `tests/reprise.test.ts` : reprise des brouillons.
+    relancer après avoir modifié le contenu. `tests/reprise.test.ts` : reprise
+    des brouillons.
     `tests/historique.test.ts` : historique. `tests/questionnaireParents.test.ts` :
     questionnaire des parents. `tests/questionnaire.test.ts` : règles de
     `questionnaire.json` (doublons, identifiants, latéralités, phrases).

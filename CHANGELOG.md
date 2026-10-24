@@ -9,6 +9,21 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.0] - 2026-10-24
+
+### Ajouté
+
+- `formulaire/fiche-patient.gs` : à chaque réponse au questionnaire des
+  parents, une fiche patient Word avec toutes les réponses (rangées sous les
+  titres du formulaire, grilles en tableaux) est créée dans le Google Drive
+  du formulaire, dossier « Fiches patients ».
+
+### Retiré
+
+- La fiche patient de TrameErgo (bouton de l'écran Patient, modèle
+  `contenu/fiche.docx`) : elle est désormais créée côté Google. Le médecin
+  traitant du questionnaire pré-remplit toujours l'écran Patient.
+
 ## [1.5.4] - 2026-10-24
 <!-- planifikateur:72c2ca13-2db9-4d3b-a150-05349bafd018 -->
 

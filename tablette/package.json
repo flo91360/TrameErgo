@@ -1,6 +1,6 @@
 {
   "name": "trameergo-tablette",
-  "version": "1.5.4",
+  "version": "1.6.0",
   "private": true,
   "description": "TrameErgo sur tablette : bilans d'ergothérapie générés sur l'appareil, hors ligne.",
   "type": "module",

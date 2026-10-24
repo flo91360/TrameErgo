@@ -73,8 +73,6 @@ export interface Bilan {
   difficultesLoisirs: string
   /** Réponses du questionnaire des parents, « Question : réponse », montrées pendant la saisie. */
   reponsesParents: string[]
-  /** Réponses des parents rangées par partie du questionnaire, pour la fiche patient (« parent1.nom » → « Martin »). */
-  coordonnees: Record<string, string>
 }
 
 export const NOMBRE_OBJECTIFS = 5
@@ -134,7 +132,6 @@ export function nouveauBilan(date = new Date()): Bilan {
     activitesTempsLibre: '',
     difficultesLoisirs: '',
     reponsesParents: [],
-    coordonnees: {},
   }
 }
 
@@ -358,11 +355,11 @@ export function entame(bilan: Bilan): boolean {
  */
 export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
   const { sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
-    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville, coordonnees } = ancien
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville } = ancien
   return {
     ...nouveauBilan(date),
     sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
-    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville, coordonnees: { ...coordonnees },
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville,
   }
 }
 
@@ -465,11 +462,6 @@ export function nomDuFichier(bilan: Bilan): string {
   const nomDuMois = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(new Date(annee, mois - 1, 1))
   return ['Bilan_ergotherapie', morceau(bilan.nom), morceau(bilan.prenom), nomDuMois, annee]
     .filter(Boolean).join('_') + '.docx'
-}
-
-/** Fiche_patient_<nom>_<prénom>.docx. */
-export function nomDeLaFiche(bilan: Bilan): string {
-  return ['Fiche_patient', morceau(bilan.nom), morceau(bilan.prenom)].filter(Boolean).join('_') + '.docx'
 }
 
 /** Bilan_….docx → Bilan_…_2.docx : copie enregistrée à côté d'un bilan existant. */
