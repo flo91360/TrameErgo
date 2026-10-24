@@ -59,6 +59,14 @@ const PERSONNES_DEMANDEUSES = [
   'le médecin traitant', 'la neuropédiatre', "l'enseignant", 'la psychomotricienne', 'la neuropsychologue',
   'le(s) parent(s)', 'le père', 'la mère',
 ];
+// Mêmes libellés que « Anamnèse / troubles » dans TrameErgo (contenu/questionnaire.json) :
+// les cases cochées y sont reprises, une réponse « Autre » va dans « Autre trouble ».
+const TROUBLES = [
+  "Difficulté d'écriture", 'Difficulté de lecture', 'Difficulté de coordination', 'Difficulté de concentration',
+  'Hyperlaxité', 'Dyslexie', 'Dysorthographie', 'Dysgraphie', 'Difficulté sociale', 'TDA sans hyperactivité',
+  'TDA avec hyperactivité', 'Trouble oppositionnel', 'TSA',
+  'Trouble du développement des coordinations', 'Trouble psychologique', 'Trouble psychiatrique',
+];
 const MATIERES = [
   'Français', 'Histoire-géographie', 'Mathématique', 'SVT', 'Musique', 'Techno', 'Anglais', 'Espagnol',
   'Physique-chimie', 'Art plastique',
@@ -91,6 +99,7 @@ function creerFormulaire() {
     "difficulté d'écriture", 'difficulté de concentration', "difficulté de visualisation dans l'espace",
     'difficulté de coordination',
   ]);
+  cases(form, 'Pour quelle(s) raison(s) le bilan est souhaité ? En lien avec quel trouble diagnostiqué ?', TROUBLES);
   texte(form, 'Avez vous des inquiétudes particulières ?');
   cases(form, "Y a-t-il d'autres bilans qui ont été réalisé précédemment ?", [
     'Bilan psychomoteur', 'Bilan orthophonique', 'Bilan Orthoptique', 'Bilan neuropsychologique',
