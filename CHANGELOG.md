@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.4] - 2026-10-24
+<!-- planifikateur:13b9e8ed-02f4-479c-9a30-b7011f9acfbc -->
+
+- **lien entre google form et TramErgo** : J'ai corrigé l'échec : `npm test` (56 tests) et `npm run build` passent maintenant. **Cause** : entre-temps, la carte fusionnée dans `main` (PR #26) a changé la liste des troubles de `contenu/questionnaire.json`. Elle a ajouté « Trouble oppositionnel » et retiré « Trouble autistique de type asperger ». La liste que j'avais ajoutée au script de création du formulaire (`formulaire/creer-formulaire.gs`) ne correspondait plus, et le test qui compare les deux a échoué. **Correction** : cette liste reprend maintenant exactement la nouvelle liste de TrameErgo. C'est le seul changement ; le reste de la livraison précédente est identique. **Rappel du fonctionnement** - Quand les parents cochent, dans la question « Pour quelle(s) raison(s) le bilan est souhaité ? En lien avec quel trouble diagnostiqué ? », un trouble de la liste de TrameErgo, il est coché dans « Anamnèse / troubles » de l'étape Demande. - Une réponse qui ne correspond à aucun choix (par exemple l'option « Autre ») est recopiée telle quelle dans le champ « Autre trouble », qui existait déjà. Le Word l'écrit à la suite des troubles cochés ; `contenu/bilan.docx` n'a pas été modifié. - Les autres questions et le bilan sans connexion ou sans réponse des parents fonctionnent comme avant. **À vérifier dans votre formulaire Google** : il n'est pas modifié automatiquement, ses cases doivent donc reprendre la liste à jour de TrameErgo. Un parent qui y coche « Trouble autistique de type asperger » verra ce texte reporté dans « Autre trouble », car ce choix n'existe plus dans l'application. « Trouble oppositionnel » ne sera coché que si votre formulaire propose cette case.
+
 ## [1.6.3] - 2026-10-24
 <!-- planifikateur:8e1c13ce-107e-47e8-800d-5c4c19d1b433 -->
 

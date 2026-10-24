@@ -64,7 +64,7 @@ const PERSONNES_DEMANDEUSES = [
 const TROUBLES = [
   "Difficulté d'écriture", 'Difficulté de lecture', 'Difficulté de coordination', 'Difficulté de concentration',
   'Hyperlaxité', 'Dyslexie', 'Dysorthographie', 'Dysgraphie', 'Difficulté sociale', 'TDA sans hyperactivité',
-  'TDA avec hyperactivité', 'TSA', 'Trouble autistique de type asperger',
+  'TDA avec hyperactivité', 'Trouble oppositionnel', 'TSA',
   'Trouble du développement des coordinations', 'Trouble psychologique', 'Trouble psychiatrique',
 ];
 const MATIERES = [
