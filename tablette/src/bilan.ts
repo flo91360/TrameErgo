@@ -6,6 +6,15 @@ export { questionnaire }
 export type Sexe = 'Femme' | 'Homme'
 export type TrancheAge = 'Enfant' | 'Ado'
 
+/** Thérapeute « Autre », saisi en texte libre, et la fréquence de son suivi. */
+export interface AutreProfessionnel {
+  nom: string
+  frequence: string
+}
+
+/** Nombre maximal de thérapeutes « Autre ». */
+export const NOMBRE_AUTRES_PROFESSIONNELS = 3
+
 export interface Bilan {
   sexe: Sexe
   trancheAge: TrancheAge
@@ -34,6 +43,8 @@ export interface Bilan {
   aucunProfessionnel: boolean
   /** Professionnel suivi → fréquence du suivi. */
   professionnels: Record<string, string>
+  /** Autres thérapeutes (« Autre »), au plus NOMBRE_AUTRES_PROFESSIONNELS ; vide : « Autre » n'est pas coché. */
+  autresProfessionnels: AutreProfessionnel[]
   comportement: string[]
   difficultes: string[]
   matieresPreferees: string[]
@@ -93,6 +104,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     dossierMdph: '',
     aucunProfessionnel: false,
     professionnels: {},
+    autresProfessionnels: [],
     comportement: [],
     difficultes: [],
     matieresPreferees: [],
@@ -233,13 +245,20 @@ export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs'
     !bilan.dossierMdph && 'le dossier MDPH',
     !bilan.motifs.length && !bilan.autreMotif.trim() && 'au moins un motif',
   ]),
-  suivis: (bilan) => bilan.aucunProfessionnel
-    ? []
-    : Object.keys(bilan.professionnels).length
-      ? dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
-          .filter((professionnel) => !bilan.professionnels[professionnel])
-          .map((professionnel) => `la fréquence de suivi (${professionnel})`)
-      : ['les professionnels qui suivent l\'enfant (ou « Aucun »)'],
+  suivis: (bilan) => {
+    if (bilan.aucunProfessionnel) return []
+    if (!Object.keys(bilan.professionnels).length && !bilan.autresProfessionnels.length)
+      return ['les professionnels qui suivent l\'enfant (ou « Aucun »)']
+    return [
+      ...dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
+        .filter((professionnel) => !bilan.professionnels[professionnel])
+        .map((professionnel) => `la fréquence de suivi (${professionnel})`),
+      ...bilan.autresProfessionnels.flatMap((autre, i) => presents([
+        !autre.nom.trim() && `le nom ou la profession de l'autre thérapeute n° ${i + 1}`,
+        !autre.frequence && `la fréquence de suivi (${autre.nom.trim() || `autre thérapeute n° ${i + 1}`})`,
+      ])),
+    ]
+  },
   objectifs: (bilan) => presents([
     objectifsPossibles(bilan).length > 0 && !objectifsRetenus(bilan, bilan.objectifsFinaux).length
       && 'au moins un objectif final',
@@ -272,9 +291,28 @@ export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
   }
 }
 
+/** Professionnels de la liste suivis, « professionnel : fréquence », dans l'ordre du questionnaire. */
+function professionnelsSuivis(bilan: Bilan): string[] {
+  return dansLOrdre(questionnaire.suivis.professionnels, Object.keys(bilan.professionnels))
+    .map((professionnel) => [professionnel, bilan.professionnels[professionnel]].filter(Boolean).join(' : '))
+}
+
+/**
+ * {autre} : autres thérapeutes, à la suite de {professionnels} dans le même
+ * paragraphe du modèle. Vide si « Autre » n'est pas coché : aucune trace dans le Word.
+ */
+function autresSuivis(bilan: Bilan): string {
+  if (bilan.aucunProfessionnel) return ''
+  const autres = bilan.autresProfessionnels
+    .filter((autre) => autre.nom.trim())
+    .map((autre) => [autre.nom.trim(), autre.frequence].filter(Boolean).join(' : '))
+  if (!autres.length) return ''
+  return (professionnelsSuivis(bilan).length ? '\n' : '') + enListe(autres)
+}
+
 /** Valeur de chaque champ {…} du modèle bilan.docx. */
 export function champs(bilan: Bilan): Record<string, string> {
-  const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
+  const { identite, demande, scolarite, otHope, objectifs, amenagements } = questionnaire
   // Les réponses obligatoires (voir obligatoires) sont toujours remplies : le
   // modèle les écrit sans condition. Les listes facultatives peuvent être vides.
   const entente = phrase(identite.entente, bilan.entente)
@@ -304,10 +342,8 @@ export function champs(bilan: Bilan): Record<string, string> {
     personne_demandeuse: bilan.personneDemandeuse,
     motifs: dansLOrdre(demande.motifs, bilan.motifs, bilan.autreMotif).join(', '),
     troubles: enListe(dansLOrdre(demande.troubles, bilan.troubles, bilan.autreTrouble)),
-    professionnels: enListe(bilan.aucunProfessionnel
-      ? ['aucun']
-      : dansLOrdre(suivis.professionnels, Object.keys(bilan.professionnels))
-          .map((professionnel) => [professionnel, bilan.professionnels[professionnel]].filter(Boolean).join(' : '))),
+    professionnels: enListe(bilan.aucunProfessionnel ? ['aucun'] : professionnelsSuivis(bilan)),
+    autre: autresSuivis(bilan),
     dossier_mdph: bilan.dossierMdph,
 
     comportement_en_classe: enListe(dansLOrdre(scolarite.comportement, bilan.comportement)),

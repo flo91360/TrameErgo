@@ -10,6 +10,7 @@ describe('reprise du brouillon', () => {
     Object.assign(bilan, {
       prenom: 'Léa', classe: 'CE2', lateralite: 1, troubles: ['TSA'],
       professionnels: { orthophoniste: "à raison d'une fois par semaine" },
+      autresProfessionnels: [{ nom: 'ostéopathe', frequence: "à raison d'une fois par mois" }],
       otHope: { maison: { Balayer: 'aide' } }, objectifs: { maison: ['Balayer'] }, objectifsFinaux: ['Balayer'],
     })
     const texte = enregistrement(bilan)
@@ -17,6 +18,24 @@ describe('reprise du brouillon', () => {
     const reprise = reprendre(texte, date)!
     expect(reprise.retirees).toEqual([])
     expect(champs(reprise.bilan)).toEqual(champs(bilan))
+    expect(reprise.bilan.autresProfessionnels).toEqual(bilan.autresProfessionnels)
+  })
+
+  it('garde au plus 3 autres thérapeutes et retire une fréquence inconnue', () => {
+    const mois = "à raison d'une fois par mois"
+    const ancien = {
+      ...nouveauBilan(date),
+      autresProfessionnels: [
+        { nom: 'ostéopathe', frequence: 'chaque jour' }, 'texte', { nom: 'sophrologue', frequence: mois },
+        { nom: 'éducatrice', frequence: mois }, { nom: 'quatrième', frequence: mois },
+      ],
+    }
+    const { bilan, retirees } = reprendre(JSON.stringify(ancien), date)!
+    expect(retirees).toEqual(['chaque jour (Fréquence de suivi)'])
+    expect(bilan.autresProfessionnels).toEqual([
+      { nom: 'ostéopathe', frequence: '' }, { nom: 'sophrologue', frequence: mois }, { nom: 'éducatrice', frequence: mois },
+    ])
+    expect(reprendre(JSON.stringify({ prenom: 'Léa' }), date)!.bilan.autresProfessionnels).toEqual([])
   })
 
   it('reprend un brouillon de la version 1 (réponses à la racine)', () => {

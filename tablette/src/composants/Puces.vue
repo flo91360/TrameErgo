@@ -24,5 +24,6 @@ function basculer(option: string) {
     >
       {{ option }}
     </button>
+    <slot />
   </div>
 </template>

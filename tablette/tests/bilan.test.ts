@@ -129,6 +129,56 @@ describe('génération', () => {
   })
 })
 
+describe('autres thérapeutes', () => {
+  const semaine = "à raison d'une fois par semaine"
+  const mois = "à raison d'une fois par mois"
+
+  it('écrit chaque « Autre » avec sa fréquence, à la suite des professionnels', () => {
+    const bilan = lucas()
+    bilan.autresProfessionnels = [
+      { nom: 'ostéopathe', frequence: mois },
+      { nom: 'Mme Petit, éducatrice', frequence: semaine },
+      { nom: 'sophrologue', frequence: "à raison d'une fois par an" },
+    ]
+    expect(aRenseigner(bilan)).toEqual([])
+    const valeurs = champs(bilan)
+    expect(valeurs.autre).toBe(
+      "\n- ostéopathe : à raison d'une fois par mois\n- Mme Petit, éducatrice : à raison d'une fois par semaine"
+      + "\n- sophrologue : à raison d'une fois par an")
+    const texte = texteDuBilan(remplirModele(modele, valeurs))
+    expect(texte).toContain(
+      "- psychologue : à raison d'une fois par mois- ostéopathe : à raison d'une fois par mois"
+      + "- Mme Petit, éducatrice : à raison d'une fois par semaine- sophrologue : à raison d'une fois par an")
+  })
+
+  it('n\'écrit rien sans « Autre »', () => {
+    const bilan = lucas()
+    expect(champs(bilan).autre).toBe('')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain("- psychologue : à raison d'une fois par moisDossier MDPH")
+    bilan.autresProfessionnels = [{ nom: 'ostéopathe', frequence: mois }]
+    bilan.aucunProfessionnel = true
+    expect(champs(bilan).autre).toBe('')
+  })
+
+  it('suffit seul, sans saut de ligne avant', () => {
+    const bilan = lucas()
+    bilan.professionnels = {}
+    bilan.autresProfessionnels = [{ nom: 'ostéopathe', frequence: mois }]
+    expect(obligatoires.suivis(bilan)).toEqual([])
+    expect(champs(bilan).professionnels).toBe('')
+    expect(champs(bilan).autre).toBe("- ostéopathe : à raison d'une fois par mois")
+  })
+
+  it('demande le thérapeute et sa fréquence pour quitter l\'écran', () => {
+    const bilan = lucas()
+    bilan.autresProfessionnels = [{ nom: 'ostéopathe', frequence: '' }, { nom: ' ', frequence: semaine }]
+    expect(obligatoires.suivis(bilan)).toEqual([
+      'la fréquence de suivi (ostéopathe)', "le nom ou la profession de l'autre thérapeute n° 2",
+    ])
+  })
+})
+
 describe('modèle lisible', () => {
   it('n\'a que des champs simples, sans conditions', () => {
     const texte = new Docxtemplater(new PizZip(modele), { paragraphLoop: true, linebreaks: true }).getFullText()

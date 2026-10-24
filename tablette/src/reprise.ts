@@ -2,7 +2,7 @@
 // Les réponses sont retrouvées par leur libellé : une option renommée ou
 // supprimée dans questionnaire.json est retirée du bilan et signalée, au lieu
 // d'aller dans le Word sans apparaître à l'écran.
-import { lateralites, nouveauBilan, questionnaire, type Bilan } from './bilan'
+import { lateralites, NOMBRE_AUTRES_PROFESSIONNELS, nouveauBilan, questionnaire, type Bilan } from './bilan'
 
 /** Format du brouillon ; l'augmenter (et adapter reprendre) si une réponse change de forme. */
 export const VERSION_BROUILLON = 2
@@ -121,6 +121,20 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     }
   }
   bilan.professionnels = professionnels
+
+  // Autres thérapeutes (« Autre ») : texte libre et fréquence de la liste, au plus NOMBRE_AUTRES_PROFESSIONNELS.
+  const autres = Array.isArray(enregistre.autresProfessionnels) ? enregistre.autresProfessionnels : []
+  bilan.autresProfessionnels = autres
+    .filter((autre): autre is Objet => estObjet(autre) && typeof autre.nom === 'string')
+    .slice(0, NOMBRE_AUTRES_PROFESSIONNELS)
+    .map((autre) => {
+      const frequence = typeof autre.frequence === 'string' ? autre.frequence : ''
+      if (frequence && !suivis.frequences.includes(frequence)) {
+        retirees.push(`${frequence} (Fréquence de suivi)`)
+        return { nom: autre.nom as string, frequence: '' }
+      }
+      return { nom: autre.nom as string, frequence }
+    })
 
   // OT Hope : domaine, activité et niveau doivent exister ; les objectifs suivent les activités.
   const niveaux = otHope.niveaux.map((n) => n.id)
