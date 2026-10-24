@@ -1,8 +1,11 @@
 // Questionnaire des parents : recherche par nom auprès du script Google et
 // pré-remplissage, seulement pour les réponses au même libellé que l'application.
 import { readFileSync } from 'node:fs'
+import Docxtemplater from 'docxtemplater'
+import PizZip from 'pizzip'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { nouveauBilan, questionnaire } from '../src/bilan'
+import { champs, nouveauBilan, questionnaire } from '../src/bilan'
+import { remplirModele } from '../src/generer'
 import {
   chercher, coordonnees, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
   type QuestionnaireParents,
@@ -86,6 +89,34 @@ describe('questionnaire des parents', () => {
     expect(bilan.activitesTempsLibre).toBe('Lecture, vélo')
     expect(bilan.fratrie).toBe('')
     expect(bilan.sexe).toBe(nouveauBilan().sexe)
+  })
+
+  it('coche les troubles des raisons du bilan, et reporte les autres réponses en « Autre trouble »', () => {
+    const avecRaisons: QuestionnaireParents = {
+      envoi: reponse.envoi,
+      questions: [
+        { titre: QUESTIONS.raisonsTroubles, reponse: ['tsa', 'Dysgraphie', 'Hypersensibilité au bruit', 'Dysgraphie'] },
+      ],
+    }
+    const { bilan } = preRemplir(nouveauBilan(), avecRaisons)
+    expect(bilan.troubles).toEqual(['TSA', 'Dysgraphie'])
+    expect(bilan.autreTrouble).toBe('Hypersensibilité au bruit')
+    // Déjà saisi : pas de doublon ; toutes cochées : « Autre trouble » reste tel quel.
+    expect(preRemplir({ ...nouveauBilan(), autreTrouble: 'Hypersensibilité au bruit' }, avecRaisons).bilan.autreTrouble)
+      .toBe('Hypersensibilité au bruit')
+    expect(preRemplir({ ...nouveauBilan(), autreTrouble: 'Trouble visuel' }, avecRaisons).bilan.autreTrouble)
+      .toBe('Trouble visuel, Hypersensibilité au bruit')
+    const toutesCochees = { envoi: reponse.envoi, questions: [{ titre: QUESTIONS.raisonsTroubles, reponse: ['TSA'] }] }
+    expect(preRemplir(nouveauBilan(), toutesCochees).bilan.autreTrouble).toBe('')
+    // Les autres questions de troubles ne remplissent pas « Autre trouble ».
+    expect(preRemplir(nouveauBilan(), reponse).bilan.autreTrouble).toBe('')
+    // Le Word écrit les troubles cochés, puis la réponse libre.
+    const modele = readFileSync(new URL('../../contenu/bilan.docx', import.meta.url))
+    const word = new Docxtemplater(new PizZip(remplirModele(modele, champs(bilan))),
+      { paragraphLoop: true, linebreaks: true }).getFullText()
+    expect(word).toContain('- Dysgraphie')
+    expect(word).toContain('- TSA')
+    expect(word).toContain('- Hypersensibilité au bruit')
   })
 
   it('garde toutes les réponses pour l\'encadré « Réponses des parents »', () => {
@@ -195,6 +226,11 @@ describe('questionnaire des parents', () => {
       .split(/,\s*/).map((p) => p.trim()).filter(Boolean).map((p) => p.slice(1, -1).replace(/\\'/g, "'"))
     expect([...(personnes ?? []), 'Autre']).toEqual(questionnaire.demande.personnesDemandeuses)
     expect(creation).toContain(`choix(form, "${QUESTIONS.personneDemandeuse}", PERSONNES_DEMANDEUSES, true)`)
+    // Raisons du bilan : cases aux libellés des troubles de l'application.
+    const troubles = creation.match(/const TROUBLES = \[([^\]]*)\];/)?.[1]
+      .split(/,\s*/).map((t) => t.trim()).filter(Boolean).map((t) => t.slice(1, -1))
+    expect(troubles).toEqual(questionnaire.demande.troubles)
+    expect(creation).toContain(`cases(form, '${QUESTIONS.raisonsTroubles}', TROUBLES)`)
     // Le script de lecture cherche le nom dans la question du formulaire.
     const lecture = script('questionnaire-parents.gs')
     const question = lecture.match(/const QUESTION_NOM = "(.*)";/)?.[1]

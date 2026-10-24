@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.3] - 2026-10-24
+<!-- planifikateur:13b9e8ed-02f4-479c-9a30-b7011f9acfbc -->
+
+- **lien entre google form et TramErgo** : La question des parents « Pour quelle(s) raison(s) le bilan est souhaité ? En lien avec quel trouble diagnostiqué ? » pré-remplit maintenant la partie « Anamnèse / troubles » de l'étape Demande. `npm test` (55 tests) et `npm run build` passent. Les tests de parcours dans le navigateur (`npm run e2e`) n'ont pas été lancés ici. **Ce qui se passe à l'ouverture d'un « Nouveau bilan »** - **Réponse qui correspond à la liste** : le trouble est coché dans l'étape Demande. La comparaison ignore les majuscules, les accents, les apostrophes et les espaces. - **Réponse qui ne correspond à aucun choix** (par exemple l'option « Autre » du formulaire) : le texte exact est recopié dans le champ « Autre trouble », qui existait déjà dans cette partie. Si ce champ contient déjà du texte, la réponse est ajoutée après une virgule, sans doublon. - **Bilan Word** : rien à changer dans `contenu/bilan.docx`. Le repère `{troubles}` écrit déjà les troubles cochés puis le texte de « Autre trouble », un par ligne. - **Autres questions** : leur pré-remplissage ne change pas. Les deux questions de troubles déjà reprises (motif du bilan, troubles diagnostiqués) cochent toujours seulement les troubles de la liste et ne remplissent pas « Autre trouble ». Sans connexion ou sans réponse des parents, le bilan fonctionne comme avant. **Fichiers modifiés** - `tablette/src/questionnaireParents.ts` : ajout de la question et du report dans « Autre trouble ». - `formulaire/creer-formulaire.gs` : j'ai ajouté cette question au script qui crée le formulaire, avec exactement la liste de troubles de TrameErgo et une option « Autre ». Un test existant exige que chaque question reprise par l'application figure dans ce script. Cela ne touche pas le formulaire Google déjà en ligne : c'est sa question existante qui est lue. - `formulaire/README.md` : explication du nouveau comportement. - `tablette/tests/questionnaireParents.test.ts` : nouveaux tests. Ils vérifient que les troubles sont cochés, que le texte libre est
+
 ## [1.6.2] - 2026-10-24
 <!-- planifikateur:51870936-dbfb-4fc5-9805-2d6e69617e6e -->
 

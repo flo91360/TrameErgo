@@ -123,6 +123,8 @@ export const QUESTIONS = {
   personneDemandeuse: "Qui est à l'origine de la demande de réalisation du bilan en ergothérapie ?",
   dossierMdph: 'Dossier MDPH',
   motifs: 'Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?',
+  /** Cases aux libellés des troubles de l'application ; les autres réponses vont dans « Autre trouble ». */
+  raisonsTroubles: 'Pour quelle(s) raison(s) le bilan est souhaité ? En lien avec quel trouble diagnostiqué ?',
   troubles: 'A ce jour, quel(s) trouble(s) ont été diagnostiqués ?',
   matieresPreferees: 'Matières préférées',
   matieresDetestees: 'Matières moins appréciées',
@@ -218,7 +220,9 @@ export function coordonnees(reponses: QuestionnaireParents): Record<string, stri
 /**
  * Bilan pré-rempli avec les réponses des parents. Seules les réponses qui
  * reprennent un choix de l'application (activité, niveau, classe…) au même
- * libellé sont reportées ; le reste n'apparaît que dans l'encadré.
+ * libellé sont reportées ; le reste n'apparaît que dans l'encadré, sauf pour
+ * la question des raisons du bilan (QUESTIONS.raisonsTroubles), dont les
+ * réponses hors liste vont dans « Autre trouble ».
  */
 export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bilan: Bilan; activites: number } {
   const bilan: Bilan = JSON.parse(JSON.stringify(depart))
@@ -253,7 +257,7 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
   const multiples: [keyof Bilan & ('troubles' | 'matieresPreferees' | 'matieresDetestees' | 'difficultes'
     | 'amenagements'), string[], readonly string[]][] = [
     // Les motifs du formulaire (« difficulté d'écriture »…) sont des troubles de l'application.
-    ['troubles', [QUESTIONS.motifs, QUESTIONS.troubles], demande.troubles],
+    ['troubles', [QUESTIONS.motifs, QUESTIONS.troubles, QUESTIONS.raisonsTroubles], demande.troubles],
     ['matieresPreferees', [QUESTIONS.matieresPreferees], scolarite.matieres],
     ['matieresDetestees', [QUESTIONS.matieresDetestees], scolarite.matieres],
     ['difficultes', [QUESTIONS.difficultes], scolarite.difficultes],
@@ -263,6 +267,17 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
     const trouves = titres.flatMap((titre) => cases(question(titre)))
       .map((reponse) => choix(liste, reponse)).filter((c): c is string => !!c)
     bilan[cle] = [...new Set([...bilan[cle], ...trouves])]
+  }
+
+  // Raisons du bilan / troubles diagnostiqués : une réponse sans trouble au même
+  // libellé (option « Autre » du formulaire…) est reportée telle quelle dans
+  // « Autre trouble », qui est écrit dans le bilan à la suite des troubles cochés.
+  const autresTroubles = cases(question(QUESTIONS.raisonsTroubles)).map((reponse) => reponse.trim())
+    .filter((reponse) => !choix(demande.troubles, reponse))
+  if (autresTroubles.length) {
+    const deja = bilan.autreTrouble.split(',').map((t) => semblable(t))
+    const nouveaux = [...new Set(autresTroubles)].filter((reponse) => !deja.includes(semblable(reponse)))
+    bilan.autreTrouble = [bilan.autreTrouble.trim(), ...nouveaux].filter(Boolean).join(', ')
   }
 
   const textes: [keyof Bilan & ('activitesExtraScolaires' | 'activitesTempsLibre' | 'difficultesLoisirs'),

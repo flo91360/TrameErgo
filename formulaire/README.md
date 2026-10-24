@@ -63,8 +63,12 @@ grilles ne sont pré-remplies que si l'activité existe dans
 accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de
 `otHope.niveaux` (« Avec aide »…). Les listes « cotation 0 à 4 » de l'ancien
 formulaire ne sont pas reprises : leurs niveaux n'ont pas d'équivalent dans
-l'application. Les autres réponses sont montrées telles quelles dans
-l'encadré « Réponses des parents ».
+l'application. La question « Pour quelle(s) raison(s) le bilan est
+souhaité ? En lien avec quel trouble diagnostiqué ? » coche, dans l'écran
+Demande (« Anamnèse / troubles »), les troubles au même libellé ; ses autres
+réponses (« Autre »…) sont reportées telles quelles dans « Autre trouble »,
+écrit dans le bilan à la suite des troubles cochés. Les autres réponses sont
+montrées telles quelles dans l'encadré « Réponses des parents ».
 
 ## Fiche patient Word à chaque réponse
 
