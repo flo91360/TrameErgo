@@ -133,6 +133,8 @@ export const QUESTIONS = {
   activitesExtraScolaires: 'Quelles sont les activités extra-scolaire ? A quelle fréquence ?',
   activitesTempsLibre: 'Quelles sont les activités de temps libre ?',
   difficultesLoisirs: 'Y a t il des difficultés lors des loisirs ?',
+  /** Cases aux libellés du caractère de l'application : « Selon les parents » de l'étape Caractère. */
+  caractere: 'Actuellement votre enfant est : (qualités et défauts)',
 } as const
 
 function texte(reponse: unknown): string {
@@ -147,6 +149,18 @@ function cases(reponse: unknown): string[] {
 /** Le choix de la liste qui a ce libellé (aux majuscules et accents près). */
 function choix(liste: readonly string[], reponse: string): string | undefined {
   return liste.find((element) => semblable(element) === semblable(reponse))
+}
+
+/** « Actuellement votre enfant est : (qualités et défauts) » et « Actuellement votre enfant est : » se valent. */
+function intituleCaractere(titre: string): string {
+  return semblable(titre.replace(/\([^)]*\)/g, ' ').replace(/:/g, ' '))
+}
+
+/** Libellé du caractère coché (« curieux », « Curieuse », « curieux(se) ») ; sinon undefined. */
+function traitDeCaractere(reponse: string): string | undefined {
+  const formes = [reponse, reponse.replace(/\s*\([^)]*\)/g, '')].map(semblable)
+  return questionnaire.caractere.find((item) =>
+    formes.includes(semblable(item.libelle)) || formes.includes(semblable(item.feminin)))?.libelle
 }
 
 /** 12/03/2016, 12-03-2016, 12.03.2016 ou 2016-03-12 → 2016-03-12 ; sinon vide. */
@@ -279,6 +293,14 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
     const nouveaux = [...new Set(autresTroubles)].filter((reponse) => !deja.includes(semblable(reponse)))
     bilan.autreTrouble = [bilan.autreTrouble.trim(), ...nouveaux].filter(Boolean).join(', ')
   }
+
+  // Caractère selon les parents : les qualités et défauts cochés au même libellé
+  // (masculin ou féminin) s'ajoutent aux sélections déjà faites ; « Selon
+  // l'enfant » n'est pas touché, les autres réponses restent dans l'encadré.
+  const caractere = reponses.questions
+    .filter((q) => !q.lignes && intituleCaractere(q.titre) === intituleCaractere(QUESTIONS.caractere))
+    .flatMap((q) => cases(q.reponse)).map(traitDeCaractere).filter((c): c is string => !!c)
+  if (caractere.length) bilan.caractereParents = [...new Set([...bilan.caractereParents, ...caractere])]
 
   const textes: [keyof Bilan & ('activitesExtraScolaires' | 'activitesTempsLibre' | 'difficultesLoisirs'),
     string][] = [

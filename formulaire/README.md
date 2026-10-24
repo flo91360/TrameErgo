@@ -67,7 +67,11 @@ l'application. La question « Pour quelle(s) raison(s) le bilan est
 souhaité ? En lien avec quel trouble diagnostiqué ? » coche, dans l'écran
 Demande (« Anamnèse / troubles »), les troubles au même libellé ; ses autres
 réponses (« Autre »…) sont reportées telles quelles dans « Autre trouble »,
-écrit dans le bilan à la suite des troubles cochés. Les autres réponses sont
+écrit dans le bilan à la suite des troubles cochés. La question « Actuellement
+votre enfant est : (qualités et défauts) » propose les qualités et défauts de
+`caractere` dans `contenu/questionnaire.json`, au même libellé : ceux cochés
+s'ajoutent à « Selon les parents » de l'écran Caractère, sans retirer ce qui
+y était déjà coché ; « Selon l'enfant » n'est pas touché. Les autres réponses sont
 montrées telles quelles dans l'encadré « Réponses des parents ».
 
 ## Fiche patient Word à chaque réponse

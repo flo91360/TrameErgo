@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.5] - 2026-10-24
+<!-- planifikateur:b0bc4d55-8325-449b-abad-f38959756fe1 -->
+
+- **lien entre google form et tramErgo onglet 5** : « Nouveau bilan » remplit maintenant « Selon les parents » de l'étape 5 « Caractère du patient » avec les qualités et défauts cochés dans le questionnaire des parents. La récupération des réponses et la recherche par nom de l'enfant restent celles déjà utilisées pour les autres champs. Les tests (`npm test`) et la construction (`npm run build`) passent. **Point à vérifier :** dans `formulaire/creer-formulaire.gs`, la question « Actuellement votre enfant est : » ne proposait pas les items de TrameErgo. Elle avait 10 cases (Sociable, Très sensible, Empathique, Provocateur…) et seule « Sociable » existe dans l'application. J'ai donc renommé la question « Actuellement votre enfant est : (qualités et défauts) » et remplacé ses cases par les 26 qualités et défauts de TrameErgo, avec les mêmes libellés et dans le même ordre (une liste `CARACTERE`). Les anciennes cases ont disparu de ce script. Ce changement ne touche que le script de création : un formulaire Google déjà créé n'est pas modifié. Si celui que vous utilisez propose encore les anciennes cases, il faut les y remplacer à la main, sinon presque rien ne sera reporté. **Ce qui se passe au pré-remplissage :** - Les items cochés sont reconnus sans tenir compte des majuscules ni des accents, au masculin, au féminin (« joyeuse ») ou sous la forme « curieux(se) ». Ils sont enregistrés tels qu'ils existent dans l'application, puis accordés au sexe dans le bilan comme avant. - Les sélections déjà faites à la main dans « Selon les parents » restent cochées, les nouvelles s'ajoutent, sans doublon. - Un item qui n'existe pas dans TrameErgo (« Très sensible »…) n'est pas coché. Il apparaît seulement dans l'encadré « Réponses des parents », comme pour les autres questions. - La question est aussi reconnue sous son ancien intitulé « Actuellement votre enfant est : », pour les réponses déjà envoyées. - « Selon l'enfant » et les autres étapes ne sont pas modifiés. Il faut toujours une connexion pour le pré-remplissage, et le bilan
+
 ## [1.6.4] - 2026-10-24
 <!-- planifikateur:13b9e8ed-02f4-479c-9a30-b7011f9acfbc -->
 
