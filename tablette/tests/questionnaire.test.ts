@@ -37,6 +37,14 @@ describe('questionnaire.json', () => {
     for (const item of caractere) expect(['qualite', 'defaut'], item.libelle).toContain(item.type)
     expect(caractere.some((c) => c.type === 'qualite')).toBe(true)
     expect(caractere.some((c) => c.type === 'defaut')).toBe(true)
+    for (const item of caractere) if ('infinitif' in item) expect(item.infinitif?.trim(), item.libelle).toBeTruthy()
+  })
+
+  it('propose les traits de caractère ajoutés pour les parents', () => {
+    const libelles = caractere.map((c) => c.libelle)
+    for (const trait of ['peu sociable', 'très sensible', 'empathique', 'intolérant à l\'injustice',
+      'intolérant à la frustration', 'facilement dans le conflit', 'influençable', 'teste souvent le cadre',
+      'provocateur']) expect(libelles).toContain(trait)
   })
 
   it('garde les latéralités féminine et masculine dans le même ordre', () => {

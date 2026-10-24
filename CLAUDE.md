@@ -9,7 +9,9 @@ Textes visibles, commentaires et messages de commit en français.
 
 - `contenu/` : le contenu de l'application.
   - `questionnaire.json` : toutes les listes de choix et les phrases du bilan.
-    Changer une liste ne demande que de modifier ce fichier.
+    Changer une liste ne demande que de modifier ce fichier. Un trait de
+    `caractere` formulé avec un verbe (« teste souvent le cadre ») porte un
+    `infinitif` : le bilan l'écrit alors sans « est » ni « d'être ».
   - `bilan.docx` : modèle Word unique du bilan, lisible par un humain :
     champs simples `{champ}` (syntaxe docxtemplater), sans conditions
     `{#…}` (un test les refuse), mots accordés au sexe par des champs (`{il_elle}`,
