@@ -72,6 +72,17 @@ const MATIERES = [
   'Physique-chimie', 'Art plastique',
 ];
 
+// Mêmes libellés et même ordre que « caractere » dans TrameErgo (contenu/questionnaire.json) :
+// les cases cochées remplissent « Selon les parents » de l'étape Caractère.
+const CARACTERE = [
+  'curieux', 'impatient', 'gentil', 'têtu', 'drôle', 'colérique', 'serviable', 'timide', 'joyeux',
+  'distrait', 'courageux', 'bavard', 'créatif', 'désordonné', 'sociable', 'susceptible', 'calme',
+  'agité', 'autonome', 'anxieux', 'affectueux', "peu motivé par l'effort", 'honnête', 'jaloux',
+  'généreux', 'mauvais perdant', 'peu sociable', 'très sensible', 'empathique',
+  "intolérant à l'injustice", 'intolérant à la frustration', 'facilement dans le conflit',
+  'influençable', 'teste souvent le cadre', 'provocateur',
+];
+
 function creerFormulaire() {
   const form = FormApp.create('Questionnaire Pré bilan ergothérapie')
     .setDescription([
@@ -135,11 +146,7 @@ function creerFormulaire() {
   texte(form, 'Développement : station debout et marche autonome');
   texte(form, 'Développement : de la propreté (diurne/ nocture)');
   cases(form, "Plus jeune, l'enfant était :", ['Plutôt actif', 'plutôt passif', 'qui pleurait peu', 'qui pleurait beaucoup']);
-  cases(form, 'Actuellement votre enfant est :', [
-    'Sociable', 'Peu sociable', 'Très sensible', 'Empathique', "Intolérant à l'injustice",
-    'Intolérant à la frustration', 'Facilement dans le conflit', 'Influençable', 'Teste souvent le cadre',
-    'Provocateur',
-  ]);
+  cases(form, 'Actuellement votre enfant est : (qualités et défauts)', CARACTERE);
   cases(form, 'Sur le plan de la motricité globale et de la coordination :', [
     'Est plutôt adroit(e)', 'Est plutôt maladroit(e)', "Est à l'aise dans son corps",
     "N'est pas très à l'aise dans son corps", "Est à l'aise dans diverses activités (course, nage, vélo, etc.)",

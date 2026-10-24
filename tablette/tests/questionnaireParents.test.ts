@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { champs, nouveauBilan, questionnaire } from '../src/bilan'
+import { champs, libellesCaractere, nouveauBilan, phraseCaractereParents, questionnaire } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 import {
   chercher, coordonnees, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
@@ -119,6 +119,33 @@ describe('questionnaire des parents', () => {
     expect(word).toContain('- Hypersensibilité au bruit')
   })
 
+  it('coche le caractère selon les parents, en gardant les sélections déjà faites', () => {
+    const avecCaractere: QuestionnaireParents = {
+      envoi: reponse.envoi,
+      questions: [
+        { titre: QUESTIONS.caractere, reponse: ['curieux', 'Têtu', 'joyeuse', "peu motivé par l'effort", 'Rêveur'] },
+      ],
+    }
+    const { bilan } = preRemplir(nouveauBilan(), avecCaractere)
+    // Exactement les items cochés qui existent dans l'application, sans « Rêveur », absent de l'application.
+    expect(bilan.caractereParents).toEqual(['curieux', 'têtu', 'joyeux', "peu motivé par l'effort"])
+    expect(bilan.caractereEnfant).toEqual([])
+    expect(bilan.reponsesParents).toContain(
+      `${QUESTIONS.caractere} : curieux, Têtu, joyeuse, peu motivé par l'effort, Rêveur`)
+    // Déjà cochés : gardés, sans doublon ; « Selon l'enfant » n'est pas touché.
+    const depart = { ...nouveauBilan(), caractereParents: ['calme', 'curieux'], caractereEnfant: ['bavard'] }
+    const complete = preRemplir(depart, avecCaractere).bilan
+    expect(complete.caractereParents).toEqual(['calme', 'curieux', 'têtu', 'joyeux', "peu motivé par l'effort"])
+    expect(complete.caractereEnfant).toEqual(['bavard'])
+    // Intitulé sans la précision entre parenthèses, et rien de coché : rien ne change.
+    const ancien = { envoi: reponse.envoi, questions: [{ titre: 'Actuellement votre enfant est :', reponse: ['Sociable'] }] }
+    expect(preRemplir(nouveauBilan(), ancien).bilan.caractereParents).toEqual(['sociable'])
+    expect(preRemplir(depart, reponse).bilan.caractereParents).toEqual(['calme', 'curieux'])
+    // Le Word reprend les traits, accordés au sexe.
+    expect(phraseCaractereParents({ ...bilan, prenom: 'Léa', sexe: 'Femme' }))
+      .toBe("D'après ses parents, Léa est curieuse, têtue, joyeuse et peu motivée par l'effort.")
+  })
+
   it('garde toutes les réponses pour l\'encadré « Réponses des parents »', () => {
     const lignes = enLignes(reponse)
     expect(lignes).toContain('Fraterie : 1 frère')
@@ -231,6 +258,11 @@ describe('questionnaire des parents', () => {
       .split(/,\s*/).map((t) => t.trim()).filter(Boolean).map((t) => t.slice(1, -1))
     expect(troubles).toEqual(questionnaire.demande.troubles)
     expect(creation).toContain(`cases(form, '${QUESTIONS.raisonsTroubles}', TROUBLES)`)
+    // Caractère : cases aux libellés de l'application, dans le même ordre.
+    const caractere = creation.match(/const CARACTERE = \[([^\]]*)\];/)?.[1]
+      .split(/,\s*/).map((c) => c.trim()).filter(Boolean).map((c) => c.slice(1, -1))
+    expect(caractere).toEqual(libellesCaractere())
+    expect(creation).toContain(`cases(form, '${QUESTIONS.caractere}', CARACTERE)`)
     // Le script de lecture cherche le nom dans la question du formulaire.
     const lecture = script('questionnaire-parents.gs')
     const question = lecture.match(/const QUESTION_NOM = "(.*)";/)?.[1]
