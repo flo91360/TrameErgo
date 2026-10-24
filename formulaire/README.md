@@ -70,7 +70,8 @@ l'encadré « Réponses des parents ».
 
 [`fiche-patient.gs`](fiche-patient.gs) s'ajoute au projet Apps Script de
 `questionnaire-parents.gs` (même compte, même formulaire). À chaque réponse
-envoyée, il crée dans le Google Drive, dossier « Fiches patients », un Word
+envoyée, il crée dans le Google Drive, dossier « ERGO/questionnaire
+pré-bilan » (créé s'il manque), un Word
 `Fiche_patient_<NOM>_<Prénom>_<date>.docx` avec toutes les réponses, rangées
 sous les titres du formulaire (sections et encadrés). Les grilles d'activités
 deviennent des tableaux, les questions sans réponse sont omises.
