@@ -123,15 +123,15 @@ describe('questionnaire des parents', () => {
     const avecCaractere: QuestionnaireParents = {
       envoi: reponse.envoi,
       questions: [
-        { titre: QUESTIONS.caractere, reponse: ['curieux', 'Têtu', 'joyeuse', "peu motivé par l'effort", 'Très sensible'] },
+        { titre: QUESTIONS.caractere, reponse: ['curieux', 'Têtu', 'joyeuse', "peu motivé par l'effort", 'Rêveur'] },
       ],
     }
     const { bilan } = preRemplir(nouveauBilan(), avecCaractere)
-    // Exactement les items cochés qui existent dans l'application, sans « Très sensible ».
+    // Exactement les items cochés qui existent dans l'application, sans « Rêveur », absent de l'application.
     expect(bilan.caractereParents).toEqual(['curieux', 'têtu', 'joyeux', "peu motivé par l'effort"])
     expect(bilan.caractereEnfant).toEqual([])
     expect(bilan.reponsesParents).toContain(
-      `${QUESTIONS.caractere} : curieux, Têtu, joyeuse, peu motivé par l'effort, Très sensible`)
+      `${QUESTIONS.caractere} : curieux, Têtu, joyeuse, peu motivé par l'effort, Rêveur`)
     // Déjà cochés : gardés, sans doublon ; « Selon l'enfant » n'est pas touché.
     const depart = { ...nouveauBilan(), caractereParents: ['calme', 'curieux'], caractereEnfant: ['bavard'] }
     const complete = preRemplir(depart, avecCaractere).bilan

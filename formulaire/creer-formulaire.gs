@@ -78,7 +78,9 @@ const CARACTERE = [
   'curieux', 'impatient', 'gentil', 'têtu', 'drôle', 'colérique', 'serviable', 'timide', 'joyeux',
   'distrait', 'courageux', 'bavard', 'créatif', 'désordonné', 'sociable', 'susceptible', 'calme',
   'agité', 'autonome', 'anxieux', 'affectueux', "peu motivé par l'effort", 'honnête', 'jaloux',
-  'généreux', 'mauvais perdant',
+  'généreux', 'mauvais perdant', 'peu sociable', 'très sensible', 'empathique',
+  "intolérant à l'injustice", 'intolérant à la frustration', 'facilement dans le conflit',
+  'influençable', 'teste souvent le cadre', 'provocateur',
 ];
 
 function creerFormulaire() {
