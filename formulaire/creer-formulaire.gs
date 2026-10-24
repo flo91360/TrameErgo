@@ -55,6 +55,10 @@ const ACTIVITES_LOISIRS = [
   'faire de la balançoire', 'faire du trampoline', 'grimper', 'jouer à la pétanque/ palet',
   "jouer dans l'eau", 'jouer dans le sable', 'jouer dans la neige', 'se retrouver entre amis',
 ];
+const PERSONNES_DEMANDEUSES = [
+  'le médecin traitant', 'la neuropédiatre', "l'enseignant", 'la psychomotricienne', 'la neuropsychologue',
+  'le(s) parent(s)', 'le père', 'la mère',
+];
 const MATIERES = [
   'Français', 'Histoire-géographie', 'Mathématique', 'SVT', 'Musique', 'Techno', 'Anglais', 'Espagnol',
   'Physique-chimie', 'Art plastique',
@@ -81,7 +85,8 @@ function creerFormulaire() {
   texte(form, 'Nom + prénom + adresse + téléphone + adresse mail + Profession du parent 2');
   texte(form, 'Fraterie');
   texte(form, 'Mode de garde (si parents séparés)');
-  texte(form, "Qui est à l'origine de la demande de réalisation du bilan (médecin traitant ou autre professionnel de santé, instituteurs/professeurs…) ?");
+  // Mêmes choix que « Personne demandeuse » dans TrameErgo (contenu/questionnaire.json), « Autre » en texte libre.
+  choix(form, "Qui est à l'origine de la demande de réalisation du bilan en ergothérapie ?", PERSONNES_DEMANDEUSES, true);
   cases(form, 'Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?', [
     "difficulté d'écriture", 'difficulté de concentration', "difficulté de visualisation dans l'espace",
     'difficulté de coordination',
