@@ -2,7 +2,7 @@
 // Les réponses sont retrouvées par leur libellé : une option renommée ou
 // supprimée dans questionnaire.json est retirée du bilan et signalée, au lieu
 // d'aller dans le Word sans apparaître à l'écran.
-import { lateralites, NOMBRE_AUTRES_PROFESSIONNELS, nouveauBilan, questionnaire, type Bilan } from './bilan'
+import { lateralites, libellesCaractere, NOMBRE_AUTRES_PROFESSIONNELS, nouveauBilan, questionnaire, type Bilan } from './bilan'
 
 /** Format du brouillon ; l'augmenter (et adapter reprendre) si une réponse change de forme. */
 export const VERSION_BROUILLON = 2
@@ -17,7 +17,7 @@ type Objet = Record<string, unknown>
 type ChoixSimple = 'classe' | 'typeEtablissement' | 'modeDeGarde' | 'entente' | 'personneDemandeuse'
   | 'dossierMdph' | 'accordParents'
 type ChoixMultiple = 'motifs' | 'troubles' | 'comportement' | 'difficultes' | 'matieresPreferees'
-  | 'matieresDetestees' | 'amenagements'
+  | 'matieresDetestees' | 'amenagements' | 'caractereParents' | 'caractereEnfant'
 
 function estObjet(valeur: unknown): valeur is Objet {
   return typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur)
@@ -98,6 +98,8 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     ['matieresPreferees', scolarite.matieres, 'Matières préférées'],
     ['matieresDetestees', scolarite.matieres, 'Matières moins appréciées'],
     ['amenagements', amenagements, 'Aménagements'],
+    ['caractereParents', libellesCaractere(), 'Caractère selon les parents'],
+    ['caractereEnfant', libellesCaractere(), 'Caractère selon l\'enfant'],
   ]
   for (const [cle, liste, rubrique] of multiples) {
     for (const valeur of bilan[cle].filter((v) => !liste.includes(v))) retirees.push(`${valeur} (${rubrique})`)

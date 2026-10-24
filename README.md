@@ -81,7 +81,7 @@ ce qui manque est affichée en bas de l'écran. Sont obligatoires toute
 l'identité de l'écran Patient (fratrie et entente, sauf « Enfant unique »),
 la personne demandeuse, le dossier MDPH et au moins un motif, les
 professionnels (ou « Aucun ») et leur fréquence, l'accord des parents et au
-moins un objectif final quand une activité est signalée. Les dix étapes
+moins un objectif final quand une activité est signalée. Les onze étapes
 actuelles sont :
 
 | Étape | Ce que l'on renseigne |
@@ -90,6 +90,7 @@ actuelles sont :
 | Demande | Personne demandeuse, motifs, troubles et situation du dossier MDPH. |
 | Suivis | Professionnels et fréquence de chaque suivi, ou « Aucun ». |
 | Scolarité | Comportement, difficultés, matières préférées et moins appréciées. |
+| Caractère du patient | Facultatif. Qualités et défauts cochés par les parents (une liste mélangée, accordée au sexe), puis par l'enfant (mêmes items dans des mots simples, en qualités et défauts). |
 | OT Hope : activités de vie quotidienne | Activités du domaine `maison` et niveau d'aide ou de difficulté. |
 | OT Hope : activités de vie scolaire | Activités du domaine `ecole`. |
 | OT Hope : activités de loisirs | Activités du domaine `loisirs`. |
@@ -233,7 +234,7 @@ rédaction. Les phrases libres saisies ne sont pas réaccordées non plus.
 
 ### Les repères disponibles dans Word
 
-Le modèle contient actuellement **47 noms de repères distincts**, dont certains
+Le modèle contient actuellement **49 noms de repères distincts**, dont certains
 sont réutilisés. En complément du tableau des accords ci-dessus :
 
 | Partie | Repères |
@@ -244,6 +245,7 @@ sont réutilisés. En complément du tableau des accords ci-dessus :
 | Demande et anamnèse | `{personne_demandeuse}`, `{motifs}`, `{troubles}`, `{dossier_mdph}` |
 | Suivis | `{professionnels}` : professionnels avec leur fréquence, ou « aucun ». |
 | Scolarité | `{comportement_en_classe}`, `{difficultes_en_classe}`, `{matieres_preferees}`, `{matieres_moins_appreciees}` |
+| Caractère du patient | `{caractere_parents}`, `{caractere_enfant}` : phrases rédigées (prénom, accords au sexe), vides si rien n'est coché. |
 | OT Hope : avec aide | `{aide_maison}`, `{aide_ecole}`, `{aide_loisirs}` |
 | OT Hope : avec difficulté | `{difficulte_maison}`, `{difficulte_ecole}`, `{difficulte_loisirs}` |
 | OT Hope : avec grande difficulté | `{grande_difficulte_maison}`, `{grande_difficulte_ecole}`, `{grande_difficulte_loisirs}` |

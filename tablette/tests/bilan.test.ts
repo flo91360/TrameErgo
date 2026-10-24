@@ -4,7 +4,7 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
+  AUTRE_AMENAGEMENT, aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
   objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
@@ -35,6 +35,7 @@ function lucas(): Bilan {
     objectifs: { maison: ['Faire mes lacets', 'Balayer'], ecole: ['Utiliser un compas'] },
     objectifsFinaux: ['Utiliser un compas', 'Faire mes lacets'],
     objectifsParents: ['Faire mes lacets'], remarquesParents: 'Priorité au collège.',
+    caractereParents: ['têtu', 'curieux', 'joyeux'], caractereEnfant: ['bavard', 'drôle', 'curieux'],
     amenagements: ['Tiers temps', 'Ordinateur'], activitesExtraScolaires: 'foot, piano', difficultesLoisirs: 'fatigue',
   })
   return bilan
@@ -105,6 +106,41 @@ describe('champs du bilan', () => {
   })
 })
 
+describe('caractère du patient', () => {
+  it('rédige les choix des parents et de l\'enfant, accordés au sexe', () => {
+    const bilan = lucas()
+    expect(champs(bilan).caractere_parents).toBe('D\'après ses parents, Lucas est curieux, têtu et joyeux.')
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Lucas se reconnaît comme qualités '
+      + 'd\'être curieux et drôle, et comme défaut d\'être bavard.')
+    Object.assign(bilan, { sexe: 'Femme', prenom: 'Léa', caractereParents: ['curieux'], caractereEnfant: ['jaloux'] })
+    expect(champs(bilan).caractere_parents).toBe('D\'après ses parents, Léa est curieuse.')
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme défaut '
+      + 'd\'être jalouse.')
+    bilan.caractereEnfant = ['gentil']
+    expect(champs(bilan).caractere_enfant).toBe('Lors de son auto-évaluation, Léa se reconnaît comme qualité '
+      + 'd\'être gentille.')
+  })
+
+  it('n\'écrit rien quand rien n\'est coché (étape facultative)', () => {
+    const bilan = lucas()
+    Object.assign(bilan, { caractereParents: [], caractereEnfant: [] })
+    expect(champs(bilan).caractere_parents).toBe('')
+    expect(champs(bilan).caractere_enfant).toBe('')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Comportement de l’enfant de manière générale')
+    expect(texte).not.toMatch(/[{}]|D'après ses parents|auto-évaluation/)
+  })
+
+  it('place la nouvelle partie juste avant le comportement en classe', () => {
+    const texte = texteDuBilan(remplirModele(modele, champs(lucas())))
+    const debut = texte.indexOf('Comportement de l’enfant de manière générale')
+    expect(debut).toBeGreaterThan(-1)
+    const partie = texte.slice(debut, texte.indexOf('Comportement en classe'))
+    expect(partie).toContain('D\'après ses parents, Lucas est curieux, têtu et joyeux.')
+    expect(partie).toContain('Lors de son auto-évaluation, Lucas se reconnaît comme qualités')
+  })
+})
+
 describe('génération', () => {
   it('remplit tout le modèle', () => {
     const texte = texteDuBilan(remplirModele(modele, champs(lucas())))
@@ -126,6 +162,22 @@ describe('génération', () => {
     expect(texte).toMatch(/Nom du médecin traitant\s: Dr Durand, à Massy\./)
     expect(texte).toContain('le bilan a été demandé par la mère.')
     expect(texte).not.toMatch(/[{}]|\(\)| \./)
+  })
+
+  it('écrit l\'aménagement scolaire libre à la suite de la liste, sans la case « Autre »', () => {
+    const bilan = lucas()
+    Object.assign(bilan, {
+      amenagements: ['Tiers temps', AUTRE_AMENAGEMENT, 'Ordinateur'],
+      autreAmenagement: 'Place au premier rang\n\n  Consignes reformulées ',
+    })
+    expect(champs(bilan).amenagements_scolaires)
+      .toBe('- Ordinateur\n- Tiers temps\n- Place au premier rang\n- Consignes reformulées')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Place au premier rang')
+    expect(texte).not.toContain(AUTRE_AMENAGEMENT)
+    // Texte saisi sans cocher la case : écrit quand même, comme « Autre motif ».
+    bilan.amenagements = []
+    expect(champs(bilan).amenagements_scolaires).toBe('- Place au premier rang\n- Consignes reformulées')
   })
 })
 
@@ -198,6 +250,7 @@ describe('réponses obligatoires', () => {
     expect(obligatoires.demande(bilan)).toEqual(['la personne demandeuse', 'le dossier MDPH', 'au moins un motif'])
     expect(obligatoires.suivis(bilan)).toEqual(["les professionnels qui suivent l'enfant (ou « Aucun »)"])
     expect(obligatoires.objectifs(bilan)).toEqual(["l'accord des parents"])
+    expect(obligatoires.amenagements(bilan)).toEqual([])
     expect(champs(bilan).dossier_mdph).toBe('')
     expect(aRenseigner(lucas())).toEqual([])
   })
@@ -216,6 +269,11 @@ describe('réponses obligatoires', () => {
     expect(obligatoires.objectifs(bilan)).toEqual(['au moins un objectif final'])
     bilan.otHope = {}
     expect(obligatoires.objectifs(bilan)).toEqual([])
+    bilan.amenagements = [AUTRE_AMENAGEMENT]
+    bilan.autreAmenagement = '  '
+    expect(obligatoires.amenagements(bilan)).toEqual(["l'aménagement scolaire « Autre » à préciser"])
+    bilan.autreAmenagement = 'Place au premier rang'
+    expect(obligatoires.amenagements(bilan)).toEqual([])
   })
 })
 

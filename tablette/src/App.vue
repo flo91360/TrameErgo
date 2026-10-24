@@ -7,6 +7,7 @@ import Historique from './ecrans/Historique.vue'
 import NouveauBilan from './ecrans/NouveauBilan.vue'
 import Reglages from './ecrans/Reglages.vue'
 import Amenagements from './etapes/Amenagements.vue'
+import Caractere from './etapes/Caractere.vue'
 import Demande from './etapes/Demande.vue'
 import Generation from './etapes/Generation.vue'
 import Objectifs from './etapes/Objectifs.vue'
@@ -31,11 +32,13 @@ const etapes: Etape[] = [
   { titre: 'Demande', composant: Demande, manquants: obligatoires.demande },
   { titre: 'Suivis', composant: Suivis, manquants: obligatoires.suivis },
   { titre: 'Scolarité', composant: Scolarite },
+  // Facultative : aucune réponse obligatoire.
+  { titre: 'Caractère du patient', composant: Caractere },
   ...questionnaire.otHope.domaines.map((d) => ({
     titre: `OT Hope : ${d.titre}`, composant: OtHope, proprietes: { domaine: d.id },
   })),
   { titre: 'Objectifs', composant: Objectifs, manquants: obligatoires.objectifs },
-  { titre: 'Aménagements et loisirs', composant: Amenagements },
+  { titre: 'Aménagements et loisirs', composant: Amenagements, manquants: obligatoires.amenagements },
   { titre: 'Bilan', composant: Generation },
 ]
 

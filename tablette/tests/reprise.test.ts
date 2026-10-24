@@ -38,12 +38,43 @@ describe('reprise du brouillon', () => {
     expect(reprendre(JSON.stringify({ prenom: 'Léa' }), date)!.bilan.autresProfessionnels).toEqual([])
   })
 
+  it('relit et vérifie le caractère du patient', () => {
+    const bilan = { ...nouveauBilan(date), prenom: 'Léa', caractereParents: ['curieux', 'Trait disparu'],
+      caractereEnfant: ['bavard'] }
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.bilan.caractereParents).toEqual(['curieux'])
+    expect(reprise.bilan.caractereEnfant).toEqual(['bavard'])
+    expect(reprise.retirees).toEqual(['Trait disparu (Caractère selon les parents)'])
+    // Brouillon d'avant l'étape : pas de caractère, rien de coché.
+    const { caractereParents, caractereEnfant, ...ancien } = nouveauBilan(date)
+    expect(caractereParents.length + caractereEnfant.length).toBe(0)
+    const sansCaractere = reprendre(JSON.stringify({ version: 2, bilan: ancien }), date)!
+    expect(sansCaractere.bilan.caractereParents).toEqual([])
+    expect(sansCaractere.retirees).toEqual([])
+  })
+
   it('reprend un brouillon de la version 1 (réponses à la racine)', () => {
     const ancien = { ...nouveauBilan(date), prenom: 'Lucas', entente: 'Bonne', dossierMdph: 'Actif', lateralite: 0 }
     const reprise = reprendre(JSON.stringify(ancien), date)!
     expect(reprise.bilan.prenom).toBe('Lucas')
     expect(reprise.bilan.dossierMdph).toBe('Actif')
     expect(reprise.retirees).toEqual([])
+  })
+
+  it('reprend un bilan enregistré avant l\'aménagement scolaire libre', () => {
+    const { autreAmenagement: _, ...ancien } = { ...nouveauBilan(date), amenagements: ['AESH'] }
+    const reprise = reprendre(enregistrement(ancien as never), date)!
+    expect(reprise.bilan.autreAmenagement).toBe('')
+    expect(reprise.bilan.amenagements).toEqual(['AESH'])
+    expect(champs(reprise.bilan).amenagements_scolaires).toBe('- AESH')
+    expect(reprise.retirees).toEqual([])
+  })
+
+  it('relit l\'aménagement scolaire libre', () => {
+    const bilan = { ...nouveauBilan(date), amenagements: ['Autre / aménagement scolaire'], autreAmenagement: 'Pupitre' }
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.bilan.amenagements).toEqual(['Autre / aménagement scolaire'])
+    expect(reprise.bilan.autreAmenagement).toBe('Pupitre')
   })
 
   it('retire et signale les réponses qui n\'existent plus dans le questionnaire', () => {

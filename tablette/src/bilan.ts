@@ -35,6 +35,8 @@ export interface Bilan {
   medecinTraitant: string
   ville: string
   personneDemandeuse: string
+  /** Personne demandeuse saisie en texte libre, quand « Autre » est choisi. */
+  autrePersonneDemandeuse: string
   motifs: string[]
   autreMotif: string
   troubles: string[]
@@ -51,6 +53,10 @@ export interface Bilan {
   autreMatierePreferee: string
   matieresDetestees: string[]
   autreMatiereDetestee: string
+  /** Caractère de l'enfant selon ses parents : libellés de questionnaire.caractere. */
+  caractereParents: string[]
+  /** Caractère de l'enfant selon lui-même : libellés (pas les formulations pour l'enfant) de questionnaire.caractere. */
+  caractereEnfant: string[]
   /** Domaine OT Hope → activité → identifiant du niveau (absente : rien à signaler). */
   otHope: Record<string, Record<string, string>>
   /** Domaine OT Hope → objectifs choisis, dans l'ordre du choix. */
@@ -60,6 +66,8 @@ export interface Bilan {
   objectifsParents: string[]
   remarquesParents: string
   amenagements: string[]
+  /** Aménagements scolaires précis, en texte libre (une ligne par aménagement). */
+  autreAmenagement: string
   activitesExtraScolaires: string
   activitesTempsLibre: string
   difficultesLoisirs: string
@@ -97,6 +105,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     medecinTraitant: '',
     ville: '',
     personneDemandeuse: '',
+    autrePersonneDemandeuse: '',
     motifs: [],
     autreMotif: '',
     troubles: [],
@@ -111,6 +120,8 @@ export function nouveauBilan(date = new Date()): Bilan {
     autreMatierePreferee: '',
     matieresDetestees: [],
     autreMatiereDetestee: '',
+    caractereParents: [],
+    caractereEnfant: [],
     otHope: {},
     objectifs: {},
     objectifsFinaux: [],
@@ -118,6 +129,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     objectifsParents: [],
     remarquesParents: '',
     amenagements: [],
+    autreAmenagement: '',
     activitesExtraScolaires: '',
     activitesTempsLibre: '',
     difficultesLoisirs: '',
@@ -204,12 +216,69 @@ export function objectifsRetenus(bilan: Bilan, choisis: readonly string[]): stri
   return choisis.filter((objectif) => possibles.includes(objectif))
 }
 
+export type TypeCaractere = 'qualite' | 'defaut'
+
+/** Libellés du caractère, dans l'ordre du questionnaire (d'un seul type si précisé). */
+export function libellesCaractere(type?: TypeCaractere): string[] {
+  return questionnaire.caractere.filter((item) => !type || item.type === type).map((item) => item.libelle)
+}
+
+/** Libellé accordé au sexe de l'enfant (« curieux » → « curieuse »). */
+export function caractereAccorde(bilan: Bilan, libelle: string): string {
+  const item = questionnaire.caractere.find((element) => element.libelle === libelle)
+  return item ? accord(bilan, item.libelle, item.feminin) : libelle
+}
+
+/** « a », « a et b », « a, b et c ». */
+export function enumeration(elements: readonly string[]): string {
+  if (elements.length < 2) return elements.join('')
+  return `${elements.slice(0, -1).join(', ')} et ${elements[elements.length - 1]}`
+}
+
+/** Phrase du caractère selon les parents (vide si rien n'est coché). */
+export function phraseCaractereParents(bilan: Bilan): string {
+  const traits = dansLOrdre(libellesCaractere(), bilan.caractereParents).map((l) => caractereAccorde(bilan, l))
+  return traits.length ? `D'après ses parents, ${bilan.prenom.trim()} est ${enumeration(traits)}.` : ''
+}
+
+/** Phrase de l'auto-évaluation de l'enfant : qualités puis défauts cochés (vide si rien n'est coché). */
+export function phraseCaractereEnfant(bilan: Bilan): string {
+  const partie = (type: TypeCaractere, singulier: string) => {
+    const traits = dansLOrdre(libellesCaractere(type), bilan.caractereEnfant).map((l) => caractereAccorde(bilan, l))
+    return traits.length ? `comme ${singulier}${traits.length > 1 ? 's' : ''} d'être ${enumeration(traits)}` : ''
+  }
+  const parties = [partie('qualite', 'qualité'), partie('defaut', 'défaut')].filter(Boolean)
+  return parties.length
+    ? `Lors de son auto-évaluation, ${bilan.prenom.trim()} se reconnaît ${parties.join(', et ')}.`
+    : ''
+}
+
 function phrase(liste: readonly { libelle: string; phrase: string }[], libelle: string): string {
   return liste.find((element) => element.libelle === libelle)?.phrase ?? ''
 }
 
 export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
+}
+
+/** Case des aménagements scolaires qui renvoie au texte libre : elle n'est pas écrite dans le bilan. */
+export const AUTRE_AMENAGEMENT = 'Autre / aménagement scolaire'
+
+/** Aménagements scolaires du bilan : ceux de la liste, puis une ligne par ligne du texte libre. */
+export function amenagementsScolaires(bilan: Bilan): string[] {
+  const liste = questionnaire.amenagements.filter((amenagement) => amenagement !== AUTRE_AMENAGEMENT)
+  const precis = bilan.autreAmenagement.split('\n').map((ligne) => ligne.trim()).filter(Boolean)
+  return [...dansLOrdre(liste, bilan.amenagements), ...precis]
+}
+
+/** Personne demandeuse qui renvoie au texte libre : c'est le texte saisi qui est écrit dans le bilan. */
+export const AUTRE_PERSONNE_DEMANDEUSE = 'Autre'
+
+/** Personne demandeuse du bilan : le choix de la liste, ou le texte libre pour « Autre ». */
+export function personneDemandeuse(bilan: Bilan): string {
+  return bilan.personneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE
+    ? bilan.autrePersonneDemandeuse.trim()
+    : bilan.personneDemandeuse
 }
 
 type Manquants = (bilan: Bilan) => string[]
@@ -223,7 +292,7 @@ function presents(liste: (string | false)[]): string[] {
  * pas à l'écran suivant. Le modèle Word peut ainsi écrire ses phrases sans
  * conditions ({#champ}…{/champ}), et rester lisible.
  */
-export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs', Manquants> = {
+export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs' | 'amenagements', Manquants> = {
   patient: (bilan) => presents([
     !bilan.prenom.trim() && 'le prénom',
     !bilan.nom.trim() && 'le nom',
@@ -242,6 +311,8 @@ export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs'
   ]),
   demande: (bilan) => presents([
     !bilan.personneDemandeuse && 'la personne demandeuse',
+    bilan.personneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE && !bilan.autrePersonneDemandeuse.trim()
+      && 'la personne demandeuse (Autre)',
     !bilan.dossierMdph && 'le dossier MDPH',
     !bilan.motifs.length && !bilan.autreMotif.trim() && 'au moins un motif',
   ]),
@@ -263,6 +334,10 @@ export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs'
     objectifsPossibles(bilan).length > 0 && !objectifsRetenus(bilan, bilan.objectifsFinaux).length
       && 'au moins un objectif final',
     !bilan.accordParents && "l'accord des parents",
+  ]),
+  amenagements: (bilan) => presents([
+    bilan.amenagements.includes(AUTRE_AMENAGEMENT) && !bilan.autreAmenagement.trim()
+      && "l'aménagement scolaire « Autre » à préciser",
   ]),
 }
 
@@ -312,7 +387,7 @@ function autresSuivis(bilan: Bilan): string {
 
 /** Valeur de chaque champ {…} du modèle bilan.docx. */
 export function champs(bilan: Bilan): Record<string, string> {
-  const { identite, demande, scolarite, otHope, objectifs, amenagements } = questionnaire
+  const { identite, demande, scolarite, otHope, objectifs } = questionnaire
   // Les réponses obligatoires (voir obligatoires) sont toujours remplies : le
   // modèle les écrit sans condition. Les listes facultatives peuvent être vides.
   const entente = phrase(identite.entente, bilan.entente)
@@ -339,7 +414,7 @@ export function champs(bilan: Bilan): Record<string, string> {
     medecin_traitant: bilan.medecinTraitant.trim(),
     ville: bilan.ville.trim(),
 
-    personne_demandeuse: bilan.personneDemandeuse,
+    personne_demandeuse: personneDemandeuse(bilan),
     motifs: dansLOrdre(demande.motifs, bilan.motifs, bilan.autreMotif).join(', '),
     troubles: enListe(dansLOrdre(demande.troubles, bilan.troubles, bilan.autreTrouble)),
     professionnels: enListe(bilan.aucunProfessionnel ? ['aucun'] : professionnelsSuivis(bilan)),
@@ -352,6 +427,10 @@ export function champs(bilan: Bilan): Record<string, string> {
     matieres_moins_appreciees:
       dansLOrdre(scolarite.matieres, bilan.matieresDetestees, bilan.autreMatiereDetestee).join(', '),
 
+    // Étape facultative : une phrase sans case cochée reste vide.
+    caractere_parents: phraseCaractereParents(bilan),
+    caractere_enfant: phraseCaractereEnfant(bilan),
+
     objectifs_finaux: numerotes(objectifsRetenus(bilan, bilan.objectifsFinaux)),
     accord_parents: phrase(objectifs.accordParents, bilan.accordParents).replace('{prenom}', bilan.prenom.trim()),
     objectifs_parents: [
@@ -359,7 +438,7 @@ export function champs(bilan: Bilan): Record<string, string> {
       bilan.remarquesParents.trim() ? `Remarques des parents : ${bilan.remarquesParents.trim()}` : '',
     ].filter(Boolean).join('\n'),
 
-    amenagements_scolaires: enListe(dansLOrdre(amenagements, bilan.amenagements)),
+    amenagements_scolaires: enListe(amenagementsScolaires(bilan)),
     activites_extra_scolaires: enListe(activitesSaisies(bilan.activitesExtraScolaires)),
     activites_temps_libre: enListe(activitesSaisies(bilan.activitesTempsLibre)),
     difficultes_loisirs: bilan.difficultesLoisirs.trim()
