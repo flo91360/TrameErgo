@@ -222,6 +222,40 @@ test('un professionnel choisi n\'a pas de fréquence d\'office', async ({ page }
   await expect(page.getByRole('alert')).toContainText('la fréquence de suivi (orthophoniste)')
 })
 
+test('« Autre » : jusqu\'à 3 thérapeutes en texte libre, chacun avec sa fréquence', async ({ page }) => {
+  await avecBrouillon(page)
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
+  await page.getByRole('button', { name: /^✓?\s*Autre$/ }).tap()
+  await page.getByLabel('Autre thérapeute n° 1', { exact: true }).fill('ostéopathe')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('alert')).toContainText('la fréquence de suivi (ostéopathe)')
+  await page.getByLabel('Fréquence (autre thérapeute n° 1)').selectOption("à raison d'une fois par mois")
+  await page.getByRole('button', { name: 'Ajouter un autre thérapeute' }).tap()
+  await page.getByRole('button', { name: 'Ajouter un autre thérapeute' }).tap()
+  await expect(page.getByLabel('Autre thérapeute n° 3', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ajouter un autre thérapeute' })).toHaveCount(0)
+  expect((await brouillon(page)).autresProfessionnels).toEqual([
+    { nom: 'ostéopathe', frequence: "à raison d'une fois par mois" }, { nom: '', frequence: '' }, { nom: '', frequence: '' },
+  ])
+  await page.getByRole('button', { name: /^✓?\s*Autre$/ }).tap()
+  expect((await brouillon(page)).autresProfessionnels).toEqual([])
+})
+
+test('la personne demandeuse « Autre » se saisit en texte libre', async ({ page }) => {
+  await avecBrouillon(page, { personneDemandeuse: '' })
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await etape(page, 'Demande')
+  await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
+  await page.getByLabel('Personne demandeuse').selectOption('Autre')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('alert')).toContainText('la personne demandeuse (Autre)')
+  await page.getByLabel('Autre personne demandeuse').fill("l'orthoptiste")
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
+  expect((await brouillon(page)).autrePersonneDemandeuse).toBe("l'orthoptiste")
+})
+
 test('l\'étape Caractère du patient se passe sans rien cocher', async ({ page }) => {
   await avecBrouillon(page, { aucunProfessionnel: true })
   await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()

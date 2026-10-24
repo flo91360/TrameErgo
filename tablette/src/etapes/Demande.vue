@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { questionnaire } from '../bilan'
+import { AUTRE_PERSONNE_DEMANDEUSE, questionnaire } from '../bilan'
 import { bilan } from '../brouillon'
 import Puces from '../composants/Puces.vue'
 
@@ -14,6 +14,9 @@ const { demande } = questionnaire
           <option value="" disabled>— à renseigner —</option>
           <option v-for="p in demande.personnesDemandeuses" :key="p">{{ p }}</option>
         </select>
+      </label>
+      <label v-if="bilan.personneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE">Autre personne demandeuse
+        <input v-model="bilan.autrePersonneDemandeuse" placeholder="ex. : l'orthoptiste" />
       </label>
       <label>Dossier MDPH
         <select v-model="bilan.dossierMdph">

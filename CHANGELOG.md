@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.5.4] - 2026-10-24
+<!-- planifikateur:72c2ca13-2db9-4d3b-a150-05349bafd018 -->
+
+- **dans la partie suivi par des professionnels** : Les deux « Autre » sont en place : jusqu'à 3 autres thérapeutes dans l'étape Suivis, et un choix « Autre » pour la personne demandeuse, comme répondu dans les échanges. Les conflits avec main sont résolus. `npm test` passe (57 tests) et `npm run build` aussi. Les nouveaux parcours Playwright n'ont pas été lancés : les navigateurs ne sont pas installés ici. **Étape Suivis : autres thérapeutes** - Une puce « Autre » est ajoutée après les professionnels de la liste. Cochée, elle affiche une ligne avec un champ libre (nom ou profession) et la fréquence du suivi. - « Ajouter un autre thérapeute » permet d'aller jusqu'à 3 lignes, puis le bouton disparaît : un 4e est impossible. Chaque ligne peut être retirée, et décocher « Autre » les retire toutes. - On ne peut pas quitter l'écran sans le nom et la fréquence de chaque « Autre ». Cocher seulement « Autre » suffit à la place d'un professionnel de la liste ou de « Aucun ». - **Word** : le repère `{autre}` est placé dans `contenu/bilan.docx` juste après `{professionnels}`, dans le même paragraphe. Il est rempli par `champs()` avec une ligne « - nom : fréquence » par thérapeute. Sans « Autre », ou si « Aucun » est coché, il reste vide et ne laisse aucune trace, pas même une ligne vide. Le modèle reste sans conditions `{#…}`. **Étape Demande : personne demandeuse « Autre »** - « Autre » est ajouté à la fin de la liste dans `questionnaire.json`. Une fois choisi, un champ « Autre personne demandeuse » apparaît et doit être rempli pour continuer. - Le Word écrit le texte saisi, par exemple « le bilan a été demandé par l'orthoptiste », et jamais le mot « Autre ». **Réponses mémorisées et brouillons** - Deux nouvelles réponses sont mémorisées : `autresProfessionnels` (vide au départ) et `autrePersonneDemandeuse`. - À la reprise d'un brouillon, au plus 3 thérapeutes sont gardés. Une fréquence qui n'est plus dans la liste est retirée et signalée. **Conflits avec main** - `bilan.ts`, `reprise.ts` et le test e2e : les deux versions son
+
 ## [1.5.3] - 2026-10-23
 <!-- planifikateur:053b7866-0f1a-4e36-b900-066880ba1e4c -->
 
