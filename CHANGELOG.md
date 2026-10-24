@@ -9,6 +9,13 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.1] - 2026-10-24
+
+### Modifié
+
+- `formulaire/fiche-patient.gs` : les fiches patients sont enregistrées dans
+  le dossier ERGO/questionnaire pré-bilan du Google Drive (créé s'il manque).
+
 ## [1.6.0] - 2026-10-24
 
 ### Ajouté

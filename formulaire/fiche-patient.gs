@@ -1,14 +1,15 @@
 /**
  * Fiche patient Word créée dans le Google Drive à chaque réponse au
  * questionnaire des parents : toutes les réponses, rangées sous les titres du
- * formulaire (sections et encadrés), dans le dossier « Fiches patients ».
+ * formulaire (sections et encadrés), dans le dossier ERGO/questionnaire pré-bilan.
  *
  * À ajouter au projet Apps Script de questionnaire-parents.gs : il en reprend
  * le formulaire (installer) et la fonction comparable. Mode d'emploi :
  * formulaire/README.md.
  */
 
-const DOSSIER_FICHES = 'Fiches patients';
+// Dossier du Drive où ranger les fiches, depuis « Mon Drive » ; créé s'il manque.
+const DOSSIER_FICHES = ['ERGO', 'questionnaire pré-bilan'];
 const TYPE_WORD = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 /** À exécuter une fois : crée la fiche à chaque nouvelle réponse au formulaire. */
@@ -16,7 +17,7 @@ function installerFichePatient() {
   const form = formulaireDeLaFiche();
   retirerFichePatient();
   ScriptApp.newTrigger('creerFichePatient').forForm(form).onFormSubmit().create();
-  Logger.log('Une fiche sera créée dans « ' + DOSSIER_FICHES + ' » à chaque réponse à : ' + form.getTitle());
+  Logger.log('Une fiche sera créée dans « ' + DOSSIER_FICHES.join('/') + ' » à chaque réponse à : ' + form.getTitle());
 }
 
 /** Arrête la création automatique des fiches. */
@@ -142,19 +143,14 @@ function enfantDeLaFiche(form, parQuestion) {
   return enfant;
 }
 
-/** Dossier « Fiches patients » du Drive, créé au premier besoin. */
+/** Dossier ERGO/questionnaire pré-bilan de « Mon Drive » ; chaque dossier manquant est créé. */
 function dossierDesFiches() {
-  const proprietes = PropertiesService.getScriptProperties();
-  const id = proprietes.getProperty('DOSSIER_FICHES');
-  if (id) {
-    try {
-      const dossier = DriveApp.getFolderById(id);
+  return DOSSIER_FICHES.reduce(function (parent, nom) {
+    const existants = parent.getFoldersByName(nom);
+    while (existants.hasNext()) {
+      const dossier = existants.next();
       if (!dossier.isTrashed()) return dossier;
-    } catch (erreur) {
-      // Dossier supprimé : on en crée un autre.
     }
-  }
-  const dossier = DriveApp.createFolder(DOSSIER_FICHES);
-  proprietes.setProperty('DOSSIER_FICHES', dossier.getId());
-  return dossier;
+    return parent.createFolder(nom);
+  }, DriveApp.getRootFolder());
 }
