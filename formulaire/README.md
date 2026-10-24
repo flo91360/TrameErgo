@@ -9,6 +9,8 @@ l'enfant et pré-remplit les écrans. Il ne fait que lire les réponses.
   les écrans OT Hope).
 - [`questionnaire-parents.gs`](questionnaire-parents.gs) laisse TrameErgo
   lire les réponses : à installer une fois par formulaire.
+- [`fiche-patient.gs`](fiche-patient.gs) crée une fiche patient Word dans
+  le Google Drive à chaque réponse reçue (voir plus bas).
 
 ## Relier un formulaire à TrameErgo
 
@@ -54,11 +56,8 @@ Le nom est lu dans la question « Nom et Prénom de l'enfant », ou dans les
 questions « Nom » et « Prénom » placées sous un titre « Enfant ». Chaque
 réponse est envoyée avec le titre de l'encadré ou de la section où elle se
 trouve (« Parent 1 »…) : des questions courtes comme « Nom » peuvent donc se
-répéter d'un encadré à l'autre. Les réponses des encadrés « Enfant »,
-« Médecin traitant », « Parent 1 », « Parent 2 » et « Famille » remplissent la
-fiche patient (`contenu/fiche.docx`) : garder ces mots dans les titres et des
-intitulés courts (« Nom », « Prénom », « Adresse », « Téléphone », « Adresse
-mail », « Profession », « Ville », « Fratrie », « Mode de garde »). Les lignes des
+répéter d'un encadré à l'autre. Les questions « Nom » et « Ville » sous un
+titre « Médecin traitant » remplissent le médecin de l'écran Patient. Les lignes des
 grilles ne sont pré-remplies que si l'activité existe dans
 `contenu/questionnaire.json` avec le même libellé, aux majuscules et aux
 accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de
@@ -66,3 +65,28 @@ accents près, et si la colonne cochée est « Rien à signaler » ou un niveau 
 formulaire ne sont pas reprises : leurs niveaux n'ont pas d'équivalent dans
 l'application. Les autres réponses sont montrées telles quelles dans
 l'encadré « Réponses des parents ».
+
+## Fiche patient Word à chaque réponse
+
+[`fiche-patient.gs`](fiche-patient.gs) s'ajoute au projet Apps Script de
+`questionnaire-parents.gs` (même compte, même formulaire). À chaque réponse
+envoyée, il crée dans le Google Drive, dossier « Fiches patients », un Word
+`Fiche_patient_<NOM>_<Prénom>_<date>.docx` avec toutes les réponses, rangées
+sous les titres du formulaire (sections et encadrés). Les grilles d'activités
+deviennent des tableaux, les questions sans réponse sont omises.
+
+1. Dans le projet Apps Script du questionnaire, « + » > « Script », nommer le
+   fichier `fiche-patient`, coller tout `fiche-patient.gs`, enregistrer.
+2. Choisir `installerFichePatient`, « Exécuter », et accepter les
+   autorisations (Drive, Documents, Forms et « se connecter à un service
+   externe », qui sert à convertir la fiche en Word).
+3. Pour vérifier : `essayerFichePatient` crée la fiche de la dernière réponse
+   reçue ; le journal donne son lien.
+
+`retirerFichePatient` arrête la création automatique. En cas d'erreur, Google
+envoie un courriel au propriétaire du script ; les exécutions sont listées
+dans « Exécutions ».
+
+Les fiches contiennent des données de santé d'enfants : les laisser dans un
+Google Drive non certifié HDS le moins longtemps possible, et ne pas partager
+le dossier.

@@ -181,7 +181,7 @@ export function enLignes(reponses: QuestionnaireParents): string[] {
   })
 }
 
-/** Partie de la fiche patient d'après le titre de l'encadré (« Parent 1 » → parent1), sinon null. */
+/** Partie d'après le titre de l'encadré (« Parent 1 » → parent1), sinon null. */
 function groupe(partie: string): string | null {
   const titre = semblable(partie)
   const parent = titre.match(/parent\s*(\d)/)
@@ -202,7 +202,8 @@ function information(titre: string): string {
 /**
  * Réponses texte des encadrés Enfant, Médecin traitant, Parent 1, Parent 2 et
  * Famille, par « partie.information » (parent1.telephone, medecin.ville…) :
- * l'intitulé seul (« Nom ») ne dit pas de qui il s'agit.
+ * l'intitulé seul (« Nom ») ne dit pas de qui il s'agit. Sert au médecin
+ * traitant de l'écran Patient.
  */
 export function coordonnees(reponses: QuestionnaireParents): Record<string, string> {
   const resultat: Record<string, string> = {}
@@ -296,9 +297,9 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
   }
 
   // Médecin traitant découpé en « Nom » et « Ville » sous son titre.
-  bilan.coordonnees = coordonnees(reponses)
-  if (bilan.coordonnees['medecin.nom']) bilan.medecinTraitant = bilan.coordonnees['medecin.nom']
-  if (bilan.coordonnees['medecin.ville']) bilan.ville = bilan.coordonnees['medecin.ville']
+  const parPartie = coordonnees(reponses)
+  if (parPartie['medecin.nom']) bilan.medecinTraitant = parPartie['medecin.nom']
+  if (parPartie['medecin.ville']) bilan.ville = parPartie['medecin.ville']
 
   bilan.reponsesParents = enLignes(reponses)
   return { bilan, activites }

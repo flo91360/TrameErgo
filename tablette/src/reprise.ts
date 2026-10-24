@@ -163,9 +163,5 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
   bilan.objectifsFinaux = bilan.objectifsFinaux.filter((o) => activites.includes(o))
   bilan.objectifsParents = bilan.objectifsParents.filter((o) => activites.includes(o))
 
-  // Coordonnées des parents (fiche patient) : du texte seulement.
-  bilan.coordonnees = Object.fromEntries(
-    Object.entries(bilan.coordonnees).filter(([, valeur]) => typeof valeur === 'string'))
-
   return { bilan, retirees: [...new Set(retirees)] }
 }
