@@ -85,6 +85,16 @@ describe('champs du bilan', () => {
     expect(valeurs.activites_extra_scolaires).toBe('- foot\n- piano')
   })
 
+  it('propose le trouble oppositionnel, plus le trouble de type asperger, et l\'écrit dans le bilan', () => {
+    expect(questionnaire.demande.troubles).toContain('Trouble oppositionnel')
+    expect(questionnaire.demande.troubles).not.toContain('Trouble autistique de type asperger')
+    const bilan = lucas()
+    bilan.troubles = ['TSA', 'Trouble oppositionnel']
+    bilan.autreTrouble = ''
+    expect(champs(bilan).troubles).toBe('- Trouble oppositionnel\n- TSA')
+    expect(texteDuBilan(remplirModele(modele, champs(bilan)))).toContain('Trouble oppositionnel')
+  })
+
   it('oublie un objectif dont l\'activité est revenue à « rien à signaler »', () => {
     const bilan = lucas()
     delete bilan.otHope.maison['Balayer']
