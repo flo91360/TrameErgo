@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.2] - 2026-10-24
+<!-- planifikateur:51870936-dbfb-4fc5-9805-2d6e69617e6e -->
+
+- **lien entre google form et tramErgo** : Quand on pré-remplit un bilan à partir du questionnaire des parents, le champ « Personne demandeuse » de l'étape Demande prend maintenant la réponse à la question « Qui est à l'origine de la demande de réalisation du bilan en ergothérapie ? ». Les tests (`npm test`) et la construction (`npm run build`) passent. **Ce qui ne fonctionnait pas :** l'application cherchait cette réponse sous l'ancien intitulé de la question (« … du bilan (médecin traitant ou autre professionnel de santé, instituteurs/professeurs…) ? »). Avec le formulaire actuel, elle ne la trouvait donc jamais. **Modifications :** - `tablette/src/questionnaireParents.ts` : - l'application cherche maintenant la question sous son nouvel intitulé. Les différences de majuscules, d'accents et d'apostrophe (’ ou ') ne gênent pas. - quand la réponse est exactement l'un des choix de « Personne demandeuse », ce choix est sélectionné, sans table de correspondance. - « Autre » est mis de côté : si les parents ont choisi « Autre » et écrit un texte libre, ou si la réponse ne correspond à aucun choix, le champ reste à « — à renseigner — ». - `formulaire/creer-formulaire.gs` : le script qui crée le Google Form ne génère plus une question texte, mais une question à choix unique sous le nouvel intitulé. Les options sont celles de l'application (le médecin traitant, la neuropédiatre, l'enseignant, la psychomotricienne, la neuropsychologue, le(s) parent(s), le père, la mère), plus l'option « Autre » de Google Forms avec texte libre. Seul ce script est modifié : le formulaire déjà en ligne n'est pas touché. - `tablette/tests/questionnaireParents.test.ts` : - un nouveau test vérifie qu'une réponse « la mère » ou « l'enseignant » est sélectionnée, et qu'une réponse « l'orthoptiste », « Autre » ou absente laisse le champ vide. - un autre test échoue si la liste de choix du script et celle de l'application (`contenu/questionnaire.json`) ne sont plus identiques.
+
 ## [1.6.1] - 2026-10-24
 
 ### Modifié

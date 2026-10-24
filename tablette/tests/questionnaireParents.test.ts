@@ -139,6 +139,18 @@ describe('questionnaire des parents', () => {
     expect([bilan.medecinTraitant, bilan.ville]).toEqual(['Durand', 'Massy'])
   })
 
+  it('reprend la personne à l\'origine de la demande, sauf une réponse sans équivalent', () => {
+    const avec = (valeur: string) => preRemplir(nouveauBilan(), {
+      envoi: reponse.envoi,
+      questions: [{ titre: 'Qui est à l’origine de la demande de réalisation du bilan en ergothérapie ?', reponse: valeur }],
+    }).bilan.personneDemandeuse
+    expect(avec('la mère')).toBe('la mère')
+    expect(avec("l'enseignant")).toBe("l'enseignant")
+    expect(avec("l'orthoptiste")).toBe('')
+    expect(avec('Autre')).toBe('')
+    expect(preRemplir(nouveauBilan(), reponse).bilan.personneDemandeuse).toBe('')
+  })
+
   it('reconnaît les intitulés suivis de deux-points', () => {
     const { bilan } = preRemplir(nouveauBilan(), {
       envoi: reponse.envoi,
@@ -178,6 +190,11 @@ describe('questionnaire des parents', () => {
     for (const titre of Object.values(QUESTIONS)) expect(creation, titre).toContain(titre)
     const niveaux = creation.match(/const NIVEAUX = \[(.*)\];/)?.[1].split(',').map((n) => n.trim().slice(1, -1))
     expect(niveaux).toEqual([questionnaire.otHope.neutre, ...questionnaire.otHope.niveaux.map((n) => n.libelle)])
+    // Options de la personne demandeuse : celles de l'application, « Autre » en texte libre.
+    const personnes = creation.match(/const PERSONNES_DEMANDEUSES = \[([^\]]*)\];/)?.[1]
+      .split(/,\s*/).map((p) => p.trim()).filter(Boolean).map((p) => p.slice(1, -1).replace(/\\'/g, "'"))
+    expect([...(personnes ?? []), 'Autre']).toEqual(questionnaire.demande.personnesDemandeuses)
+    expect(creation).toContain(`choix(form, "${QUESTIONS.personneDemandeuse}", PERSONNES_DEMANDEUSES, true)`)
     // Le script de lecture cherche le nom dans la question du formulaire.
     const lecture = script('questionnaire-parents.gs')
     const question = lecture.match(/const QUESTION_NOM = "(.*)";/)?.[1]

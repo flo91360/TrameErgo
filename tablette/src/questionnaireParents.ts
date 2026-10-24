@@ -3,7 +3,7 @@
 // les réponses d'un enfant à partir de son nom ; elles ne sont reportées dans
 // le bilan que si elles reprennent mot pour mot un choix de l'application.
 import { computed, ref } from 'vue'
-import { lateralites, questionnaire, type Bilan } from './bilan'
+import { AUTRE_PERSONNE_DEMANDEUSE, lateralites, questionnaire, type Bilan } from './bilan'
 
 export interface Question {
   titre: string
@@ -120,8 +120,7 @@ export const QUESTIONS = {
   lateralite: 'Latéralité',
   classe: 'Classe',
   modeDeGarde: 'Mode de garde (si parents séparés)',
-  personneDemandeuse: "Qui est à l'origine de la demande de réalisation du bilan (médecin traitant ou autre "
-    + 'professionnel de santé, instituteurs/professeurs…) ?',
+  personneDemandeuse: "Qui est à l'origine de la demande de réalisation du bilan en ergothérapie ?",
   dossierMdph: 'Dossier MDPH',
   motifs: 'Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?',
   troubles: 'A ce jour, quel(s) trouble(s) ont été diagnostiqués ?',
@@ -241,7 +240,9 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
     readonly string[]][] = [
     ['classe', QUESTIONS.classe, identite.classes],
     ['modeDeGarde', QUESTIONS.modeDeGarde, identite.modesDeGarde],
-    ['personneDemandeuse', QUESTIONS.personneDemandeuse, demande.personnesDemandeuses],
+    // Mêmes options dans le formulaire ; « Autre » y est un texte libre, à saisir dans l'application.
+    ['personneDemandeuse', QUESTIONS.personneDemandeuse,
+      demande.personnesDemandeuses.filter((p) => p !== AUTRE_PERSONNE_DEMANDEUSE)],
     ['dossierMdph', QUESTIONS.dossierMdph, demande.dossierMdph],
   ]
   for (const [cle, titre, liste] of simples) {
