@@ -313,6 +313,61 @@
       "feminin": "mauvaise perdante",
       "enfant": "Je n'aime pas perdre",
       "type": "defaut"
+    },
+    {
+      "libelle": "peu sociable",
+      "feminin": "peu sociable",
+      "enfant": "J'ai du mal à aller vers les autres",
+      "type": "defaut"
+    },
+    {
+      "libelle": "très sensible",
+      "feminin": "très sensible",
+      "enfant": "Je ressens les émotions très fort",
+      "type": "defaut"
+    },
+    {
+      "libelle": "empathique",
+      "feminin": "empathique",
+      "enfant": "Je comprends ce que ressentent les autres",
+      "type": "qualite"
+    },
+    {
+      "libelle": "intolérant à l'injustice",
+      "feminin": "intolérante à l'injustice",
+      "enfant": "Je ne supporte pas quand quelque chose n'est pas juste",
+      "type": "defaut"
+    },
+    {
+      "libelle": "intolérant à la frustration",
+      "feminin": "intolérante à la frustration",
+      "enfant": "J'ai du mal quand les choses ne se passent pas comme je veux",
+      "type": "defaut"
+    },
+    {
+      "libelle": "facilement dans le conflit",
+      "feminin": "facilement dans le conflit",
+      "enfant": "Je me dispute souvent avec les autres",
+      "type": "defaut"
+    },
+    {
+      "libelle": "influençable",
+      "feminin": "influençable",
+      "enfant": "Je fais souvent comme les autres, même quand ce n'est pas bien",
+      "type": "defaut"
+    },
+    {
+      "libelle": "teste souvent le cadre",
+      "feminin": "teste souvent le cadre",
+      "enfant": "J'essaie souvent de voir jusqu'où je peux aller",
+      "type": "defaut",
+      "infinitif": "tester souvent le cadre"
+    },
+    {
+      "libelle": "provocateur",
+      "feminin": "provocatrice",
+      "enfant": "J'aime embêter les autres pour les faire réagir",
+      "type": "defaut"
     }
   ],
   "otHope": {
