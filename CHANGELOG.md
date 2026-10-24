@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.3] - 2026-10-24
+<!-- planifikateur:8e1c13ce-107e-47e8-800d-5c4c19d1b433 -->
+
+- **ajouter et retirer des éléments dans la section 2 "demande" dans la p** : Dans l'étape « Demande », la liste des troubles propose maintenant « Trouble oppositionnel », et « Trouble autistique de type asperger » n'y figure plus. Les tests (55 réussis) et la compilation passent. Seul `contenu/questionnaire.json` a dû changer. Le nouveau trouble est placé juste après « TDA avec hyperactivité ». Rien d'autre n'était nécessaire : - **Écran Demande** : il affiche directement la liste du questionnaire. - **Bilan Word** : `contenu/bilan.docx` reprend les troubles cochés dans un seul champ `{troubles}`, dans l'ordre de la liste. « Trouble oppositionnel » y apparaît donc sans modifier le modèle. Le trouble retiré n'est utilisé dans aucun test, parcours e2e ou fichier du dépôt. Si un brouillon sur un appareil contient encore cette réponse, la reprise l'enlèvera et le signalera, comme pour toute réponse qui n'est plus dans le questionnaire. Je n'ai pas pu vérifier l'historique des bilans déjà créés, qui est stocké sur chaque appareil. Le Google Form des parents (`formulaire/creer-formulaire.gs`) a son propre libellé, « Trouble du spectre Autistique - type Asperger ». Comme il est différent de celui de l'application, il ne pré-remplissait déjà pas cette case. Je ne l'ai pas modifié, la carte ne portant que sur l'application. J'ai ajouté un test dans `tablette/tests/bilan.test.ts`. Il vérifie que la liste contient le nouveau trouble et plus l'ancien, et qu'un « Trouble oppositionnel » coché est écrit dans le bilan Word généré à partir du vrai modèle.
+
 ## [1.6.2] - 2026-10-24
 <!-- planifikateur:51870936-dbfb-4fc5-9805-2d6e69617e6e -->
 
