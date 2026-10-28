@@ -9,6 +9,14 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.7] - 2026-10-28
+
+### Ajouté
+
+- `formulaire/fiche-patient.gs` : à chaque fiche patient créée, un mail avec
+  son lien est envoyé au compte qui a installé le script (ou à
+  `DESTINATAIRE_FICHES`). Le mail ne contient pas les réponses.
+
 ## [1.6.6] - 2026-10-24
 <!-- planifikateur:b0bc4d55-8325-449b-abad-f38959756fe1 -->
 
