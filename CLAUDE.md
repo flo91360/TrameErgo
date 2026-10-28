@@ -45,7 +45,8 @@ Textes visibles, commentaires et messages de commit en français.
   - `src/questionnaireParents.ts` : questionnaire des parents (Google Forms) :
     recherche par nom auprès du script `formulaire/questionnaire-parents.gs`
     (adresse et clé propres à l'appareil, seul accès réseau de l'application)
-    et pré-remplissage des réponses au même libellé que l'application.
+    et pré-remplissage des réponses au même libellé que l'application (ou
+    équivalence déclarée, ou libellé rapproché sans ambiguïté).
   - `src/historique.ts` : bilans créés sur l'appareil (localStorage), avec
     leurs réponses ; sauvegarde et import en `.json`.
   - `src/ecrans/` : accueil (nouveau, reprendre, historique), nouveau bilan

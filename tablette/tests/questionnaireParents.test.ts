@@ -4,14 +4,33 @@ import { readFileSync } from 'node:fs'
 import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { champs, libellesCaractere, nouveauBilan, phraseCaractereParents, questionnaire } from '../src/bilan'
+import { AUTRE_AMENAGEMENT, champs, libellesCaractere, nouveauBilan, phraseCaractereParents, questionnaire } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 import {
-  chercher, coordonnees, dateDeNaissance, enLignes, lienDeLiaison, lireLien, preRemplir, QUESTIONS, semblable,
-  type QuestionnaireParents,
+  activiteOtHope, chercher, coordonnees, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
+  OPTIONS_FORMULAIRE, preRemplir, QUESTIONS, rapproche, semblable, type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
 const script = (nom: string) => readFileSync(new URL(`../../formulaire/${nom}`, import.meta.url), 'utf8')
+
+/** Chaînes entre guillemets d'un extrait de formulaire/creer-formulaire.gs. */
+function chaines(extrait: string | undefined): string[] {
+  return [...(extrait ?? '').matchAll(/'([^']*)'|"([^"]*)"/g)].map((m) => m[1] ?? m[2])
+}
+
+/** Choix d'une question à cases de creer-formulaire.gs. */
+function optionsDe(creation: string, titre: string): string[] {
+  const debut = creation.indexOf(`cases(form, "${titre}", [`) >= 0
+    ? creation.indexOf(`cases(form, "${titre}", [`) : creation.indexOf(`cases(form, '${titre}', [`)
+  expect(debut, titre).toBeGreaterThanOrEqual(0)
+  const liste = creation.slice(creation.indexOf('[', debut) + 1, creation.indexOf(']', debut))
+  return chaines(liste)
+}
+
+/** Lignes d'une grille d'activités de creer-formulaire.gs (ACTIVITES_QUOTIDIEN…). */
+function lignesDe(creation: string, constante: string): string[] {
+  return chaines(creation.match(new RegExp(`const ${constante} = \\[([^\\]]*)\\];`))?.[1])
+}
 
 /** Réponse fictive, au format renvoyé par formulaire/questionnaire-parents.gs. */
 const reponse: QuestionnaireParents = {
@@ -85,7 +104,8 @@ describe('questionnaire des parents', () => {
     expect(bilan.dossierMdph).toBe('')
     expect(bilan.troubles).toEqual(["Difficulté d'écriture", 'Dyslexie'])
     expect(bilan.matieresPreferees).toEqual(['Français'])
-    expect(bilan.amenagements).toEqual(['AESH'])
+    expect(bilan.amenagements).toEqual(['AESH', 'Polycopiés donnés'])
+    expect(bilan.autreAmenagement).toBe('')
     expect(bilan.activitesTempsLibre).toBe('Lecture, vélo')
     expect(bilan.fratrie).toBe('')
     expect(bilan.sexe).toBe(nouveauBilan().sexe)
@@ -241,6 +261,117 @@ describe('questionnaire des parents', () => {
     expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable', raison: /clé/ })
     vi.stubGlobal('fetch', async () => { throw new TypeError('Failed to fetch') })
     expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable' })
+  })
+
+  it('reprend les activités renommées d\'après le document « modification TramErgo »', () => {
+    const lignes: [string, string | undefined][] = [
+      ['Enfiler ses vêtement (dans le bon sens)', 'Enfiler ses vêtement (dans le bon sens)'],
+      ['cuisiner un plat simple', 'Cuisiner un plat simple'],
+      ['Manipuler les boutons', 'Manipuler les boutons (chemise/ pantalon)'],
+      ['se couper les ongles', 'Me couper les ongles'],
+      ['Se coiffer', 'Me coiffer'],
+      ["S'endormir facilement", "S'endormir facilement"],
+      ['Préparer son cartable', 'Préparer son cartable'],
+      ['Tracer un rond/ carré/ triangle à main levée', 'Tracer un rond/ carré/ triangle à main levée'],
+      ['jouer/ discuter dans la cours de récréation avec des amis',
+        'Jouer/ discuter dans la cours de récréation avec des amis'],
+      ['lancer une balle', 'Lancer une balle'],
+      ["s'exprimer (écrit, oral)", "S'exprimer (écrit, oral)"],
+      // « Préparer mon cartable » (école) et « Préparer son cartable » (maison) : ambigu, pas repris.
+      ['Préparer ton cartable', undefined],
+      ['Prendre sa douche seul(e)', undefined],
+    ]
+    for (const [ligne, activite] of lignes) expect(activiteOtHope(ligne), ligne).toBe(activite)
+    const { bilan, activites } = preRemplir(nouveauBilan(), {
+      envoi: reponse.envoi,
+      questions: [{
+        titre: "Niveau d'aide pour chaque activité",
+        lignes: ['Manipuler les boutons', 'se couper les ongles', 'Lecture voix haute', 'enfiler des perles'],
+        reponse: ['Avec aide', 'Avec difficulté', 'Avec grande difficulté', 'Avec aide'],
+      }],
+    })
+    expect(activites).toBe(4)
+    expect(bilan.otHope).toEqual({
+      maison: { 'Manipuler les boutons (chemise/ pantalon)': 'aide', 'Me couper les ongles': 'difficulte' },
+      ecole: { 'Lecture voix haute': 'grande_difficulte' },
+      loisirs: { 'Enfiler des perles': 'aide' },
+    })
+  })
+
+  it('rapproche les libellés sans précision entre parenthèses ni « me »/« se »', () => {
+    expect(rapproche('Me couper les ongles')).toBe(rapproche('se couper les ongles'))
+    expect(rapproche("M'installer à ma place")).toBe(rapproche("s'installer à sa place"))
+    expect(rapproche('Ecrire vite et bien (qualité et quantité)')).toBe(rapproche('Ecrire vite et bien'))
+    expect(rapproche('Ecrire vite (quantité)')).not.toBe(rapproche('Ecrire vite et bien'))
+    expect(rapproche('Mémoriser')).toBe('memoriser')
+  })
+
+  it('coche les difficultés en classe du formulaire, et reporte « Autre »', () => {
+    const { bilan } = preRemplir({ ...nouveauBilan(), prenom: 'Léa' }, {
+      envoi: reponse.envoi,
+      questions: [{ titre: QUESTIONS.difficultes, reponse: [...OPTIONS_FORMULAIRE.difficultes, 'Copier au tableau'] }],
+    })
+    expect(bilan.difficultes).toEqual([
+      'la concentration toute la journée', 'la concentration le matin', "la concentration l'après-midi",
+      'Ecrire vite et bien (qualité et quantité)', "S'organiser", "Douleur à l'écriture", 'Participer',
+    ])
+    expect(bilan.autreDifficulte).toBe('Copier au tableau')
+    expect(champs(bilan).difficultes_en_classe).toBe([
+      '- la concentration toute la journée', '- la concentration le matin', "- la concentration l'après-midi",
+      '- Ecrire vite et bien (qualité et quantité)', "- Douleur à l'écriture", "- S'organiser", '- Participer',
+      '- Copier au tableau',
+    ].join('\n'))
+  })
+
+  it('coche les aménagements du formulaire, et recopie « Autre » dans l\'aménagement scolaire libre', () => {
+    const { bilan } = preRemplir({ ...nouveauBilan(), autreAmenagement: 'Pupitre adapté' }, {
+      envoi: reponse.envoi,
+      questions: [{
+        titre: QUESTIONS.amenagements,
+        reponse: ['Polycopier fournis dans certaines matières', "réduction du nombre d'exercice lors des évaluations",
+          'adaptation des barèmes', 'Texte plus grand et/ou bien espacé', 'polycopier à trou', 'Tiers-temps',
+          'Place au premier rang', 'pupitre adapté'],
+      }],
+    })
+    expect(bilan.amenagements).toEqual(['Polycopiés donnés', "Moins d'exercices", 'Adaptation des barèmes',
+      'Texte plus grand et/ou bien espacé', 'Polycopier à trou', AUTRE_AMENAGEMENT])
+    // « Tiers-temps » est un choix du formulaire, sans équivalent exact : ni coché, ni recopié.
+    expect(bilan.autreAmenagement).toBe('Pupitre adapté\nPlace au premier rang')
+    const sansAutre = preRemplir(nouveauBilan(), { envoi: reponse.envoi,
+      questions: [{ titre: QUESTIONS.amenagements, reponse: ['AESH', 'Tiers-temps'] }] }).bilan
+    expect(sansAutre.amenagements).toEqual(['AESH'])
+    expect(sansAutre.autreAmenagement).toBe('')
+  })
+
+  it('remplit les activités extra-scolaires, de temps libre et les difficultés pendant les loisirs', () => {
+    const { bilan } = preRemplir(nouveauBilan(), {
+      envoi: reponse.envoi,
+      questions: [
+        { titre: QUESTIONS.activitesExtraScolaires, reponse: 'judo, piano' },
+        { titre: QUESTIONS.activitesTempsLibre, reponse: 'dessin' },
+        { titre: QUESTIONS.difficultesLoisirs, reponse: 'se fatigue vite' },
+      ],
+    })
+    expect([bilan.activitesExtraScolaires, bilan.activitesTempsLibre, bilan.difficultesLoisirs])
+      .toEqual(['judo, piano', 'dessin', 'se fatigue vite'])
+  })
+
+  it('connaît les choix du formulaire et les équivalences demandées', () => {
+    const creation = script('creer-formulaire.gs')
+    expect(optionsDe(creation, QUESTIONS.difficultes)).toEqual(OPTIONS_FORMULAIRE.difficultes)
+    expect(optionsDe(creation, QUESTIONS.amenagements)).toEqual(OPTIONS_FORMULAIRE.amenagements)
+    const listes = [...questionnaire.scolarite.difficultes, ...questionnaire.amenagements]
+    for (const [formulaire, application] of Object.entries(EQUIVALENCES)) {
+      expect([...OPTIONS_FORMULAIRE.difficultes, ...OPTIONS_FORMULAIRE.amenagements]).toContain(formulaire)
+      expect(listes).toContain(application)
+    }
+    // Les choix des difficultés en classe ont tous leur équivalent dans l'application.
+    const { bilan } = preRemplir(nouveauBilan(), { envoi: reponse.envoi,
+      questions: [{ titre: QUESTIONS.difficultes, reponse: [...OPTIONS_FORMULAIRE.difficultes] }] })
+    expect(bilan.difficultes).toHaveLength(OPTIONS_FORMULAIRE.difficultes.length)
+    // Les lignes des grilles du formulaire sont bien lues par le test.
+    for (const grille of ['ACTIVITES_QUOTIDIEN', 'ACTIVITES_ECOLE', 'ACTIVITES_LOISIRS'])
+      expect(lignesDe(creation, grille).length, grille).toBeGreaterThan(30)
   })
 
   it('suit le formulaire : mêmes questions, et des grilles aux niveaux de l\'application', () => {

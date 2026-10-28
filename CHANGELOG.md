@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.8] - 2026-10-28
+<!-- planifikateur:00412af8-d723-4666-8f64-4273b2795eab -->
+
+- **harmonisation entre le lien google form rempli par les parent et le logiciel TramErgo** : Toutes les modifications du document « modification TramErgo » (pièce jointe : il n'était pas dans le dépôt) sont appliquées dans TrameErgo. L'import des réponses des parents pré-remplit maintenant les nouveaux libellés. Le questionnaire Google Forms n'a pas été modifié. `npm test` (65 tests) et `npm run build` passent ; les tests de parcours (e2e) n'ont pas été lancés. **Changements dans `contenu/questionnaire.json`** - **Difficultés en classe (onglet 4)** : la liste reprend les 10 propositions du document. Un champ « Autre » a été ajouté à l'écran Scolarité ; il est écrit dans le bilan Word après les choix cochés. - **OT Hope, vie quotidienne (onglet 6)** : 15 activités ajoutées, 11 renommées, « Utiliser un cadenas » et « Me raser » retirés. - **OT Hope, vie scolaire (onglet 7)** : 5 activités ajoutées et 10 renommées. Les trois « Tracer un carré / rond / triangle » deviennent une seule activité. « M'organiser pour faire mes devoirs » est retiré. - **OT Hope, loisirs (onglet 8)** : 7 activités ajoutées. - **Aménagements (onglet 10)** : « Adaptation des barèmes », « Texte plus grand et/ou bien espacé » et « Polycopier à trou » ajoutés. Les activités prennent une majuscule initiale, comme le reste des listes. L'orthographe du document est gardée telle quelle (« ses vêtement », « dans la cours »), car c'est aussi celle du formulaire et c'est ce qui permet le pré-remplissage. Ces libellés apparaissent donc tels quels dans le bilan Word. **Changements dans le pré-remplissage (`tablette/src/questionnaireParents.ts`)** - **Correspondances demandées par le document** : « Polycopier fournis dans certaines matières » coche « Polycopiés donnés », « réduction du nombre d'exercice lors des évaluations » coche « Moins d'exercices », et « pour participer » coche « Participer ». - **Libellés rapprochés** : si aucun libellé n'est identique, la parenthèse est ignorée et « me »/« se », « mon »/« son »… se valent, à condition qu'un seul choix corresponde. Par exemple, « se couper les
+
 ## [1.6.7] - 2026-10-28
 
 ### Ajouté

@@ -61,7 +61,26 @@ titre « Médecin traitant » remplissent le médecin de l'écran Patient. Les l
 grilles ne sont pré-remplies que si l'activité existe dans
 `contenu/questionnaire.json` avec le même libellé, aux majuscules et aux
 accents près, et si la colonne cochée est « Rien à signaler » ou un niveau de
-`otHope.niveaux` (« Avec aide »…). Les listes « cotation 0 à 4 » de l'ancien
+`otHope.niveaux` (« Avec aide »…). À défaut de libellé identique, un libellé
+rapproché suffit s'il ne désigne qu'une seule activité : sans la précision
+entre parenthèses (« Manipuler les boutons » → « Manipuler les boutons
+(chemise/ pantalon) ») et sans distinguer « me »/« se », « mon »/« son »…
+(« se couper les ongles » → « Me couper les ongles »). Les mêmes règles valent
+pour les autres listes. Quelques réponses sont reprises sous un autre libellé
+(`EQUIVALENCES` de `tablette/src/questionnaireParents.ts`, demandées par
+l'ergothérapeute) : « Polycopier fournis dans certaines matières » →
+« Polycopiés donnés », « réduction du nombre d'exercice lors des
+évaluations » → « Moins d'exercices », « pour participer » → « Participer ».
+Les questions « Qu'est-ce qui est difficile en classe ? » et « Y a t il eu
+des aménagements ? » cochent les difficultés en classe (écran Scolarité) et
+les aménagements (écran Aménagements) ; leur réponse « Autre » est recopiée
+dans le champ « Autre » de l'écran (« Autre / aménagement scolaire » pour les
+aménagements). Leurs choix sont recopiés dans `OPTIONS_FORMULAIRE` du même
+fichier (un test vérifie qu'ils suivent `creer-formulaire.gs`). Les
+questions « Quelles sont les activités extra-scolaire ? A quelle fréquence ? »,
+« Quelles sont les activités de temps libre ? » et « Y a t il des difficultés
+lors des loisirs ? » remplissent les zones correspondantes de l'écran
+Aménagements. Les listes « cotation 0 à 4 » de l'ancien
 formulaire ne sont pas reprises : leurs niveaux n'ont pas d'équivalent dans
 l'application. La question « Pour quelle(s) raison(s) le bilan est
 souhaité ? En lien avec quel trouble diagnostiqué ? » coche, dans l'écran
