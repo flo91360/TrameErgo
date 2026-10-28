@@ -26,7 +26,7 @@ function lucas(): Bilan {
     ville: 'Massy', personneDemandeuse: 'la mère', motifs: [questionnaire.demande.motifs[2]],
     troubles: ['TSA', 'Dysgraphie'], autreTrouble: 'Trouble visuel',
     professionnels: { psychologue: "à raison d'une fois par mois", orthophoniste: "à raison d'une fois par semaine" },
-    comportement: ['Bavardage en cours'], difficultes: ['pour s\'organiser'],
+    comportement: ['Bavardage en cours'], difficultes: ["S'organiser"],
     matieresPreferees: ['EPS', 'Musique'], matieresDetestees: ['Français'],
     otHope: {
       maison: { 'Faire mes lacets': 'difficulte', 'Couper la viande': 'aide', 'Balayer': 'aide' },

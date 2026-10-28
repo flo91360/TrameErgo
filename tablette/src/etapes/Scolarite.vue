@@ -15,6 +15,7 @@ const { scolarite } = questionnaire
   <section class="carte">
     <h3>Difficultés en classe</h3>
     <Puces v-model="bilan.difficultes" :options="scolarite.difficultes" />
+    <label>Autre <input v-model="bilan.autreDifficulte" /></label>
   </section>
 
   <section class="carte">

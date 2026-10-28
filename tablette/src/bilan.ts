@@ -49,6 +49,8 @@ export interface Bilan {
   autresProfessionnels: AutreProfessionnel[]
   comportement: string[]
   difficultes: string[]
+  /** Difficulté en classe saisie en texte libre (« Autre »), écrite après celles de la liste. */
+  autreDifficulte: string
   matieresPreferees: string[]
   autreMatierePreferee: string
   matieresDetestees: string[]
@@ -114,6 +116,7 @@ export function nouveauBilan(date = new Date()): Bilan {
     autresProfessionnels: [],
     comportement: [],
     difficultes: [],
+    autreDifficulte: '',
     matieresPreferees: [],
     autreMatierePreferee: '',
     matieresDetestees: [],
@@ -442,7 +445,7 @@ export function champs(bilan: Bilan): Record<string, string> {
     dossier_mdph: bilan.dossierMdph,
 
     comportement_en_classe: enListe(dansLOrdre(scolarite.comportement, bilan.comportement)),
-    difficultes_en_classe: enListe(dansLOrdre(scolarite.difficultes, bilan.difficultes)),
+    difficultes_en_classe: enListe(dansLOrdre(scolarite.difficultes, bilan.difficultes, bilan.autreDifficulte)),
     matieres_preferees: dansLOrdre(scolarite.matieres, bilan.matieresPreferees, bilan.autreMatierePreferee).join(', '),
     matieres_moins_appreciees:
       dansLOrdre(scolarite.matieres, bilan.matieresDetestees, bilan.autreMatiereDetestee).join(', '),

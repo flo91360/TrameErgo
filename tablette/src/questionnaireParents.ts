@@ -1,9 +1,10 @@
 // Questionnaire pré-bilan rempli en ligne par les parents (Google Forms). Le
 // script formulaire/questionnaire-parents.gs, publié en application web, renvoie
 // les réponses d'un enfant à partir de son nom ; elles ne sont reportées dans
-// le bilan que si elles reprennent mot pour mot un choix de l'application.
+// le bilan que si elles reprennent un choix de l'application (même libellé,
+// équivalence déclarée ou libellé rapproché sans ambiguïté, voir choix).
 import { computed, ref } from 'vue'
-import { AUTRE_PERSONNE_DEMANDEUSE, lateralites, questionnaire, type Bilan } from './bilan'
+import { AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, lateralites, questionnaire, type Bilan } from './bilan'
 
 export interface Question {
   titre: string
@@ -146,9 +147,76 @@ function cases(reponse: unknown): string[] {
   return Array.isArray(reponse) ? reponse.filter((r): r is string => typeof r === 'string' && !!r.trim()) : []
 }
 
-/** Le choix de la liste qui a ce libellé (aux majuscules et accents près). */
+/**
+ * Réponses du formulaire reprises sous un autre libellé de l'application
+ * (document « modification TramErgo » de l'ergothérapeute) : libellé du
+ * formulaire → libellé de l'application.
+ */
+export const EQUIVALENCES: Readonly<Record<string, string>> = {
+  'Polycopier fournis dans certaines matières': 'Polycopiés donnés',
+  "réduction du nombre d'exercice lors des évaluations": "Moins d'exercices",
+  'pour participer': 'Participer',
+}
+
+/**
+ * Choix des cases du formulaire (formulaire/creer-formulaire.gs) : une réponse
+ * qui n'en fait pas partie a été saisie dans « Autre » par les parents.
+ */
+export const OPTIONS_FORMULAIRE = {
+  difficultes: [
+    'la concentration toute la journée', 'la concentration le matin', "la concentration l'après-midi",
+    'Ecrire vite et bien', "s'organiser", "douleur à l'écriture", 'pour participer',
+  ],
+  amenagements: [
+    'AESH', 'Polycopier fournis dans certaines matières', 'Tiers-temps',
+    "réduction du nombre d'exercice lors des évaluations", 'adaptation des barèmes',
+    'Texte plus grand et/ou bien espacé', 'dictée à trou', 'polycopier à trou', 'PAP', 'PPS', 'PPRE',
+  ],
+} as const
+
+/**
+ * Libellé rapproché : sans précision entre parenthèses (« Manipuler les boutons
+ * (chemise/ pantalon) » vaut « Manipuler les boutons ») et sans distinguer « me »
+ * de « se », « mon » de « son »… (« Me couper les ongles » vaut « se couper les
+ * ongles »).
+ */
+export function rapproche(texte: string): string {
+  return semblable(texte.replace(/\([^)]*\)/g, ' '))
+    .replace(/\b[mt]'/g, "s'")
+    .replace(/\b[mt]e\b/g, 'se')
+    .replace(/\b[mt]on\b/g, 'son')
+    .replace(/\b[mt]a\b/g, 'sa')
+    .replace(/\b[mt]es\b/g, 'ses')
+    .replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * Le choix de la liste qui a ce libellé : d'abord au même libellé (aux
+ * majuscules et accents près), puis par EQUIVALENCES, enfin au libellé
+ * rapproché s'il ne désigne qu'un seul choix.
+ */
 function choix(liste: readonly string[], reponse: string): string | undefined {
-  return liste.find((element) => semblable(element) === semblable(reponse))
+  const exact = liste.find((element) => semblable(element) === semblable(reponse))
+  if (exact) return exact
+  const cle = Object.keys(EQUIVALENCES).find((libelle) => semblable(libelle) === semblable(reponse))
+  const equivalent = cle && liste.find((element) => element === EQUIVALENCES[cle])
+  if (equivalent) return equivalent
+  if (!rapproche(reponse)) return undefined
+  const proches = liste.filter((element) => rapproche(element) === rapproche(reponse))
+  return proches.length === 1 ? proches[0] : undefined
+}
+
+/** Réponses saisies dans « Autre » : ni un choix de l'application, ni un choix du formulaire. */
+function autres(reponses: string[], liste: readonly string[], options: readonly string[]): string[] {
+  return reponses.filter((reponse) => !choix(liste, reponse) && !options.some((o) => semblable(o) === semblable(reponse)))
+}
+
+/** Ajoute les nouvelles réponses à un texte libre (séparées par separateur), sans doublon. */
+function completer(texteLibre: string, nouvelles: string[], separateur: string): string {
+  const coupe = separateur.trim() || separateur
+  const deja = texteLibre.split(coupe).map((t) => semblable(t)).filter(Boolean)
+  const ajout = [...new Set(nouvelles.map((n) => n.trim()))].filter((n) => n && !deja.includes(semblable(n)))
+  return [texteLibre.trim(), ...ajout].filter(Boolean).join(separateur)
 }
 
 /** « Actuellement votre enfant est : (qualités et défauts) » et « Actuellement votre enfant est : » se valent. */
@@ -231,12 +299,18 @@ export function coordonnees(reponses: QuestionnaireParents): Record<string, stri
   return resultat
 }
 
+/** Activité OT Hope d'une ligne de grille, tous domaines confondus (voir choix). */
+export function activiteOtHope(ligne: string): string | undefined {
+  return choix(questionnaire.otHope.domaines.flatMap((d) => d.activites), ligne)
+}
+
 /**
  * Bilan pré-rempli avec les réponses des parents. Seules les réponses qui
  * reprennent un choix de l'application (activité, niveau, classe…) au même
  * libellé sont reportées ; le reste n'apparaît que dans l'encadré, sauf pour
  * la question des raisons du bilan (QUESTIONS.raisonsTroubles), dont les
- * réponses hors liste vont dans « Autre trouble ».
+ * réponses hors liste vont dans « Autre trouble », et l'option « Autre » des
+ * difficultés en classe et des aménagements, recopiée dans leur champ « Autre ».
  */
 export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bilan: Bilan; activites: number } {
   const bilan: Bilan = JSON.parse(JSON.stringify(depart))
@@ -288,10 +362,18 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
   // « Autre trouble », qui est écrit dans le bilan à la suite des troubles cochés.
   const autresTroubles = cases(question(QUESTIONS.raisonsTroubles)).map((reponse) => reponse.trim())
     .filter((reponse) => !choix(demande.troubles, reponse))
-  if (autresTroubles.length) {
-    const deja = bilan.autreTrouble.split(',').map((t) => semblable(t))
-    const nouveaux = [...new Set(autresTroubles)].filter((reponse) => !deja.includes(semblable(reponse)))
-    bilan.autreTrouble = [bilan.autreTrouble.trim(), ...nouveaux].filter(Boolean).join(', ')
+  if (autresTroubles.length) bilan.autreTrouble = completer(bilan.autreTrouble, autresTroubles, ', ')
+
+  // « Autre » des difficultés en classe et des aménagements : la réponse libre
+  // des parents est recopiée dans le champ « Autre » de l'application.
+  const autresDifficultes = autres(cases(question(QUESTIONS.difficultes)), scolarite.difficultes,
+    OPTIONS_FORMULAIRE.difficultes)
+  if (autresDifficultes.length) bilan.autreDifficulte = completer(bilan.autreDifficulte, autresDifficultes, ', ')
+  const autresAmenagements = autres(cases(question(QUESTIONS.amenagements)), amenagements,
+    OPTIONS_FORMULAIRE.amenagements)
+  if (autresAmenagements.length) {
+    bilan.autreAmenagement = completer(bilan.autreAmenagement, autresAmenagements, '\n')
+    if (!bilan.amenagements.includes(AUTRE_AMENAGEMENT)) bilan.amenagements = [...bilan.amenagements, AUTRE_AMENAGEMENT]
   }
 
   // Caractère selon les parents : les qualités et défauts cochés au même libellé
@@ -323,9 +405,9 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
       if (typeof colonne !== 'string') return
       const niveau = otHope.niveaux.find((n) => semblable(n.libelle) === semblable(colonne))
       const neutre = semblable(otHope.neutre) === semblable(colonne)
-      const domaine = otHope.domaines.find((d) => choix(d.activites, ligne))
-      if (!domaine || (!niveau && !neutre)) return
-      const activite = choix(domaine.activites, ligne)!
+      const activite = activiteOtHope(ligne)
+      if (!activite || (!niveau && !neutre)) return
+      const domaine = otHope.domaines.find((d) => d.activites.includes(activite))!
       const cotations = { ...(bilan.otHope[domaine.id] ?? {}) }
       if (niveau) cotations[activite] = niveau.id
       else delete cotations[activite]
