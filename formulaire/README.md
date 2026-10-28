@@ -82,15 +82,21 @@ envoyée, il crée dans le Google Drive, dossier « ERGO/questionnaire
 pré-bilan » (créé s'il manque), un Word
 `Fiche_patient_<NOM>_<Prénom>_<date>.docx` avec toutes les réponses, rangées
 sous les titres du formulaire (sections et encadrés). Les grilles d'activités
-deviennent des tableaux, les questions sans réponse sont omises.
+deviennent des tableaux, les questions sans réponse sont omises. Un mail avec le
+lien vers la fiche est envoyé au compte qui a installé le script (ou à
+l'adresse de `DESTINATAIRE_FICHES`) ; il ne contient pas les réponses.
 
 1. Dans le projet Apps Script du questionnaire, « + » > « Script », nommer le
    fichier `fiche-patient`, coller tout `fiche-patient.gs`, enregistrer.
 2. Choisir `installerFichePatient`, « Exécuter », et accepter les
-   autorisations (Drive, Documents, Forms et « se connecter à un service
-   externe », qui sert à convertir la fiche en Word).
+   autorisations (Drive, Documents, Forms, envoi de mails et « se connecter à
+   un service externe », qui sert à convertir la fiche en Word).
 3. Pour vérifier : `essayerFichePatient` crée la fiche de la dernière réponse
-   reçue ; le journal donne son lien.
+   reçue et envoie le mail ; le journal donne son lien.
+
+Après une mise à jour du script qui demande une nouvelle autorisation (l'envoi
+du mail, par exemple), exécuter une fois `essayerFichePatient` pour
+l'accepter : sinon le déclencheur échoue à chaque réponse.
 
 `retirerFichePatient` arrête la création automatique. En cas d'erreur, Google
 envoie un courriel au propriétaire du script ; les exécutions sont listées

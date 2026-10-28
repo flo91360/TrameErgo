@@ -11,6 +11,8 @@
 // Dossier du Drive où ranger les fiches, depuis « Mon Drive » ; créé s'il manque.
 const DOSSIER_FICHES = ['ERGO', 'questionnaire pré-bilan'];
 const TYPE_WORD = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+// Adresse prévenue à chaque fiche créée ; vide : le compte qui a installé le script.
+const DESTINATAIRE_FICHES = '';
 
 /** À exécuter une fois : crée la fiche à chaque nouvelle réponse au formulaire. */
 function installerFichePatient() {
@@ -31,12 +33,23 @@ function retirerFichePatient() {
 function essayerFichePatient() {
   const reponses = formulaireDeLaFiche().getResponses();
   if (!reponses.length) throw new Error("Le formulaire n'a encore aucune réponse.");
-  Logger.log('Fiche créée : ' + ficheDeLaReponse(reponses[reponses.length - 1]).getUrl());
+  const fichier = ficheDeLaReponse(reponses[reponses.length - 1]);
+  prevenirFichePatient(fichier);
+  Logger.log('Fiche créée : ' + fichier.getUrl());
 }
 
 /** Déclencheur « à l'envoi du formulaire ». */
 function creerFichePatient(e) {
-  ficheDeLaReponse(e.response);
+  prevenirFichePatient(ficheDeLaReponse(e.response));
+}
+
+/** Mail avec le lien vers la fiche : les réponses restent dans le Drive, pas dans le mail. */
+function prevenirFichePatient(fichier) {
+  const destinataire = DESTINATAIRE_FICHES || Session.getEffectiveUser().getEmail();
+  const nom = fichier.getName().replace(/\.docx$/, '');
+  MailApp.sendEmail(destinataire, 'Nouveau questionnaire pré-bilan : ' + nom,
+    'Un questionnaire pré-bilan vient d\'être reçu.\n\n'
+    + 'Fiche patient (' + DOSSIER_FICHES.join('/') + ') :\n' + fichier.getUrl());
 }
 
 function formulaireDeLaFiche() {
