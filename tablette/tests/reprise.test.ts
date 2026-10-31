@@ -23,6 +23,22 @@ describe('reprise du brouillon', () => {
     expect(reprise.bilan.autrePersonneDemandeuse).toBe("l'orthoptiste")
   })
 
+  it('relit la 2ème personne demandeuse, absente des anciens brouillons', () => {
+    const bilan = nouveauBilan(date)
+    Object.assign(bilan, { personneDemandeuse: 'la mère', deuxiemePersonneDemandeuse: 'Autre',
+      autreDeuxiemePersonneDemandeuse: "l'orthoptiste" })
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.retirees).toEqual([])
+    expect(reprise.bilan.deuxiemePersonneDemandeuse).toBe('Autre')
+    expect(champs(reprise.bilan).personne_demandeuse).toBe("la mère et l'orthoptiste")
+    const ancien = reprendre(JSON.stringify({ version: 2, bilan: { personneDemandeuse: 'la mère' } }), date)!
+    expect(ancien.bilan.deuxiemePersonneDemandeuse).toBe('')
+    expect(champs(ancien.bilan).personne_demandeuse).toBe('la mère')
+    const inconnue = reprendre(JSON.stringify({ version: 2, bilan: { deuxiemePersonneDemandeuse: 'le voisin' } }), date)!
+    expect(inconnue.retirees).toEqual(['le voisin (2ème personne demandeuse)'])
+    expect(inconnue.bilan.deuxiemePersonneDemandeuse).toBe('')
+  })
+
   it('garde au plus 3 autres thérapeutes et retire une fréquence inconnue', () => {
     const mois = "à raison d'une fois par mois"
     const ancien = {

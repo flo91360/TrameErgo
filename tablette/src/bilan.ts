@@ -37,6 +37,10 @@ export interface Bilan {
   personneDemandeuse: string
   /** Personne demandeuse saisie en texte libre, quand « Autre » est choisi. */
   autrePersonneDemandeuse: string
+  /** 2ème personne demandeuse, facultative ('' : aucune), mêmes choix que la première. */
+  deuxiemePersonneDemandeuse: string
+  /** 2ème personne demandeuse saisie en texte libre, quand « Autre » est choisi. */
+  autreDeuxiemePersonneDemandeuse: string
   motifs: string[]
   autreMotif: string
   troubles: string[]
@@ -106,6 +110,8 @@ export function nouveauBilan(date = new Date()): Bilan {
     ville: '',
     personneDemandeuse: '',
     autrePersonneDemandeuse: '',
+    deuxiemePersonneDemandeuse: '',
+    autreDeuxiemePersonneDemandeuse: '',
     motifs: [],
     autreMotif: '',
     troubles: [],
@@ -297,11 +303,19 @@ export function amenagementsScolaires(bilan: Bilan): string[] {
 /** Personne demandeuse qui renvoie au texte libre : c'est le texte saisi qui est écrit dans le bilan. */
 export const AUTRE_PERSONNE_DEMANDEUSE = 'Autre'
 
-/** Personne demandeuse du bilan : le choix de la liste, ou le texte libre pour « Autre ». */
+function choixOuAutre(choix: string, autre: string): string {
+  return choix === AUTRE_PERSONNE_DEMANDEUSE ? autre.trim() : choix
+}
+
+/**
+ * Personne(s) demandeuse(s) du bilan : le choix de la liste, ou le texte
+ * libre pour « Autre », suivi de « et » et de la 2ème personne si elle est
+ * renseignée (et différente de la première). Sans 2ème personne : la première seule.
+ */
 export function personneDemandeuse(bilan: Bilan): string {
-  return bilan.personneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE
-    ? bilan.autrePersonneDemandeuse.trim()
-    : bilan.personneDemandeuse
+  const premiere = choixOuAutre(bilan.personneDemandeuse, bilan.autrePersonneDemandeuse)
+  const deuxieme = choixOuAutre(bilan.deuxiemePersonneDemandeuse ?? '', bilan.autreDeuxiemePersonneDemandeuse ?? '')
+  return deuxieme && deuxieme !== premiere ? `${premiere} et ${deuxieme}` : premiere
 }
 
 type Manquants = (bilan: Bilan) => string[]

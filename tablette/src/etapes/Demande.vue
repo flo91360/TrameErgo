@@ -18,6 +18,15 @@ const { demande } = questionnaire
       <label v-if="bilan.personneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE">Autre personne demandeuse
         <input v-model="bilan.autrePersonneDemandeuse" placeholder="ex. : l'orthoptiste" />
       </label>
+      <label>2ème personne demandeuse (facultatif)
+        <select v-model="bilan.deuxiemePersonneDemandeuse">
+          <option value="">— aucune —</option>
+          <option v-for="p in demande.personnesDemandeuses" :key="p">{{ p }}</option>
+        </select>
+      </label>
+      <label v-if="bilan.deuxiemePersonneDemandeuse === AUTRE_PERSONNE_DEMANDEUSE">Autre 2ème personne demandeuse
+        <input v-model="bilan.autreDeuxiemePersonneDemandeuse" placeholder="ex. : l'orthoptiste" />
+      </label>
       <label>Dossier MDPH
         <select v-model="bilan.dossierMdph">
           <option value="" disabled>— à renseigner —</option>

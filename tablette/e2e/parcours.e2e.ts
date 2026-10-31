@@ -107,7 +107,7 @@ test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'histor
   await page.getByRole('button', { name: 'Suivant' }).tap()
 
   await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
-  await page.getByLabel('Personne demandeuse').selectOption('la mère')
+  await page.getByLabel(/^Personne demandeuse/).selectOption('la mère')
   await page.getByLabel('Dossier MDPH').selectOption('Aucun')
   await page.getByLabel('Autre motif').fill('Lenteur en classe')
   await page.getByRole('button', { name: 'Dysgraphie' }).tap()
@@ -237,13 +237,25 @@ test('la personne demandeuse « Autre » se saisit en texte libre', async ({ pag
   await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
   await etape(page, 'Demande')
   await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
-  await page.getByLabel('Personne demandeuse').selectOption('Autre')
+  await page.getByLabel(/^Personne demandeuse/).selectOption('Autre')
   await page.getByRole('button', { name: 'Suivant' }).tap()
   await expect(page.getByRole('alert')).toContainText('la personne demandeuse (Autre)')
   await page.getByLabel('Autre personne demandeuse').fill("l'orthoptiste")
   await page.getByRole('button', { name: 'Suivant' }).tap()
   await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
   expect((await brouillon(page)).autrePersonneDemandeuse).toBe("l'orthoptiste")
+})
+
+test('la 2ème personne demandeuse est facultative', async ({ page }) => {
+  await avecBrouillon(page)
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await etape(page, 'Demande')
+  await expect(page.getByRole('heading', { name: 'Demande' })).toBeVisible()
+  await expect(page.getByLabel(/^2ème personne demandeuse/)).toHaveValue('')
+  await page.getByLabel(/^2ème personne demandeuse/).selectOption('le père')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
+  expect((await brouillon(page)).deuxiemePersonneDemandeuse).toBe('le père')
 })
 
 test('l\'étape Caractère du patient se passe sans rien cocher', async ({ page }) => {

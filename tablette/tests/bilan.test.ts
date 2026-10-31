@@ -233,6 +233,54 @@ describe('personne demandeuse « Autre »', () => {
   })
 })
 
+describe('2ème personne demandeuse', () => {
+  it('est facultative et absente au départ', () => {
+    const bilan = lucas()
+    expect(nouveauBilan().deuxiemePersonneDemandeuse).toBe('')
+    expect(bilan.deuxiemePersonneDemandeuse).toBe('')
+    expect(obligatoires.demande(bilan)).toEqual([])
+    bilan.deuxiemePersonneDemandeuse = AUTRE_PERSONNE_DEMANDEUSE
+    expect(obligatoires.demande(bilan)).toEqual([])
+    bilan.personneDemandeuse = ''
+    expect(obligatoires.demande(bilan)).toEqual(['la personne demandeuse'])
+  })
+
+  it('sans 2ème personne, le bilan est inchangé', () => {
+    const bilan = lucas()
+    expect(champs(bilan).personne_demandeuse).toBe('la mère')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('le bilan a été demandé par la mère.')
+    expect(texte).not.toMatch(/ et \./)
+    // « Autre » sans texte saisi : omise elle aussi.
+    bilan.deuxiemePersonneDemandeuse = AUTRE_PERSONNE_DEMANDEUSE
+    expect(champs(bilan).personne_demandeuse).toBe('la mère')
+  })
+
+  it('s\'écrit à la suite de la première, avec « et »', () => {
+    const bilan = lucas()
+    const [premiere, deuxieme] = questionnaire.demande.personnesDemandeuses.filter((p) => p !== 'la mère')
+    bilan.personneDemandeuse = premiere!
+    bilan.deuxiemePersonneDemandeuse = deuxieme!
+    expect(champs(bilan).personne_demandeuse).toBe(`${premiere} et ${deuxieme}`)
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain(`le bilan a été demandé par ${premiere} et ${deuxieme}.`)
+    Object.assign(bilan, {
+      personneDemandeuse: 'la mère',
+      deuxiemePersonneDemandeuse: AUTRE_PERSONNE_DEMANDEUSE, autreDeuxiemePersonneDemandeuse: " l'orthoptiste ",
+    })
+    expect(champs(bilan).personne_demandeuse).toBe("la mère et l'orthoptiste")
+    // La même personne deux fois n'est écrite qu'une fois.
+    bilan.deuxiemePersonneDemandeuse = 'la mère'
+    expect(champs(bilan).personne_demandeuse).toBe('la mère')
+  })
+
+  it('n\'est pas reprise dans une réévaluation', () => {
+    const bilan = lucas()
+    bilan.deuxiemePersonneDemandeuse = questionnaire.demande.personnesDemandeuses[0]!
+    expect(reevaluation(bilan).deuxiemePersonneDemandeuse).toBe('')
+  })
+})
+
 describe('autres thérapeutes', () => {
   const semaine = "à raison d'une fois par semaine"
   const mois = "à raison d'une fois par mois"
