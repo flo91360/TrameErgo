@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.9] - 2026-10-31
+<!-- planifikateur:91ac9b3d-2bcd-40a8-9fc6-7cd3624d29a7 -->
+
+- **ajout de personne demandeuse dans l'onglet 2** : L'étape « Demande » permet maintenant de choisir une 2ème personne demandeuse, facultative. Les tests unitaires passent (`npm test`, 70 tests) et `npm run build` réussit. Le test Playwright ajouté n'a pas été lancé : les navigateurs Playwright ne sont pas installés ici. **Écran (`Demande.vue`)** - Nouveau choix « 2ème personne demandeuse (facultatif) » avec les mêmes propositions que la première, et « — aucune — » au départ. - Comme pour la première personne, choisir « Autre » ouvre un champ de texte libre (« Autre 2ème personne demandeuse »). - La 2ème personne ne bloque jamais le passage à l'écran suivant et n'apparaît pas dans les réponses manquantes. La première reste obligatoire. **Bilan Word (`bilan.ts`)** - Deux nouvelles réponses vides au départ : `deuxiemePersonneDemandeuse` et `autreDeuxiemePersonneDemandeuse`. - La phrase est construite dans `champs()` : le champ `{personne_demandeuse}` contient « personne 1 et personne 2 ». Le modèle `bilan.docx` n'a pas changé et n'a toujours aucune condition. - Sans 2ème personne, le Word est identique à l'actuel : pas de « et », pas de ligne vide. - Deux cas sont aussi omis sans rien écrire : « Autre » choisi sans texte saisi, et la même personne choisie deux fois (évite « la mère et la mère »). **Brouillons, historique, réévaluation** - La reprise d'un brouillon (`reprise.ts`) relit la nouvelle réponse. Les anciens brouillons et sauvegardes, qui ne l'ont pas, la reprennent vide. - Une valeur qui n'existe plus dans le questionnaire est retirée et signalée « (2ème personne demandeuse) ». - L'historique passe par cette même reprise, donc il est couvert sans modification. - La réévaluation ne garde pas la demande précédente : la 2ème personne repart vide, comme la première. - Le questionnaire des parents n'est pas concerné : il ne pose qu'une seule question sur la personne demandeuse, je n'y ai rien ajouté. **Tests** - `tests/bilan.test.ts` : champ facultatif et vide au départ, Word sans changement s'il est vide, « et » 
+
 ## [1.6.8] - 2026-10-28
 <!-- planifikateur:00412af8-d723-4666-8f64-4273b2795eab -->
 

@@ -15,6 +15,7 @@ export interface Reprise {
 
 type Objet = Record<string, unknown>
 type ChoixSimple = 'classe' | 'typeEtablissement' | 'modeDeGarde' | 'entente' | 'personneDemandeuse'
+  | 'deuxiemePersonneDemandeuse'
   | 'dossierMdph' | 'accordParents'
 type ChoixMultiple = 'motifs' | 'troubles' | 'comportement' | 'difficultes' | 'matieresPreferees'
   | 'matieresDetestees' | 'amenagements' | 'caractereParents' | 'caractereEnfant'
@@ -80,6 +81,7 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     ['modeDeGarde', identite.modesDeGarde, 'Mode de garde'],
     ['entente', identite.entente.map((e) => e.libelle), 'Entente'],
     ['personneDemandeuse', demande.personnesDemandeuses, 'Personne demandeuse'],
+    ['deuxiemePersonneDemandeuse', demande.personnesDemandeuses, '2ème personne demandeuse'],
     ['dossierMdph', demande.dossierMdph, 'Dossier MDPH'],
     ['accordParents', objectifs.accordParents.map((a) => a.libelle), 'Accord des parents'],
   ]
