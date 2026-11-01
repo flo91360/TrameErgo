@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import paquet from './package.json'
 
 // Le contenu (questionnaire.json, bilan.docx) est modifiable sans toucher au
 // code : il est lu dans ../contenu, en dehors du dossier de l'application.
@@ -10,6 +11,8 @@ const contenu = fileURLToPath(new URL('../contenu', import.meta.url))
 export default defineConfig({
   // Chemins relatifs : l'application fonctionne aussi dans un sous-dossier (GitHub Pages).
   base: './',
+  // Numéro de version affiché sur l'accueil : celui de package.json (même que Windows).
+  define: { __VERSION__: JSON.stringify(paquet.version) },
   resolve: { alias: { '@contenu': contenu } },
   server: { fs: { allow: ['..'] } },
   plugins: [
