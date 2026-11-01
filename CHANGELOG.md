@@ -9,6 +9,10 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.10] - 2026-11-01
+
+- **Version visible sur l'accueil** : le numéro de version de l'application est écrit en petit, en bas à droite de l'écran d'accueil. Il vient de `tablette/package.json` (le même que l'installateur Windows), il n'y a donc rien à changer à la main.
+
 ## [1.6.9] - 2026-10-31
 <!-- planifikateur:91ac9b3d-2bcd-40a8-9fc6-7cd3624d29a7 -->
 

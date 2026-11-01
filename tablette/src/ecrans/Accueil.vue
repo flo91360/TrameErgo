@@ -9,6 +9,7 @@ defineEmits<{ nouveau: []; reprendre: []; historique: []; reglages: [] }>()
 
 const enCours = computed(() => entame(bilan))
 const nombre = computed(() => historique.value.length)
+const version = __VERSION__
 </script>
 
 <template>
@@ -42,4 +43,18 @@ const nombre = computed(() => historique.value.length)
       ? 'Seuls le prénom et le nom de l\'enfant sont envoyés à votre script Google, pour retrouver le questionnaire des parents.'
       : 'Rien n\'est envoyé sur Internet.' }}
   </p>
+  <p class="version">Version {{ version }}</p>
 </template>
+
+<style scoped>
+/* Discret, en bas à droite : pour voir d'un coup d'œil la version utilisée. */
+.version {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.5rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+</style>

@@ -63,6 +63,8 @@ test.beforeEach(async ({ page }) => {
 test('l\'accueil propose les actions, sans bilan en cours à reprendre', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Nouveau bilan/ })).toBeEnabled()
   await expect(page.getByRole('button', { name: /Reprendre le bilan en cours/ })).toBeDisabled()
+  const { version } = JSON.parse(await readFile('package.json', 'utf8'))
+  await expect(page.getByText(`Version ${version}`)).toBeVisible()
   await page.getByRole('button', { name: /Historique des bilans/ }).tap()
   await expect(page.getByText(/Aucun bilan pour l'instant/)).toBeVisible()
   await page.getByRole('button', { name: 'Accueil' }).tap()
