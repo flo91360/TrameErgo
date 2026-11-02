@@ -90,7 +90,14 @@ réponses (« Autre »…) sont reportées telles quelles dans « Autre trouble 
 votre enfant est : (qualités et défauts) » propose les qualités et défauts de
 `caractere` dans `contenu/questionnaire.json`, au même libellé : ceux cochés
 s'ajoutent à « Selon les parents » de l'écran Caractère, sans retirer ce qui
-y était déjà coché ; « Selon l'enfant » n'est pas touché. Les autres réponses sont
+y était déjà coché ; « Selon l'enfant » n'est pas touché. La question
+« Professionnels qui suivent l'enfant » remplit l'écran Suivis : en grille
+(`creer-formulaire.gs` : une ligne par professionnel de `suivis.professionnels`,
+une colonne par fréquence, sans « à raison d' »), chaque ligne cochée coche le
+professionnel avec sa fréquence ; en cases, les professionnels cochés sont
+cochés, fréquence à renseigner (« Psychomotricienne » vaut
+« psychomotricien(ne) »). Un professionnel absent de la liste va dans
+« Autre » (3 au plus), « Aucun » seul coche « Aucun ». Les autres réponses sont
 montrées telles quelles dans l'encadré « Réponses des parents ».
 
 ## Fiche patient Word à chaque réponse
