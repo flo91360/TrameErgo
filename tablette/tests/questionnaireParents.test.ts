@@ -356,6 +356,51 @@ describe('questionnaire des parents', () => {
       .toEqual(['judo, piano', 'dessin', 'se fatigue vite'])
   })
 
+  it('reprend l\'établissement, son nom, le mode de garde et les raisons du bilan du questionnaire modifié', () => {
+    const modifie: QuestionnaireParents = {
+      envoi: reponse.envoi,
+      questions: [
+        { titre: 'Etablissement', reponse: 'Collège' },
+        { titre: "Nom de l'établissement", reponse: ' Collège Jean Moulin ' },
+        { titre: 'Mode de garde', reponse: 'En garde alternée' },
+        { titre: 'Fraterie', reponse: '2 sœurs' },
+        { titre: 'Pour quelle(s) raison(s) le bilan est souhaité ? en lien avec quel trouble diagnostiqué?',
+          reponse: ['Dysgraphie', 'Hypersensibilité au bruit'] },
+      ],
+    }
+    const { bilan } = preRemplir(nouveauBilan(), modifie)
+    expect(bilan.typeEtablissement).toBe('le collège')
+    expect(bilan.nomEtablissement).toBe('Collège Jean Moulin')
+    expect(bilan.modeDeGarde).toBe('en garde alternée')
+    expect(bilan.troubles).toEqual(['Dysgraphie'])
+    expect(bilan.autreTrouble).toBe('Hypersensibilité au bruit')
+    expect(bilan.enfantUnique).toBe(false)
+    expect(bilan.fratrie).toBe('')
+    // Libellé exact de l'application, et intitulé de creer-formulaire.gs toujours reconnu.
+    const exact = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: 'Établissement', reponse: "l'école" },
+      { titre: QUESTIONS.modeDeGarde, reponse: 'avec sa mère' },
+    ] }).bilan
+    expect([exact.typeEtablissement, exact.modeDeGarde]).toEqual(["l'école", 'avec sa mère'])
+    // Réponse sans équivalent : rien n'est coché.
+    const inconnu = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: 'Etablissement', reponse: 'Maternelle' },
+      { titre: 'Mode de garde', reponse: 'chez les grands-parents' },
+    ] }).bilan
+    expect([inconnu.typeEtablissement, inconnu.modeDeGarde]).toEqual(['', ''])
+  })
+
+  it('coche « Enfant unique » quand la fratrie est vide dans les réponses des parents', () => {
+    const sansFratrie = { envoi: reponse.envoi, questions: [{ titre: 'Classe', reponse: 'CE2' }] }
+    expect(preRemplir(nouveauBilan(), sansFratrie).bilan.enfantUnique).toBe(true)
+    const fratrieVide = { envoi: reponse.envoi, questions: [{ titre: 'Fraterie', reponse: '  ' }] }
+    expect(preRemplir(nouveauBilan(), fratrieVide).bilan.enfantUnique).toBe(true)
+    // Fratrie renseignée par les parents : à compléter dans l'application.
+    expect(preRemplir(nouveauBilan(), reponse).bilan.enfantUnique).toBe(false)
+    // Sans questionnaire des parents : fratrie à renseigner.
+    expect(nouveauBilan().enfantUnique).toBe(false)
+  })
+
   it('connaît les choix du formulaire et les équivalences demandées', () => {
     const creation = script('creer-formulaire.gs')
     expect(optionsDe(creation, QUESTIONS.difficultes)).toEqual(OPTIONS_FORMULAIRE.difficultes)
