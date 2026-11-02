@@ -145,6 +145,26 @@ export const QUESTIONS = {
   caractere: 'Actuellement votre enfant est : (qualités et défauts)',
 } as const
 
+/**
+ * Questions du questionnaire des parents reprises dans le bilan, absentes de
+ * formulaire/creer-formulaire.gs : intitulé du champ de l'application (les
+ * accents et majuscules ne comptent pas, « Etablissement » vaut « Établissement »).
+ */
+export const QUESTIONS_SUPPLEMENTAIRES = {
+  etablissement: 'Établissement',
+  nomEtablissement: "Nom de l'établissement",
+} as const
+
+/**
+ * Intitulés du questionnaire des parents qui diffèrent de ceux de QUESTIONS
+ * (formulaire modifié par l'ergothérapeute) : intitulé du formulaire →
+ * intitulé repris dans le bilan.
+ */
+export const EQUIVALENCES_QUESTIONS: Readonly<Record<string, string>> = {
+  'Mode de garde': QUESTIONS.modeDeGarde,
+  'Pour quelle(s) raison(s) le bilan est souhaité ? en lien avec quel trouble diagnostiqué?': QUESTIONS.raisonsTroubles,
+}
+
 function texte(reponse: unknown): string {
   return typeof reponse === 'string' ? reponse.trim() : ''
 }
@@ -211,6 +231,11 @@ function choix(liste: readonly string[], reponse: string): string | undefined {
   if (!rapproche(reponse)) return undefined
   const proches = liste.filter((element) => rapproche(element) === rapproche(reponse))
   return proches.length === 1 ? proches[0] : undefined
+}
+
+/** Libellé sans article initial : « l'école » → « ecole », « le collège » → « college ». */
+function sansArticle(texte: string): string {
+  return semblable(texte).replace(/^(l'|le |la |les )/, '').trim()
 }
 
 /** Réponses saisies dans « Autre » : ni un choix de l'application, ni un choix du formulaire. */
@@ -330,13 +355,21 @@ export function activiteOtHope(ligne: string): string | undefined {
  * la question des raisons du bilan (QUESTIONS.raisonsTroubles), dont les
  * réponses hors liste vont dans « Autre trouble », et l'option « Autre » des
  * difficultés en classe et des aménagements, recopiée dans leur champ « Autre ».
+ * Le nom de l'établissement est recopié tel quel ; une fratrie laissée vide
+ * par les parents coche « Enfant unique ».
  */
 export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bilan: Bilan; activites: number } {
   const bilan: Bilan = JSON.parse(JSON.stringify(depart))
   const { identite, demande, scolarite, otHope, amenagements } = questionnaire
   // Intitulé du formulaire de l'ergo : « Date de naissance : », avec deux-points.
   const intitule = (titre: string) => semblable(titre.replace(/\s*:\s*$/, ''))
-  const question = (titre: string) => reponses.questions.find((q) => intitule(q.titre) === intitule(titre))?.reponse
+  // Intitulé de l'application, ou intitulé équivalent déclaré (EQUIVALENCES_QUESTIONS).
+  const intitules = (titre: string) => [titre, ...Object.keys(EQUIVALENCES_QUESTIONS)
+    .filter((formulaire) => EQUIVALENCES_QUESTIONS[formulaire] === titre)].map(intitule)
+  const question = (titre: string) => {
+    const acceptes = intitules(titre)
+    return reponses.questions.find((q) => acceptes.includes(intitule(q.titre)))?.reponse
+  }
 
   const naissance = dateDeNaissance(texte(question(QUESTIONS.dateNaissance)))
   if (naissance) bilan.dateNaissance = naissance
@@ -360,6 +393,19 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
     const trouve = choix(liste, texte(question(titre)))
     if (trouve) bilan[cle] = trouve
   }
+
+  // Établissement : « Collège » vaut « le collège », « Ecole » vaut « l'école ».
+  const etablissement = texte(question(QUESTIONS_SUPPLEMENTAIRES.etablissement))
+  const typeEtablissement = etablissement && (choix(identite.typesEtablissement, etablissement)
+    ?? identite.typesEtablissement.find((t) => sansArticle(t) === sansArticle(etablissement)))
+  if (typeEtablissement) bilan.typeEtablissement = typeEtablissement
+  const nomEtablissement = texte(question(QUESTIONS_SUPPLEMENTAIRES.nomEtablissement))
+  if (nomEtablissement) bilan.nomEtablissement = nomEtablissement
+
+  // Fratrie laissée vide par les parents (question sans réponse) : enfant unique.
+  const fratrie = reponses.questions.find((q) => !q.lignes && information(q.titre) === 'fratrie'
+    && cases(q.reponse).length)
+  if (!fratrie && !bilan.fratrie.trim()) bilan.enfantUnique = true
 
   const multiples: [keyof Bilan & ('troubles' | 'matieresPreferees' | 'matieresDetestees' | 'difficultes'
     | 'amenagements'), string[], readonly string[]][] = [
