@@ -3983,7 +3983,7 @@ dependencies = [
 
 [[package]]
 name = "trameergo"
-version = "1.6.11"
+version = "1.6.12"
 dependencies = [
  "tauri",
  "tauri-build",

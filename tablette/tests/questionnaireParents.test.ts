@@ -8,7 +8,7 @@ import { AUTRE_AMENAGEMENT, champs, libellesCaractere, nouveauBilan, phraseCarac
 import { remplirModele } from '../src/generer'
 import {
   activiteOtHope, chercher, coordonnees, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
-  OPTIONS_FORMULAIRE, preRemplir, QUESTIONS, rapproche, semblable, type QuestionnaireParents,
+  frequenceSuivi, OPTIONS_FORMULAIRE, preRemplir, professionnelSuivi, QUESTIONS, rapproche, semblable, type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
 const script = (nom: string) => readFileSync(new URL(`../../formulaire/${nom}`, import.meta.url), 'utf8')
@@ -227,6 +227,55 @@ describe('questionnaire des parents', () => {
     expect(avec("l'orthoptiste")).toBe('')
     expect(avec('Autre')).toBe('')
     expect(preRemplir(nouveauBilan(), reponse).bilan.personneDemandeuse).toBe('')
+  })
+
+  it('reprend les professionnels qui suivent l\'enfant et leur fréquence (grille)', () => {
+    const { bilan } = preRemplir({ ...nouveauBilan(), aucunProfessionnel: true }, { envoi: reponse.envoi, questions: [{
+      titre: "Professionnels qui suivent l’enfant :",
+      lignes: ['psychomotricien(ne)', 'orthophoniste', 'orthoptiste', 'Ostéopathe'],
+      reponse: ['Une fois par semaine', "à raison d'une fois par mois", null, 'Une fois par an'],
+    }] })
+    expect(bilan.professionnels).toEqual({
+      'psychomotricien(ne)': "à raison d'une fois par semaine",
+      orthophoniste: "à raison d'une fois par mois",
+    })
+    expect(bilan.autresProfessionnels).toEqual([{ nom: 'Ostéopathe', frequence: "à raison d'une fois par an" }])
+    expect(bilan.aucunProfessionnel).toBe(false)
+    // La grille des suivis n'est pas lue comme une grille OT Hope.
+    expect(bilan.otHope).toEqual(nouveauBilan().otHope)
+  })
+
+  it('reprend les professionnels cochés, « Autre » et « Aucun » (cases)', () => {
+    const depart = { ...nouveauBilan(), professionnels: { orthoptiste: "à raison d'une fois par an" } }
+    const { bilan } = preRemplir(depart, { envoi: reponse.envoi, questions: [{
+      titre: QUESTIONS.professionnels,
+      reponse: ['Psychomotricienne', 'Orthoptiste', 'ergothérapeute', 'ostéopathe', 'pédiatre', 'sophrologue'],
+    }] })
+    expect(bilan.professionnels).toEqual({
+      orthoptiste: "à raison d'une fois par an", 'psychomotricien(ne)': '',
+    })
+    // Au plus 3 autres thérapeutes, fréquence à renseigner.
+    expect(bilan.autresProfessionnels).toEqual([
+      { nom: 'ergothérapeute', frequence: '' }, { nom: 'ostéopathe', frequence: '' }, { nom: 'pédiatre', frequence: '' },
+    ])
+    const aucun = preRemplir(nouveauBilan(), { envoi: reponse.envoi,
+      questions: [{ titre: QUESTIONS.professionnels, reponse: ['Aucun'] }] }).bilan
+    expect(aucun.aucunProfessionnel).toBe(true)
+    expect(aucun.professionnels).toEqual({})
+    expect(preRemplir(nouveauBilan(), reponse).bilan.aucunProfessionnel).toBe(false)
+  })
+
+  it('connaît les professionnels et fréquences de la grille du formulaire', () => {
+    const creation = script('creer-formulaire.gs')
+    const professionnels = chaines(creation.match(/const PROFESSIONNELS = \[([^\]]*)\];/)?.[1])
+    expect(professionnels).toEqual(questionnaire.suivis.professionnels)
+    expect(professionnels.map(professionnelSuivi)).toEqual(questionnaire.suivis.professionnels)
+    const frequences = chaines(creation.match(/const FREQUENCES = \[([^\]]*)\];/)?.[1])
+    expect(frequences.map(frequenceSuivi)).toEqual(questionnaire.suivis.frequences)
+    expect(creation).toContain(`grilleSuivis(form, "${QUESTIONS.professionnels}")`)
+    expect(professionnelSuivi('Kinésithérapeute')).toBe('kinésithérapeute')
+    expect(professionnelSuivi('pédiatre')).toBeUndefined()
+    expect(frequenceSuivi('Deux fois par semaine')).toBe('')
   })
 
   it('reconnaît les intitulés suivis de deux-points', () => {

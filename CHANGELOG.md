@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.12] - 2026-11-02
+<!-- planifikateur:11e110af-14d3-43fe-94b7-4f1455f16088 -->
+
+- **lien google form et TramErgo professionnel santé** : Quand on pré-remplit un bilan à partir du questionnaire des parents, l'étape Suivis (« Professionnels qui suivent l'enfant ») reprend maintenant la réponse des parents à la question « Professionnels qui suivent l'enfant ». Les tests (`npm test`, 73 tests) et la construction (`npm run build`) passent. Les parcours Playwright (e2e) n'ont pas été lancés. **À vérifier :** je n'ai pas vu le formulaire en ligne. J'ignore donc si cette question y est une grille ou une liste de cases à cocher. Les deux formes sont reconnues. Le formulaire en ligne n'est pas modifié : seul le script qui crée le formulaire l'est. **Ce qui est repris :** - **Question en grille** (une ligne par professionnel, une colonne par fréquence) : chaque ligne cochée coche le professionnel avec sa fréquence. Les libellés de fréquence courts (« Une fois par mois ») et ceux de l'application (« à raison d'une fois par mois ») sont tous deux reconnus. - **Question en cases à cocher** : les professionnels cochés sont cochés dans l'application, et leur fréquence reste à renseigner. Les différences de majuscules et d'accents sont ignorées, et le féminin est reconnu (« Psychomotricienne » vaut « psychomotricien(ne) »). - **Professionnel absent de la liste** (ostéopathe…) : il va dans « Autre », 3 au plus, avec sa fréquence s'il y en a une. - **« Aucun » coché seul** : « Aucun » est coché dans l'application. Dès qu'un professionnel est repris, « Aucun » est décoché. - Les professionnels déjà cochés dans l'application sont gardés, ainsi que leur fréquence si les parents n'en donnent pas. **Fichiers modifiés :** - `tablette/src/questionnaireParents.ts` : nouvel intitulé `QUESTIONS.professionnels`, deux fonctions de reconnaissance (`professionnelSuivi` pour les professionnels, `frequenceSuivi` pour les fréquences) et la reprise dans `preRemplir`. Cette grille n'est pas lue comme une grille d'activités OT Hope. - `formulaire/creer-formulaire.gs` : le script ajoute une grille « Professionnels qui suivent l'enfant ». S
+
 ## [1.6.11] - 2026-11-02
 <!-- planifikateur:454394a6-7d36-46c5-8ad7-182cdfd78352 -->
 

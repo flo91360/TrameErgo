@@ -59,6 +59,15 @@ const PERSONNES_DEMANDEUSES = [
   'le médecin traitant', 'la neuropédiatre', "l'enseignant", 'la psychomotricienne', 'la neuropsychologue',
   'le(s) parent(s)', 'le père', 'la mère',
 ];
+// Mêmes libellés et même ordre que « suivis » dans TrameErgo (contenu/questionnaire.json) : la grille
+// « Professionnels qui suivent l'enfant » remplit l'étape Suivis (professionnels et fréquences).
+const PROFESSIONNELS = [
+  'psychomotricien(ne)', 'orthophoniste', 'orthoptiste', 'psychologue', 'neuropsychologue', 'kinésithérapeute',
+];
+const FREQUENCES = [
+  'Une fois par semaine', 'Une fois toutes les deux semaines', 'Une fois par mois', 'Une fois par trimestre',
+  'Une fois tous les 6 mois', 'Une fois par an',
+];
 // Mêmes libellés que « Anamnèse / troubles » dans TrameErgo (contenu/questionnaire.json) :
 // les cases cochées y sont reprises, une réponse « Autre » va dans « Autre trouble ».
 const TROUBLES = [
@@ -126,6 +135,7 @@ function creerFormulaire() {
   ]);
   choix(form, 'Porte des lunettes ? (si oui pensez à les amener au bilan)', ['Oui', 'Non', 'Parfois'], true);
   choix(form, 'Porte un appareil auditif ? (si oui le porter le jour du bilan)', ['Oui', 'Non', 'Parfois'], true);
+  grilleSuivis(form, "Professionnels qui suivent l'enfant");
   texte(form, "Autre professionnel suivant l'enfant ? (avec la fréquence de suivi)");
   choix(form, 'Dossier MDPH', ['En cours de création', 'NON', 'En renouvellement'], true);
   texte(form, "Antécédents familiaux en lien avec la/les difficultés de l'enfant qui amène(nt) à consulter :");
@@ -208,6 +218,15 @@ function grille(form, activites) {
     .setHelpText(CONSIGNE_GRILLE)
     .setRows(activites)
     .setColumns(NIVEAUX);
+}
+
+function grilleSuivis(form, titre) {
+  form.addGridItem()
+    .setTitle(titre)
+    .setHelpText("Pour chaque professionnel qui suit votre enfant, cochez la fréquence du suivi. " +
+      "Laissez vides les autres lignes.")
+    .setRows(PROFESSIONNELS)
+    .setColumns(FREQUENCES);
 }
 
 function texte(form, titre) {

@@ -4,7 +4,9 @@
 // le bilan que si elles reprennent un choix de l'application (même libellé,
 // équivalence déclarée ou libellé rapproché sans ambiguïté, voir choix).
 import { computed, ref } from 'vue'
-import { AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, lateralites, questionnaire, type Bilan } from './bilan'
+import {
+  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, lateralites, NOMBRE_AUTRES_PROFESSIONNELS, questionnaire, type Bilan,
+} from './bilan'
 
 export interface Question {
   titre: string
@@ -123,6 +125,11 @@ export const QUESTIONS = {
   modeDeGarde: 'Mode de garde (si parents séparés)',
   personneDemandeuse: "Qui est à l'origine de la demande de réalisation du bilan en ergothérapie ?",
   dossierMdph: 'Dossier MDPH',
+  /**
+   * Grille (une ligne par professionnel, une colonne par fréquence) ou cases :
+   * « Professionnels qui suivent l'enfant » de l'étape Suivis.
+   */
+  professionnels: "Professionnels qui suivent l'enfant",
   motifs: 'Quel est le motif du Bilan, quelles problématiques rencontrez-vous ?',
   /** Cases aux libellés des troubles de l'application ; les autres réponses vont dans « Autre trouble ». */
   raisonsTroubles: 'Pour quelle(s) raison(s) le bilan est souhaité ? En lien avec quel trouble diagnostiqué ?',
@@ -254,6 +261,18 @@ function traitDeCaractere(reponse: string): string | undefined {
   const formes = [reponse, reponse.replace(/\s*\([^)]*\)/g, '')].map(semblable)
   return questionnaire.caractere.find((item) =>
     formes.includes(semblable(item.libelle)) || formes.includes(semblable(item.feminin)))?.libelle
+}
+
+/** Professionnel de la liste (« Psychomotricienne » vaut « psychomotricien(ne) ») ; sinon undefined. */
+export function professionnelSuivi(reponse: string): string | undefined {
+  const liste = questionnaire.suivis.professionnels
+  return choix(liste, reponse) ?? choix(liste, reponse.replace(/ienne\b/gi, 'ien'))
+}
+
+/** Fréquence de l'application, avec ou sans « à raison d' » (« Une fois par mois ») ; sinon vide. */
+export function frequenceSuivi(reponse: string): string {
+  const sans = (frequence: string) => semblable(frequence).replace(/^a raison d'\s*/, '')
+  return questionnaire.suivis.frequences.find((f) => sans(f) === sans(reponse)) ?? ''
 }
 
 /** 12/03/2016, 12-03-2016, 12.03.2016 ou 2016-03-12 → 2016-03-12 ; sinon vide. */
@@ -441,11 +460,39 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
     if (valeur) bilan[cle] = valeur
   }
 
+  // Professionnels qui suivent l'enfant : grille (ligne = professionnel, colonne
+  // = fréquence) ou cases. Un professionnel de la liste est coché avec sa
+  // fréquence (à renseigner si elle manque) ; un autre va dans « Autre », au
+  // plus NOMBRE_AUTRES_PROFESSIONNELS ; « Aucun » seul coche « Aucun ».
+  const estSuivis = (q: Question) => intitule(q.titre) === intitule(QUESTIONS.professionnels)
+  const suivis = reponses.questions.filter(estSuivis).flatMap((q) => q.lignes && Array.isArray(q.reponse)
+    ? q.lignes.map((ligne, i) => ({ nom: ligne.trim(), colonne: (q.reponse as unknown[])[i] }))
+      .filter((s): s is { nom: string; colonne: string } => typeof s.colonne === 'string' && !!s.colonne.trim())
+      .map(({ nom, colonne }) => ({ nom, frequence: frequenceSuivi(colonne) }))
+    : cases(q.reponse).map((nom) => ({ nom: nom.trim(), frequence: '' })))
+  const professionnels = { ...bilan.professionnels }
+  const autresSuivis = bilan.autresProfessionnels.map((autre) => ({ ...autre }))
+  let aucun = false
+  for (const { nom, frequence } of suivis) {
+    const professionnel = professionnelSuivi(nom)
+    if (professionnel) professionnels[professionnel] = frequence || professionnels[professionnel] || ''
+    else if (semblable(nom) === 'aucun') aucun = true
+    else {
+      const deja = autresSuivis.find((autre) => semblable(autre.nom) === semblable(nom))
+      if (deja) deja.frequence = frequence || deja.frequence
+      else if (autresSuivis.length < NOMBRE_AUTRES_PROFESSIONNELS) autresSuivis.push({ nom, frequence })
+    }
+  }
+  bilan.professionnels = professionnels
+  bilan.autresProfessionnels = autresSuivis
+  if (Object.keys(professionnels).length || autresSuivis.length) bilan.aucunProfessionnel = false
+  else if (aucun) bilan.aucunProfessionnel = true
+
   // Grilles : chaque ligne qui porte le libellé d'une activité OT Hope, quel
   // que soit son domaine, reçoit le niveau de la colonne cochée.
   let activites = 0
   for (const grille of reponses.questions) {
-    if (!grille.lignes || !Array.isArray(grille.reponse)) continue
+    if (!grille.lignes || !Array.isArray(grille.reponse) || estSuivis(grille)) continue
     grille.lignes.forEach((ligne, i) => {
       const colonne = (grille.reponse as unknown[])[i]
       if (typeof colonne !== 'string') return
