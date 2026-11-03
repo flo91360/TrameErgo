@@ -51,7 +51,6 @@ export interface Bilan {
   professionnels: Record<string, string>
   /** Autres thérapeutes (« Autre »), au plus NOMBRE_AUTRES_PROFESSIONNELS ; vide : « Autre » n'est pas coché. */
   autresProfessionnels: AutreProfessionnel[]
-  comportement: string[]
   difficultes: string[]
   /** Difficulté en classe saisie en texte libre (« Autre »), écrite après celles de la liste. */
   autreDifficulte: string
@@ -120,7 +119,6 @@ export function nouveauBilan(date = new Date()): Bilan {
     aucunProfessionnel: false,
     professionnels: {},
     autresProfessionnels: [],
-    comportement: [],
     difficultes: [],
     autreDifficulte: '',
     matieresPreferees: [],
@@ -458,7 +456,6 @@ export function champs(bilan: Bilan): Record<string, string> {
     autre: autresSuivis(bilan),
     dossier_mdph: bilan.dossierMdph,
 
-    comportement_en_classe: enListe(dansLOrdre(scolarite.comportement, bilan.comportement)),
     difficultes_en_classe: enListe(dansLOrdre(scolarite.difficultes, bilan.difficultes, bilan.autreDifficulte)),
     matieres_preferees: dansLOrdre(scolarite.matieres, bilan.matieresPreferees, bilan.autreMatierePreferee).join(', '),
     matieres_moins_appreciees:

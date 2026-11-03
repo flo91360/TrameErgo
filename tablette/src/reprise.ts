@@ -17,7 +17,7 @@ type Objet = Record<string, unknown>
 type ChoixSimple = 'classe' | 'typeEtablissement' | 'modeDeGarde' | 'entente' | 'personneDemandeuse'
   | 'deuxiemePersonneDemandeuse'
   | 'dossierMdph' | 'accordParents'
-type ChoixMultiple = 'motifs' | 'troubles' | 'comportement' | 'difficultes' | 'matieresPreferees'
+type ChoixMultiple = 'motifs' | 'troubles' | 'difficultes' | 'matieresPreferees'
   | 'matieresDetestees' | 'amenagements' | 'caractereParents' | 'caractereEnfant'
 
 function estObjet(valeur: unknown): valeur is Objet {
@@ -95,7 +95,6 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
   const multiples: [ChoixMultiple, readonly string[], string][] = [
     ['motifs', demande.motifs, 'Motifs'],
     ['troubles', demande.troubles, 'Troubles'],
-    ['comportement', scolarite.comportement, 'Comportement en classe'],
     ['difficultes', scolarite.difficultes, 'Difficultés en classe'],
     ['matieresPreferees', scolarite.matieres, 'Matières préférées'],
     ['matieresDetestees', scolarite.matieres, 'Matières moins appréciées'],

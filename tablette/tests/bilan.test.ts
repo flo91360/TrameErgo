@@ -26,7 +26,7 @@ function lucas(): Bilan {
     ville: 'Massy', personneDemandeuse: 'la mère', motifs: [questionnaire.demande.motifs[2]],
     troubles: ['TSA', 'Dysgraphie'], autreTrouble: 'Trouble visuel',
     professionnels: { psychologue: "à raison d'une fois par mois", orthophoniste: "à raison d'une fois par semaine" },
-    comportement: ['Bavardage en cours'], difficultes: ["S'organiser"],
+    difficultes: ["S'organiser"],
     matieresPreferees: ['EPS', 'Musique'], matieresDetestees: ['Français'],
     otHope: {
       maison: { 'Faire mes lacets': 'difficulte', 'Couper la viande': 'aide', 'Balayer': 'aide' },
@@ -161,11 +161,13 @@ describe('caractère du patient', () => {
     expect(texte).not.toMatch(/[{}]|D'après ses parents|auto-évaluation/)
   })
 
-  it('place la nouvelle partie juste avant le comportement en classe', () => {
+  it('place la nouvelle partie juste avant les difficultés en classe', () => {
     const texte = texteDuBilan(remplirModele(modele, champs(lucas())))
     const debut = texte.indexOf('Comportement de l’enfant de manière générale')
     expect(debut).toBeGreaterThan(-1)
-    const partie = texte.slice(debut, texte.indexOf('Comportement en classe'))
+    const fin = texte.indexOf('Difficulté en classe')
+    expect(fin).toBeGreaterThan(debut)
+    const partie = texte.slice(debut, fin)
     expect(partie).toContain('D\'après ses parents, Lucas est curieux, têtu et joyeux.')
     expect(partie).toContain('Lors de son auto-évaluation, Lucas se reconnaît comme qualités')
   })
@@ -180,6 +182,8 @@ describe('génération', () => {
     expect(texte).toContain('ne sait pas encore faire seul ou celles qu’il fait difficilement')
     expect(texte).toContain('Bilan ergothérapie Adolescent')
     expect(texte).toContain('ne sont pas totalement en accord')
+    expect(texte).not.toMatch(/comportement en classe/i)
+    expect(texte).toMatch(/Difficulté en classe\s:\s*-\s*S'organiser/)
     expect(texte).toMatch(/Préférées\s: EPS, Musique/)
     expect(texte).toMatch(/Les moins appréciées\s: Français/)
   })

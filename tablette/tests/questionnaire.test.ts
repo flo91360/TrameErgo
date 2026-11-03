@@ -21,7 +21,7 @@ describe('questionnaire.json', () => {
       modesDeGarde: identite.modesDeGarde, entente: identite.entente.map((e) => e.libelle),
       personnesDemandeuses: demande.personnesDemandeuses, motifs: demande.motifs, troubles: demande.troubles,
       dossierMdph: demande.dossierMdph, professionnels: suivis.professionnels, frequences: suivis.frequences,
-      comportement: scolarite.comportement, difficultes: scolarite.difficultes, matieres: scolarite.matieres,
+      difficultes: scolarite.difficultes, matieres: scolarite.matieres,
       accordParents: objectifs.accordParents.map((a) => a.libelle), amenagements,
     }
     for (const [nom, liste] of Object.entries(listes)) {

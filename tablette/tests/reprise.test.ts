@@ -39,6 +39,16 @@ describe('reprise du brouillon', () => {
     expect(inconnue.bilan.deuxiemePersonneDemandeuse).toBe('')
   })
 
+  it('relit sans erreur un ancien brouillon répondant au comportement en classe, retiré du bilan', () => {
+    const ancien = { ...nouveauBilan(date), prenom: 'Léa', comportement: ['Bavardage en cours'], difficultes: ["S'organiser"] }
+    const reprise = reprendre(JSON.stringify({ version: 2, bilan: ancien }), date)!
+    expect(reprise.retirees).toEqual([])
+    expect(reprise.bilan).not.toHaveProperty('comportement')
+    expect(reprise.bilan.difficultes).toEqual(["S'organiser"])
+    expect(champs(reprise.bilan)).not.toHaveProperty('comportement_en_classe')
+    expect(champs(reprise.bilan).difficultes_en_classe).toBe("- S'organiser")
+  })
+
   it('garde au plus 3 autres thérapeutes et retire une fréquence inconnue', () => {
     const mois = "à raison d'une fois par mois"
     const ancien = {
