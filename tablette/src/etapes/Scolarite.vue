@@ -8,11 +8,6 @@ const { scolarite } = questionnaire
 
 <template>
   <section class="carte">
-    <h3>Comportement en classe</h3>
-    <Puces v-model="bilan.comportement" :options="scolarite.comportement" />
-  </section>
-
-  <section class="carte">
     <h3>Difficultés en classe</h3>
     <Puces v-model="bilan.difficultes" :options="scolarite.difficultes" />
     <label>Autre <input v-model="bilan.autreDifficulte" /></label>

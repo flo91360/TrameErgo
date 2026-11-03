@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.13] - 2026-11-03
+<!-- planifikateur:e15af679-ae5b-4b4d-9be2-2c0b5a3f4335 -->
+
+- **retirer une partie dans le Tramergo** : J'ai retiré la rubrique « Comportement en classe » de l'étape Scolarité, de l'application comme du bilan Word. Les difficultés en classe, les matières préférées et les matières les moins appréciées ne changent pas. `npm test` (76 tests) et `npm run build` passent. Je n'ai pas lancé les parcours sur l'application construite (`npm run e2e`) ; aucun ne mentionne le comportement. - **Écran Scolarité** (`Scolarite.vue`) : la liste « Comportement en classe » n'apparaît plus. L'écran commence directement par « Difficultés en classe ». - **Listes de choix** (`contenu/questionnaire.json`) : la liste `scolarite.comportement` est supprimée. - **Réponses** (`bilan.ts`) : le champ `comportement` est supprimé, ainsi que le repère `comportement_en_classe` qui alimentait le Word. - **Modèle Word** (`contenu/bilan.docx`) : j'ai supprimé trois paragraphes : le titre « Comportement en classe : », le repère `{comportement_en_classe}` et la ligne d'espacement qui les suivait. « Difficulté en classe : » suit maintenant directement la partie « Comportement de l'enfant de manière générale ». Le reste du fichier est intact, et un bilan créé ne contient plus aucun texte orphelin ni repère `{…}` non remplacé. - **Anciens brouillons et historique** (`reprise.ts`) : une ancienne réponse « comportement » est simplement ignorée à la reprise, sans erreur ni avertissement. Les autres réponses, dont les difficultés, sont relues normalement. - **Tests** : - Le test qui vérifiait l'ordre des parties s'appuie maintenant sur « Difficulté en classe ». - Un test vérifie que le bilan créé ne mentionne plus « comportement en classe » et contient toujours « Difficulté en classe : - S'organiser ». - Un test vérifie qu'un ancien brouillon qui contient `comportement` est relu sans erreur et garde ses difficultés. - **Documentation** : `README.md` est mis à jour (contenu de l'étape et liste des repères). Comme demandé, je n'ai modifié ni les versions ni `CHANGELOG.md`.
+
 ## [1.6.12] - 2026-11-02
 <!-- planifikateur:11e110af-14d3-43fe-94b7-4f1455f16088 -->
 

@@ -121,16 +121,6 @@
     ]
   },
   "scolarite": {
-    "comportement": [
-      "Se concentre bien",
-      "Difficulté à se concentrer",
-      "La concentration est fluctuante au cours de la journée",
-      "Participe bien",
-      "Ne participe pas",
-      "Participation dépendante de la matière",
-      "Bavardage en cours",
-      "Ne se met pas au travail de manière autonome"
-    ],
     "difficultes": [
       "la concentration toute la journée",
       "la concentration le matin",
