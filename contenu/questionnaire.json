@@ -152,6 +152,52 @@
       "Arts plastiques"
     ]
   },
+  "grossesse": {
+    "types": [
+      {
+        "libelle": "classique",
+        "phrase": "s'est déroulée de manière classique"
+      },
+      {
+        "libelle": "quelques complications",
+        "phrase": "a présenté quelques complications"
+      },
+      {
+        "libelle": "dépression prénatale",
+        "phrase": "a été marquée par une dépression prénatale"
+      }
+    ],
+    "termes": [
+      {
+        "libelle": "à terme",
+        "phrase": "à terme"
+      },
+      {
+        "libelle": "prématuré",
+        "phrase": "prématurément"
+      }
+    ],
+    "voies": [
+      {
+        "libelle": "voie basse",
+        "phrase": "par voie basse"
+      },
+      {
+        "libelle": "césarienne",
+        "phrase": "par césarienne"
+      }
+    ],
+    "forceps": [
+      {
+        "libelle": "avec forceps",
+        "phrase": "avec forceps"
+      },
+      {
+        "libelle": "sans forceps",
+        "phrase": "sans forceps"
+      }
+    ]
+  },
   "caractere": [
     {
       "libelle": "curieux",

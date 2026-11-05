@@ -10,6 +10,7 @@ import Amenagements from './etapes/Amenagements.vue'
 import Caractere from './etapes/Caractere.vue'
 import Demande from './etapes/Demande.vue'
 import Generation from './etapes/Generation.vue'
+import Grossesse from './etapes/Grossesse.vue'
 import Objectifs from './etapes/Objectifs.vue'
 import OtHope from './etapes/OtHope.vue'
 import Patient from './etapes/Patient.vue'
@@ -32,6 +33,8 @@ const etapes: Etape[] = [
   { titre: 'Demande', composant: Demande, manquants: obligatoires.demande },
   { titre: 'Suivis', composant: Suivis, manquants: obligatoires.suivis },
   { titre: 'Scolarité', composant: Scolarite },
+  // Facultative : aucune réponse obligatoire.
+  { titre: 'Grossesse et petite enfance', composant: Grossesse },
   // Facultative : aucune réponse obligatoire.
   { titre: 'Caractère du patient', composant: Caractere },
   ...questionnaire.otHope.domaines.map((d) => ({

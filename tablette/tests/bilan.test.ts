@@ -391,3 +391,61 @@ describe('réévaluation', () => {
     expect(obligatoires.patient(nouveau)).toEqual(['la classe'])
   })
 })
+
+describe('grossesse, accouchement et petite enfance', () => {
+  function avecGrossesse(): Bilan {
+    const bilan = lucas()
+    Object.assign(bilan, {
+      typesGrossesse: ['classique', 'dépression prénatale'], terme: 'à terme', voie: 'voie basse', forceps: 'sans forceps',
+      ageRetournement: '4 mois', ageMarche: '13 mois', typeDeplacement: "S'est déplacé(e) au sol 4 pattes",
+      comportementPetit: 'Plutôt actif',
+    })
+    return bilan
+  }
+
+  it('est facultative : rien n\'est obligatoire', () => {
+    expect(aRenseigner(lucas())).toEqual([])
+    expect(nouveauBilan().forceps).toBe('')
+  })
+
+  it('propose une rédaction accordée au sexe', () => {
+    const bilan = avecGrossesse()
+    expect(champs(bilan).grossesse_accouchement).toBe('La grossesse s\'est déroulée de manière classique et a été '
+      + 'marquée par une dépression prénatale. Lucas est né à terme, par voie basse et sans forceps.')
+    expect(champs(bilan).petite_enfance).toBe('\nD\'après ses parents, au cours de la petite enfance :\n'
+      + '- retournement : 4 mois\n- type de déplacement : S\'est déplacé(e) au sol 4 pattes\n'
+      + '- station debout et marche autonome : 13 mois\n- plus jeune, Lucas était : Plutôt actif')
+    Object.assign(bilan, { sexe: 'Femme', prenom: 'Léa', typesGrossesse: [], terme: 'prématuré', voie: '',
+      forceps: 'avec forceps', ageRetournement: '', ageMarche: '', typeDeplacement: '', comportementPetit: '' })
+    expect(champs(bilan).grossesse_accouchement).toBe('Léa est née prématurément et avec forceps.')
+    expect(champs(bilan).petite_enfance).toBe('')
+  })
+
+  it('place la puce juste avant « Anamnèse/ Troubles », dans la partie II', () => {
+    const texte = texteDuBilan(remplirModele(modele, champs(avecGrossesse())))
+    const partie = texte.indexOf('Connaissance de la personne et de son environnement')
+    const puce = texte.indexOf('Déroulement de la grossesse/ accouchement et petite enfance')
+    const anamnese = texte.indexOf('Anamnèse/ Troubles')
+    expect(partie).toBeGreaterThan(-1)
+    expect(puce).toBeGreaterThan(partie)
+    expect(anamnese).toBeGreaterThan(puce)
+    const contenu = texte.slice(puce, anamnese)
+    expect(contenu).toContain('Lucas est né à terme, par voie basse et sans forceps.')
+    expect(contenu).toContain('retournement : 4 mois')
+  })
+
+  it('n\'écrit aucune phrase sans réponse', () => {
+    const bilan = lucas()
+    expect(champs(bilan).grossesse_accouchement).toBe('')
+    expect(champs(bilan).petite_enfance).toBe('')
+    const texte = texteDuBilan(remplirModele(modele, champs(bilan)))
+    expect(texte).toContain('Déroulement de la grossesse/ accouchement et petite enfance')
+    expect(texte).not.toMatch(/[{}]|La grossesse|est né |au cours de la petite enfance/)
+  })
+
+  it('est gardée par la réévaluation', () => {
+    const nouveau = reevaluation(avecGrossesse())
+    expect([nouveau.typesGrossesse, nouveau.terme, nouveau.voie, nouveau.forceps, nouveau.ageRetournement])
+      .toEqual([['classique', 'dépression prénatale'], 'à terme', 'voie basse', 'sans forceps', '4 mois'])
+  })
+})

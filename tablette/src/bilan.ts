@@ -58,6 +58,23 @@ export interface Bilan {
   autreMatierePreferee: string
   matieresDetestees: string[]
   autreMatiereDetestee: string
+  /** Déroulement de la grossesse : libellés de questionnaire.grossesse.types (plusieurs possibles). */
+  typesGrossesse: string[]
+  /** Libellé de questionnaire.grossesse.termes ('' : non renseigné). */
+  terme: string
+  /** Libellé de questionnaire.grossesse.voies ('' : non renseignée). */
+  voie: string
+  /** Libellé de questionnaire.grossesse.forceps ('' : non renseigné). */
+  forceps: string
+  /** Développement de la petite enfance : réponses des parents en texte libre, reprises telles quelles. */
+  ageRetournement: string
+  ageStationAssise: string
+  ageQuatrePattes: string
+  typeDeplacement: string
+  ageMarche: string
+  ageProprete: string
+  ageLangage: string
+  comportementPetit: string
   /** Caractère de l'enfant selon ses parents : libellés de questionnaire.caractere. */
   caractereParents: string[]
   /** Caractère de l'enfant selon lui-même : libellés (pas les formulations pour l'enfant) de questionnaire.caractere. */
@@ -125,6 +142,18 @@ export function nouveauBilan(date = new Date()): Bilan {
     autreMatierePreferee: '',
     matieresDetestees: [],
     autreMatiereDetestee: '',
+    typesGrossesse: [],
+    terme: '',
+    voie: '',
+    forceps: '',
+    ageRetournement: '',
+    ageStationAssise: '',
+    ageQuatrePattes: '',
+    typeDeplacement: '',
+    ageMarche: '',
+    ageProprete: '',
+    ageLangage: '',
+    comportementPetit: '',
     caractereParents: [],
     caractereEnfant: [],
     otHope: {},
@@ -284,6 +313,48 @@ function phrase(liste: readonly { libelle: string; phrase: string }[], libelle: 
   return liste.find((element) => element.libelle === libelle)?.phrase ?? ''
 }
 
+/** Réponses en texte libre du développement de la petite enfance, dans l'ordre de l'écran et du bilan. */
+export type CleDeveloppement = 'ageRetournement' | 'ageStationAssise' | 'ageQuatrePattes' | 'typeDeplacement'
+  | 'ageMarche' | 'ageProprete' | 'ageLangage' | 'comportementPetit'
+
+export const DEVELOPPEMENT: readonly { cle: CleDeveloppement; ecran: string; bilan: string }[] = [
+  { cle: 'ageRetournement', ecran: 'Âge de retournement', bilan: 'retournement' },
+  { cle: 'ageStationAssise', ecran: "Âge d'acquisition de la station assise", bilan: 'station assise' },
+  { cle: 'ageQuatrePattes', ecran: 'Âge du déplacement en rampant et/ou à quatre pattes',
+    bilan: 'déplacement en rampant et/ou à quatre pattes' },
+  { cle: 'typeDeplacement', ecran: "Type de déplacement par lequel est passé l'enfant", bilan: 'type de déplacement' },
+  { cle: 'ageMarche', ecran: 'Âge de la station debout et de la marche autonome',
+    bilan: 'station debout et marche autonome' },
+  { cle: 'ageProprete', ecran: "Âge d'acquisition de la propreté", bilan: 'propreté (diurne/ nocturne)' },
+  { cle: 'ageLangage', ecran: 'Âge des premiers mots et des premières phrases',
+    bilan: 'premiers mots, premières phrases' },
+  { cle: 'comportementPetit', ecran: "Description du comportement global de l'enfant", bilan: 'plus jeune, {prenom} était' },
+]
+
+/**
+ * Proposition de rédaction (à valider) du déroulement de la grossesse et de
+ * l'accouchement : vide si rien n'est renseigné, chaque phrase seulement si
+ * l'une de ses réponses l'est.
+ */
+export function phraseGrossesse(bilan: Bilan): string {
+  const { types, termes, voies, forceps } = questionnaire.grossesse
+  const deroulement = dansLOrdre(types.map((t) => t.libelle), bilan.typesGrossesse).map((t) => phrase(types, t))
+  const naissance = [phrase(termes, bilan.terme), phrase(voies, bilan.voie), phrase(forceps, bilan.forceps)]
+    .filter(Boolean)
+  const sujet = bilan.prenom.trim() || accord(bilan, 'Il', 'Elle')
+  return [
+    deroulement.length ? `La grossesse ${enumeration(deroulement)}.` : '',
+    naissance.length ? `${sujet} est ${accord(bilan, 'né', 'née')} ${enumeration(naissance)}.` : '',
+  ].filter(Boolean).join(' ')
+}
+
+/** Développement de la petite enfance d'après les parents : une ligne par réponse donnée (vide sinon). */
+export function phrasePetiteEnfance(bilan: Bilan): string {
+  const lignes = DEVELOPPEMENT.filter(({ cle }) => bilan[cle].trim())
+    .map(({ cle, bilan: libelle }) => `${libelle.replace('{prenom}', bilan.prenom.trim() || "l'enfant")} : ${bilan[cle].trim()}`)
+  return lignes.length ? `D'après ses parents, au cours de la petite enfance :\n${enListe(lignes)}` : ''
+}
+
 export function lateralites(sexe: Sexe): string[] {
   return questionnaire.identite.lateralite[sexe]
 }
@@ -388,16 +459,19 @@ export function entame(bilan: Bilan): boolean {
 
 /**
  * Réévaluation : nouveau bilan du même enfant, daté du jour. Il garde
- * l'identité, l'environnement et les coordonnées de la famille (à vérifier) ; la classe et toute la partie
- * clinique sont à refaire.
+ * l'identité, l'environnement et les coordonnées de la famille (à vérifier),
+ * ainsi que la grossesse, l'accouchement et la petite enfance, qui ne changent
+ * pas ; la classe et toute la partie clinique sont à refaire.
  */
 export function reevaluation(ancien: Bilan, date = new Date()): Bilan {
   const { sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
-    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville } = ancien
+    modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville, typesGrossesse, terme, voie, forceps } = ancien
+  const developpement = Object.fromEntries(DEVELOPPEMENT.map(({ cle }) => [cle, ancien[cle]]))
   return {
     ...nouveauBilan(date),
     sexe, trancheAge, prenom, nom, dateNaissance, typeEtablissement, nomEtablissement, lateralite,
     modeDeGarde, enfantUnique, fratrie, entente, medecinTraitant, ville,
+    typesGrossesse: [...typesGrossesse], terme, voie, forceps, ...developpement,
   }
 }
 
@@ -461,7 +535,10 @@ export function champs(bilan: Bilan): Record<string, string> {
     matieres_moins_appreciees:
       dansLOrdre(scolarite.matieres, bilan.matieresDetestees, bilan.autreMatiereDetestee).join(', '),
 
-    // Étape facultative : une phrase sans case cochée reste vide.
+    // Étapes facultatives : une phrase sans réponse reste vide.
+    grossesse_accouchement: phraseGrossesse(bilan),
+    // À la suite de {grossesse_accouchement}, dans le même paragraphe du modèle.
+    petite_enfance: [phraseGrossesse(bilan) && phrasePetiteEnfance(bilan) ? '\n' : '', phrasePetiteEnfance(bilan)].join(''),
     caractere_parents: phraseCaractereParents(bilan),
     caractere_enfant: phraseCaractereEnfant(bilan),
 

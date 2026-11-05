@@ -5,7 +5,7 @@
 // équivalence déclarée ou libellé rapproché sans ambiguïté, voir choix).
 import { computed, ref } from 'vue'
 import {
-  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, lateralites, NOMBRE_AUTRES_PROFESSIONNELS, questionnaire, type Bilan,
+  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, DEVELOPPEMENT, lateralites, NOMBRE_AUTRES_PROFESSIONNELS, questionnaire, type Bilan,
 } from './bilan'
 
 export interface Question {
@@ -143,6 +143,21 @@ export const QUESTIONS = {
   difficultesLoisirs: 'Y a t il des difficultés lors des loisirs ?',
   /** Cases aux libellés du caractère de l'application : « Selon les parents » de l'étape Caractère. */
   caractere: 'Actuellement votre enfant est : (qualités et défauts)',
+  /**
+   * Cases du déroulement de la grossesse et de l'accouchement (type de grossesse,
+   * terme, voie, forceps) : étape Grossesse et petite enfance. « Forceps » non
+   * coché vaut « sans forceps ».
+   */
+  accouchement: "Déroulement de l'accouchement",
+  /** Développement de la petite enfance : réponses reprises telles quelles. */
+  ageRetournement: 'A quel âge le retournement a t il été acquis ?',
+  ageStationAssise: 'A quel âge la station assise a t elle été acquise ?',
+  ageQuatrePattes: 'A quel âge le quatre-pattes et/ou ramper ont ils été acquis ?',
+  typeDeplacement: 'Type de déplacement',
+  ageMarche: 'Station debout et marche autonome',
+  ageProprete: 'La propreté (diurne/ nocturne)',
+  ageLangage: 'Langage : Âge des premiers mots, premières phrases.',
+  comportementPetit: "Plus jeune, l'enfant était",
 } as const
 
 /**
@@ -153,6 +168,8 @@ export const QUESTIONS = {
 export const QUESTIONS_SUPPLEMENTAIRES = {
   etablissement: 'Établissement',
   nomEtablissement: "Nom de l'établissement",
+  /** Type de grossesse, en question à part (formulaires créés avant la version actuelle de creer-formulaire.gs). */
+  grossesse: 'Déroulement de la grossesse',
 } as const
 
 /**
@@ -163,6 +180,15 @@ export const QUESTIONS_SUPPLEMENTAIRES = {
 export const EQUIVALENCES_QUESTIONS: Readonly<Record<string, string>> = {
   'Mode de garde': QUESTIONS.modeDeGarde,
   'Pour quelle(s) raison(s) le bilan est souhaité ? en lien avec quel trouble diagnostiqué?': QUESTIONS.raisonsTroubles,
+  // Intitulés des formulaires créés par les versions précédentes de formulaire/creer-formulaire.gs.
+  "Déroulement de l'accouchement ?": QUESTIONS.accouchement,
+  'Déroulement de la grossesse ?': QUESTIONS_SUPPLEMENTAIRES.grossesse,
+  'Développement : A quel âge le retournement a t il été acquis ?': QUESTIONS.ageRetournement,
+  'Développement : A quel âge la station assise a t elle été acquise ?': QUESTIONS.ageStationAssise,
+  'Développement : A quel âge le quatre-pattes et/ou ramper ont ils été acquis ?': QUESTIONS.ageQuatrePattes,
+  "Développement : S'est déplacé(e) au sol": QUESTIONS.typeDeplacement,
+  'Développement : station debout et marche autonome': QUESTIONS.ageMarche,
+  'Développement : de la propreté (diurne/ nocture)': QUESTIONS.ageProprete,
 }
 
 function texte(reponse: unknown): string {
@@ -183,6 +209,9 @@ export const EQUIVALENCES: Readonly<Record<string, string>> = {
   'Polycopier fournis dans certaines matières': 'Polycopiés donnés',
   "réduction du nombre d'exercice lors des évaluations": "Moins d'exercices",
   'pour participer': 'Participer',
+  // Déroulement de la grossesse et de l'accouchement.
+  'dépression pré natale': 'dépression prénatale',
+  Forceps: 'avec forceps',
 }
 
 /**
@@ -198,6 +227,10 @@ export const OPTIONS_FORMULAIRE = {
     'AESH', 'Polycopier fournis dans certaines matières', 'Tiers-temps',
     "réduction du nombre d'exercice lors des évaluations", 'adaptation des barèmes',
     'Texte plus grand et/ou bien espacé', 'dictée à trou', 'polycopier à trou', 'PAP', 'PPS', 'PPRE',
+  ],
+  accouchement: [
+    'Classique', 'quelques complications (médicales ou autres)', 'dépression pré natale', 'à terme', 'Prématuré',
+    'voie basse', 'césarienne', 'Forceps', "score d'Apgar si connu",
   ],
 } as const
 
@@ -346,6 +379,36 @@ export function coordonnees(reponses: QuestionnaireParents): Record<string, stri
 /** Activité OT Hope d'une ligne de grille, tous domaines confondus (voir choix). */
 export function activiteOtHope(ligne: string): string | undefined {
   return choix(questionnaire.otHope.domaines.flatMap((d) => d.activites), ligne)
+}
+
+/**
+ * Grossesse et petite enfance : les cases du déroulement de la grossesse et de
+ * l'accouchement cochent les types de grossesse (plusieurs possibles), le terme
+ * et la voie (si une seule réponse est cochée) ; « Forceps » non coché vaut
+ * « sans forceps ». Les réponses du développement sont recopiées telles quelles.
+ */
+function preRemplirGrossesse(bilan: Bilan, question: (titre: string) => unknown): void {
+  const { types, termes, voies, forceps } = questionnaire.grossesse
+  const libelles = (liste: readonly { libelle: string }[]) => liste.map((element) => element.libelle)
+  const cochees = [QUESTIONS_SUPPLEMENTAIRES.grossesse, QUESTIONS.accouchement].flatMap((titre) => cases(question(titre)))
+  const trouves = (liste: readonly string[]) =>
+    [...new Set(cochees.map((reponse) => choix(liste, reponse)).filter((c): c is string => !!c))]
+
+  const typesCoches = trouves(libelles(types))
+  if (typesCoches.length)
+    bilan.typesGrossesse = libelles(types).filter((t) => typesCoches.includes(t) || bilan.typesGrossesse.includes(t))
+  const termeCoche = trouves(libelles(termes))
+  if (termeCoche.length === 1) bilan.terme = termeCoche[0]
+  const voieCochee = trouves(libelles(voies))
+  if (voieCochee.length === 1) bilan.voie = voieCochee[0]
+  const [avec, sans] = libelles(forceps)
+  if (trouves([avec]).length) bilan.forceps = avec
+  else if (!bilan.forceps) bilan.forceps = sans
+
+  for (const { cle } of DEVELOPPEMENT) {
+    const valeur = cases(question(QUESTIONS[cle])).map((r) => r.trim()).join(', ')
+    if (valeur) bilan[cle] = valeur
+  }
 }
 
 /**
@@ -513,6 +576,8 @@ export function preRemplir(depart: Bilan, reponses: QuestionnaireParents): { bil
   const parPartie = coordonnees(reponses)
   if (parPartie['medecin.nom']) bilan.medecinTraitant = parPartie['medecin.nom']
   if (parPartie['medecin.ville']) bilan.ville = parPartie['medecin.ville']
+
+  preRemplirGrossesse(bilan, (titre) => question(titre))
 
   bilan.reponsesParents = enLignes(reponses)
   return { bilan, activites }
