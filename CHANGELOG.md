@@ -9,6 +9,14 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.14] - 2026-11-06
+
+- **CI réparée** : les jobs `tablette` et `publier` tournent sur Ubuntu 24.04
+  (`runs-on: ubuntu-24.04`) au lieu de `ubuntu-latest`, passé à Ubuntu 26.04
+  que Playwright 1.56.1 ne prend pas en charge : `npx playwright install
+  --with-deps` échouait avant le moindre test e2e, sur toutes les PR.
+  L'application ne change pas.
+
 ## [1.6.13] - 2026-11-03
 <!-- planifikateur:e15af679-ae5b-4b4d-9be2-2c0b5a3f4335 -->
 
