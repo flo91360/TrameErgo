@@ -90,6 +90,7 @@ actuelles sont :
 | Demande | Personne demandeuse, motifs, troubles et situation du dossier MDPH. |
 | Suivis | Professionnels et fréquence de chaque suivi, ou « Aucun ». |
 | Scolarité | Difficultés, matières préférées et moins appréciées. |
+| Grossesse et petite enfance | Facultatif. Type de grossesse (plusieurs choix), terme, voie, forceps, puis âges du développement de la petite enfance (texte libre), pré-remplis par le questionnaire des parents. |
 | Caractère du patient | Facultatif. Qualités et défauts cochés par les parents (une liste mélangée, accordée au sexe), puis par l'enfant (mêmes items dans des mots simples, en qualités et défauts). |
 | OT Hope : activités de vie quotidienne | Activités du domaine `maison` et niveau d'aide ou de difficulté. |
 | OT Hope : activités de vie scolaire | Activités du domaine `ecole`. |
@@ -245,6 +246,7 @@ sont réutilisés. En complément du tableau des accords ci-dessus :
 | Demande et anamnèse | `{personne_demandeuse}`, `{motifs}`, `{troubles}`, `{dossier_mdph}` |
 | Suivis | `{professionnels}` : professionnels avec leur fréquence, ou « aucun ». |
 | Scolarité | `{difficultes_en_classe}`, `{matieres_preferees}`, `{matieres_moins_appreciees}` |
+| Grossesse et petite enfance | `{grossesse_accouchement}{petite_enfance}` (puce « Déroulement de la grossesse/ accouchement et petite enfance », avant « Anamnèse/ Troubles ») : proposition de rédaction, vide sans réponse. |
 | Caractère du patient | `{caractere_parents}`, `{caractere_enfant}` : phrases rédigées (prénom, accords au sexe), vides si rien n'est coché. |
 | OT Hope : avec aide | `{aide_maison}`, `{aide_ecole}`, `{aide_loisirs}` |
 | OT Hope : avec difficulté | `{difficulte_maison}`, `{difficulte_ecole}`, `{difficulte_loisirs}` |

@@ -118,10 +118,11 @@ test('un bilan rempli de bout en bout donne le Word attendu et va dans l\'histor
   await expect(page.getByRole('heading', { name: 'Suivis' })).toBeVisible()
   await page.getByLabel('Aucun', { exact: true }).tap()
 
-  // Caractère du patient : entre Scolarité et OT Hope, facultatif.
+  // Grossesse et petite enfance juste après Scolarité, puis Caractère du patient avant OT Hope : facultatives.
   const titres = await page.getByRole('navigation', { name: 'Étapes du bilan' }).getByRole('button').allInnerTexts()
   const position = titres.findIndex((t) => t.includes('Caractère du patient'))
-  expect(titres[position - 1]).toContain('Scolarité')
+  expect(titres[position - 1]).toContain('Grossesse et petite enfance')
+  expect(titres[position - 2]).toContain('Scolarité')
   expect(titres[position + 1]).toContain('OT Hope')
   await etape(page, 'Caractère du patient')
   await page.locator('.carte', { hasText: 'Selon les parents' }).getByRole('button', { name: 'curieux', exact: true }).tap()
@@ -269,6 +270,25 @@ test('l\'étape Caractère du patient se passe sans rien cocher', async ({ page 
   await expect(page.getByRole('button', { name: 'curieuse', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Suivant' }).tap()
   await expect(page.getByRole('heading', { name: /OT Hope : Activités de vie quotidienne/ })).toBeVisible()
+})
+
+test('l\'étape Grossesse et petite enfance se passe sans rien remplir', async ({ page }) => {
+  await avecBrouillon(page, { aucunProfessionnel: true })
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  await etape(page, 'Scolarité')
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: 'Grossesse et petite enfance' })).toBeVisible()
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  await expect(page.getByRole('heading', { name: 'Caractère du patient' })).toBeVisible()
+  await etape(page, 'Grossesse et petite enfance')
+  await page.getByRole('button', { name: 'classique', exact: true }).tap()
+  await page.getByRole('button', { name: 'dépression prénatale', exact: true }).tap()
+  await page.getByLabel('Forceps').selectOption('sans forceps')
+  await page.getByLabel('Âge de retournement').fill('4 mois')
+  const enregistre = await brouillon(page)
+  expect(enregistre.typesGrossesse).toEqual(['classique', 'dépression prénatale'])
+  expect(enregistre.forceps).toBe('sans forceps')
+  expect(enregistre.ageRetournement).toBe('4 mois')
 })
 
 test('les flèches du clavier changent le choix d\'un groupe de segments', async ({ page }) => {

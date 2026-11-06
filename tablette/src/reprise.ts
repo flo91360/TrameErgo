@@ -16,9 +16,9 @@ export interface Reprise {
 type Objet = Record<string, unknown>
 type ChoixSimple = 'classe' | 'typeEtablissement' | 'modeDeGarde' | 'entente' | 'personneDemandeuse'
   | 'deuxiemePersonneDemandeuse'
-  | 'dossierMdph' | 'accordParents'
+  | 'dossierMdph' | 'accordParents' | 'terme' | 'voie' | 'forceps'
 type ChoixMultiple = 'motifs' | 'troubles' | 'difficultes' | 'matieresPreferees'
-  | 'matieresDetestees' | 'amenagements' | 'caractereParents' | 'caractereEnfant'
+  | 'matieresDetestees' | 'amenagements' | 'caractereParents' | 'caractereEnfant' | 'typesGrossesse'
 
 function estObjet(valeur: unknown): valeur is Objet {
   return typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur)
@@ -73,7 +73,8 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     }
   }
 
-  const { identite, demande, suivis, scolarite, otHope, objectifs, amenagements } = questionnaire
+  const { identite, demande, suivis, scolarite, grossesse, otHope, objectifs, amenagements } = questionnaire
+  const libelles = (liste: readonly { libelle: string }[]) => liste.map((element) => element.libelle)
 
   const simples: [ChoixSimple, readonly string[], string][] = [
     ['classe', identite.classes, 'Classe'],
@@ -84,6 +85,9 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     ['deuxiemePersonneDemandeuse', demande.personnesDemandeuses, '2ème personne demandeuse'],
     ['dossierMdph', demande.dossierMdph, 'Dossier MDPH'],
     ['accordParents', objectifs.accordParents.map((a) => a.libelle), 'Accord des parents'],
+    ['terme', libelles(grossesse.termes), 'Terme'],
+    ['voie', libelles(grossesse.voies), 'Voie'],
+    ['forceps', libelles(grossesse.forceps), 'Forceps'],
   ]
   for (const [cle, liste, rubrique] of simples) {
     if (bilan[cle] && !liste.includes(bilan[cle])) {
@@ -101,6 +105,7 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
     ['amenagements', amenagements, 'Aménagements'],
     ['caractereParents', libellesCaractere(), 'Caractère selon les parents'],
     ['caractereEnfant', libellesCaractere(), 'Caractère selon l\'enfant'],
+    ['typesGrossesse', libelles(grossesse.types), 'Type de grossesse'],
   ]
   for (const [cle, liste, rubrique] of multiples) {
     for (const valeur of bilan[cle].filter((v) => !liste.includes(v))) retirees.push(`${valeur} (${rubrique})`)

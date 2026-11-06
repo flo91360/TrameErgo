@@ -81,6 +81,13 @@ const MATIERES = [
   'Physique-chimie', 'Art plastique',
 ];
 
+// Déroulement de la grossesse et de l'accouchement : repris dans TrameErgo (contenu/questionnaire.json,
+// « grossesse »), sauf le score d'Apgar.
+const ACCOUCHEMENT = [
+  'Classique', 'quelques complications (médicales ou autres)', 'dépression pré natale', 'à terme', 'Prématuré',
+  'voie basse', 'césarienne', 'Forceps', "score d'Apgar si connu",
+];
+
 // Mêmes libellés et même ordre que « caractere » dans TrameErgo (contenu/questionnaire.json) :
 // les cases cochées remplissent « Selon les parents » de l'étape Caractère.
 const CARACTERE = [
@@ -139,23 +146,20 @@ function creerFormulaire() {
   texte(form, "Autre professionnel suivant l'enfant ? (avec la fréquence de suivi)");
   choix(form, 'Dossier MDPH', ['En cours de création', 'NON', 'En renouvellement'], true);
   texte(form, "Antécédents familiaux en lien avec la/les difficultés de l'enfant qui amène(nt) à consulter :");
-  cases(form, 'Déroulement de la grossesse ?', [
-    'Classique', 'quelques complications (médicales ou autres)', 'dépression pré natale',
-  ]);
-  cases(form, "Déroulement de l'accouchement ?", [
-    'à terme', 'Prématuré', 'voie basse', 'césarienne', 'Forceps', "score d'Apgar si connu",
-  ]);
+  // Grossesse et accouchement dans une seule question : étape « Grossesse et petite enfance » de TrameErgo
+  // (type de grossesse, terme, voie, forceps ; « Forceps » non coché vaut « sans forceps »).
+  cases(form, "Déroulement de l'accouchement", ACCOUCHEMENT);
   texte(form, 'Santé globale (Hospitalisations, opérations, otites à répétition, troubles du sommeil ou de l\'alimentation.)');
-  texte(form, 'Développement : A quel âge le retournement a t il été acquis ?');
-  texte(form, 'Développement : A quel âge la station assise a t elle été acquise ?');
-  texte(form, 'Développement : A quel âge le quatre-pattes et/ou ramper ont ils été acquis ?');
-  choix(form, "Développement : S'est déplacé(e) au sol", [
-    "S'est déplacé(e) au sol 4 pattes ?", "S'est déplacé(e) au sol en rampant",
+  texte(form, 'A quel âge le retournement a t il été acquis ?');
+  texte(form, 'A quel âge la station assise a t elle été acquise ?');
+  texte(form, 'A quel âge le quatre-pattes et/ou ramper ont ils été acquis ?');
+  cases(form, 'Type de déplacement', [
+    "S'est déplacé(e) au sol 4 pattes", "S'est déplacé(e) au sol en rampant",
     "S'est déplacé(e) sur les fesses", "Ne s'est pas déplacé(e) au sol",
-  ], true);
-  texte(form, 'Développement : station debout et marche autonome');
-  texte(form, 'Développement : de la propreté (diurne/ nocture)');
-  cases(form, "Plus jeune, l'enfant était :", ['Plutôt actif', 'plutôt passif', 'qui pleurait peu', 'qui pleurait beaucoup']);
+  ]);
+  texte(form, 'Station debout et marche autonome');
+  texte(form, 'La propreté (diurne/ nocturne)');
+  cases(form, "Plus jeune, l'enfant était", ['Plutôt actif', 'plutôt passif', 'qui pleurait peu', 'qui pleurait beaucoup']);
   cases(form, 'Actuellement votre enfant est : (qualités et défauts)', CARACTERE);
   cases(form, 'Sur le plan de la motricité globale et de la coordination :', [
     'Est plutôt adroit(e)', 'Est plutôt maladroit(e)', "Est à l'aise dans son corps",

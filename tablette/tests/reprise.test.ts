@@ -151,3 +151,20 @@ describe('reprise du brouillon', () => {
     expect(champs(bilan).age).toBe('')
   })
 })
+
+describe('reprise de la grossesse et de la petite enfance', () => {
+  it('relit les réponses, absentes des anciens brouillons, et retire les choix inconnus', () => {
+    const bilan = nouveauBilan(date)
+    Object.assign(bilan, { prenom: 'Léa', typesGrossesse: ['quelques complications'], terme: 'prématuré',
+      voie: 'césarienne', forceps: 'sans forceps', ageLangage: '18 mois' })
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.retirees).toEqual([])
+    expect(champs(reprise.bilan)).toEqual(champs(bilan))
+    const ancien = reprendre(JSON.stringify({ version: 2, bilan: { prenom: 'Léa' } }), date)!
+    expect([ancien.bilan.typesGrossesse, ancien.bilan.forceps, ancien.bilan.ageLangage]).toEqual([[], '', ''])
+    const inconnu = reprendre(JSON.stringify({ version: 2, bilan: { typesGrossesse: ['gémellaire'], voie: 'autre' } }),
+      date)!
+    expect(inconnu.retirees).toEqual(['autre (Voie)', 'gémellaire (Type de grossesse)'])
+    expect([inconnu.bilan.typesGrossesse, inconnu.bilan.voie]).toEqual([[], ''])
+  })
+})

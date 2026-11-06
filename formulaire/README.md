@@ -97,8 +97,20 @@ une colonne par fréquence, sans « à raison d' »), chaque ligne cochée coche
 professionnel avec sa fréquence ; en cases, les professionnels cochés sont
 cochés, fréquence à renseigner (« Psychomotricienne » vaut
 « psychomotricien(ne) »). Un professionnel absent de la liste va dans
-« Autre » (3 au plus), « Aucun » seul coche « Aucun ». Les autres réponses sont
-montrées telles quelles dans l'encadré « Réponses des parents ».
+« Autre » (3 au plus), « Aucun » seul coche « Aucun ». La question
+« Déroulement de l'accouchement » (cases) remplit l'écran Grossesse et petite
+enfance : « Classique », « quelques complications », « dépression pré natale »
+cochent le type de grossesse (plusieurs possibles), « à terme »/« Prématuré » le
+terme, « voie basse »/« césarienne » la voie, et « Forceps » coche « avec
+forceps » ; non coché, c'est « sans forceps ». Les questions du développement
+(« A quel âge le retournement a t il été acquis ? », « … la station assise … »,
+« … le quatre-pattes et/ou ramper … », « Type de déplacement », « Station debout
+et marche autonome », « La propreté (diurne/ nocturne) », « Langage : Âge des
+premiers mots, premières phrases. », « Plus jeune, l'enfant était ») sont
+recopiées telles quelles. Les intitulés des formulaires créés par l'ancienne
+version de `creer-formulaire.gs` (« Développement : … », « Déroulement de la
+grossesse ? » à part) restent reconnus (`EQUIVALENCES_QUESTIONS`). Les autres
+réponses sont montrées telles quelles dans l'encadré « Réponses des parents ».
 
 ## Fiche patient Word à chaque réponse
 

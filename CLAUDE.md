@@ -48,7 +48,8 @@ Textes visibles, commentaires et messages de commit en français.
     et pré-remplissage des réponses au même libellé que l'application (ou
     équivalence déclarée, ou libellé rapproché sans ambiguïté) ; les intitulés
     du formulaire modifié se relient par `EQUIVALENCES_QUESTIONS` ; une fratrie
-    vide dans les réponses coche « Enfant unique ».
+    vide dans les réponses coche « Enfant unique » ; « Forceps » non coché dans
+    « Déroulement de l'accouchement » vaut « sans forceps ».
   - `src/historique.ts` : bilans créés sur l'appareil (localStorage), avec
     leurs réponses ; sauvegarde et import en `.json`.
   - `src/ecrans/` : accueil (nouveau, reprendre, historique), nouveau bilan

@@ -454,9 +454,13 @@ describe('questionnaire des parents', () => {
     const creation = script('creer-formulaire.gs')
     expect(optionsDe(creation, QUESTIONS.difficultes)).toEqual(OPTIONS_FORMULAIRE.difficultes)
     expect(optionsDe(creation, QUESTIONS.amenagements)).toEqual(OPTIONS_FORMULAIRE.amenagements)
-    const listes = [...questionnaire.scolarite.difficultes, ...questionnaire.amenagements]
+    expect(chaines(creation.match(/const ACCOUCHEMENT = \[([^\]]*)\];/)?.[1])).toEqual(OPTIONS_FORMULAIRE.accouchement)
+    const { grossesse } = questionnaire
+    const listes = [...questionnaire.scolarite.difficultes, ...questionnaire.amenagements,
+      ...[grossesse.types, grossesse.termes, grossesse.voies, grossesse.forceps].flat().map((g) => g.libelle)]
     for (const [formulaire, application] of Object.entries(EQUIVALENCES)) {
-      expect([...OPTIONS_FORMULAIRE.difficultes, ...OPTIONS_FORMULAIRE.amenagements]).toContain(formulaire)
+      expect([...OPTIONS_FORMULAIRE.difficultes, ...OPTIONS_FORMULAIRE.amenagements, ...OPTIONS_FORMULAIRE.accouchement])
+        .toContain(formulaire)
       expect(listes).toContain(application)
     }
     // Les choix des difficultés en classe ont tous leur équivalent dans l'application.
@@ -494,5 +498,56 @@ describe('questionnaire des parents', () => {
     expect(creation).toContain(`texte(form, "${question}")`)
     // Ou le nom découpé (« Nom » et « Prénom » sous le titre « Enfant »).
     expect(lecture).toContain("const PARTIE_ENFANT = 'Enfant';")
+  })
+
+  it('pré-remplit la grossesse, l\'accouchement et la petite enfance', () => {
+    const { bilan } = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: QUESTIONS.accouchement, reponse: ['Classique', 'dépression pré natale', 'Prématuré', 'césarienne',
+        "score d'Apgar si connu"] },
+      { titre: QUESTIONS.ageRetournement, reponse: '4 mois' },
+      { titre: QUESTIONS.ageStationAssise, reponse: '7 mois' },
+      { titre: QUESTIONS.ageQuatrePattes, reponse: '10 mois' },
+      { titre: QUESTIONS.typeDeplacement, reponse: ["S'est déplacé(e) au sol 4 pattes", "S'est déplacé(e) au sol en rampant"] },
+      { titre: QUESTIONS.ageMarche, reponse: '14 mois' },
+      { titre: QUESTIONS.ageProprete, reponse: '3 ans de jour, 4 ans la nuit' },
+      { titre: QUESTIONS.ageLangage, reponse: '18 mois, 2 ans et demi' },
+      { titre: QUESTIONS.comportementPetit, reponse: ['Plutôt actif', 'qui pleurait peu'] },
+    ] })
+    expect(bilan.typesGrossesse).toEqual(['classique', 'dépression prénatale'])
+    expect([bilan.terme, bilan.voie, bilan.forceps]).toEqual(['prématuré', 'césarienne', 'sans forceps'])
+    expect(bilan.ageRetournement).toBe('4 mois')
+    expect(bilan.ageStationAssise).toBe('7 mois')
+    expect(bilan.ageQuatrePattes).toBe('10 mois')
+    expect(bilan.typeDeplacement).toBe("S'est déplacé(e) au sol 4 pattes, S'est déplacé(e) au sol en rampant")
+    expect(bilan.ageMarche).toBe('14 mois')
+    expect(bilan.ageProprete).toBe('3 ans de jour, 4 ans la nuit')
+    expect(bilan.ageLangage).toBe('18 mois, 2 ans et demi')
+    expect(bilan.comportementPetit).toBe('Plutôt actif, qui pleurait peu')
+    // « Forceps » coché ; complications avec précision entre parenthèses.
+    const avec = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: QUESTIONS.accouchement, reponse: ['quelques complications (médicales ou autres)', 'à terme', 'voie basse',
+        'Forceps'] },
+    ] }).bilan
+    expect(avec.typesGrossesse).toEqual(['quelques complications'])
+    expect([avec.terme, avec.voie, avec.forceps]).toEqual(['à terme', 'voie basse', 'avec forceps'])
+    // Sans réponse : rien d'autre que « sans forceps ».
+    const vide = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [] }).bilan
+    expect([vide.typesGrossesse, vide.terme, vide.voie, vide.forceps, vide.ageMarche])
+      .toEqual([[], '', '', 'sans forceps', ''])
+  })
+
+  it('reconnaît les intitulés des formulaires créés par l\'ancien creer-formulaire.gs', () => {
+    const { bilan } = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: 'Déroulement de la grossesse ?', reponse: ['quelques complications (médicales ou autres)'] },
+      { titre: "Déroulement de l'accouchement ?", reponse: ['à terme', 'voie basse', 'Forceps'] },
+      { titre: 'Développement : A quel âge le retournement a t il été acquis ?', reponse: '5 mois' },
+      { titre: "Développement : S'est déplacé(e) au sol", reponse: "S'est déplacé(e) sur les fesses" },
+      { titre: 'Développement : de la propreté (diurne/ nocture)', reponse: '3 ans' },
+      { titre: "Plus jeune, l'enfant était :", reponse: ['plutôt passif'] },
+    ] })
+    expect(bilan.typesGrossesse).toEqual(['quelques complications'])
+    expect([bilan.terme, bilan.voie, bilan.forceps]).toEqual(['à terme', 'voie basse', 'avec forceps'])
+    expect([bilan.ageRetournement, bilan.typeDeplacement, bilan.ageProprete, bilan.comportementPetit])
+      .toEqual(['5 mois', "S'est déplacé(e) sur les fesses", '3 ans', 'plutôt passif'])
   })
 })
