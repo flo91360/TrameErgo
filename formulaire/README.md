@@ -109,7 +109,10 @@ et marche autonome », « La propreté (diurne/ nocturne) », « Langage : Âge 
 premiers mots, premières phrases. », « Plus jeune, l'enfant était ») sont
 recopiées telles quelles. Les intitulés des formulaires créés par l'ancienne
 version de `creer-formulaire.gs` (« Développement : … », « Déroulement de la
-grossesse ? » à part) restent reconnus (`EQUIVALENCES_QUESTIONS`). Les autres
+grossesse ? » à part) restent reconnus (`EQUIVALENCES_QUESTIONS`), comme les
+variantes de « La propreté (diurne/ nocturne) » (« La propreté (diurne/nocturne) »,
+« Propreté », « La propreté (diurne/ nocture) »…), dont la réponse remplit « Âge
+d'acquisition de la propreté » telle que les parents l'ont écrite. Les autres
 réponses sont montrées telles quelles dans l'encadré « Réponses des parents ».
 
 ## Fiche patient Word à chaque réponse

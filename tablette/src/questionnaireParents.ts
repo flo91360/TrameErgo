@@ -189,6 +189,16 @@ export const EQUIVALENCES_QUESTIONS: Readonly<Record<string, string>> = {
   "Développement : S'est déplacé(e) au sol": QUESTIONS.typeDeplacement,
   'Développement : station debout et marche autonome': QUESTIONS.ageMarche,
   'Développement : de la propreté (diurne/ nocture)': QUESTIONS.ageProprete,
+  // Variantes de « La propreté (diurne/ nocturne) » dans le formulaire de l'ergothérapeute.
+  'La propreté (diurne/ nocture)': QUESTIONS.ageProprete,
+  'La propreté (diurne/nocturne)': QUESTIONS.ageProprete,
+  'La propreté (diurne / nocturne)': QUESTIONS.ageProprete,
+  'Propreté (diurne/ nocturne)': QUESTIONS.ageProprete,
+  'La propreté': QUESTIONS.ageProprete,
+  'Propreté': QUESTIONS.ageProprete,
+  'Développement : la propreté (diurne/ nocturne)': QUESTIONS.ageProprete,
+  'Développement : de la propreté (diurne/ nocturne)': QUESTIONS.ageProprete,
+  "Âge d'acquisition de la propreté": QUESTIONS.ageProprete,
 }
 
 function texte(reponse: unknown): string {

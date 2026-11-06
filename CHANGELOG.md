@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.16] - 2026-11-06
+<!-- planifikateur:02b0f5a8-0ae8-4c85-83cd-110d487c063d -->
+
+- **lien entre TramErgo et google form pour partie propreté** : Le champ « Âge d'acquisition de la propreté » de l'étape 5 se remplit maintenant avec le texte des parents, même si l'intitulé de la question a été un peu modifié dans le Google Forms. Les tests (`npm test`) et la compilation (`npm run build`) passent. **Ce qui existait déjà.** Contrairement à ce que dit la carte, le lien était en partie en place : une question intitulée exactement « La propreté (diurne/ nocturne) » (majuscules, accents et deux-points final ignorés) ou l'ancien intitulé « Développement : de la propreté (diurne/ nocture) » remplissait déjà le champ. Si le formulaire des parents ne remplit toujours pas le champ après cette modification, son intitulé est sans doute une variante que je n'ai pas prévue, et il faudra l'ajouter à la liste. **Ce que j'ai modifié.** - **`tablette/src/questionnaireParents.ts`** : j'ai ajouté dans `EQUIVALENCES_QUESTIONS` les variantes d'intitulé probables dans un formulaire modifié à la main : « La propreté (diurne/nocturne) », « La propreté (diurne / nocturne) », « La propreté (diurne/ nocture) », « Propreté (diurne/ nocturne) », « La propreté », « Propreté », « Développement : la propreté (diurne/ nocturne) », « Développement : de la propreté (diurne/ nocturne) » et « Âge d'acquisition de la propreté ». Le texte est recopié tel que les parents l'ont écrit (seuls les espaces au début et à la fin sont retirés). Le champ reste modifiable, les autres champs pré-remplis ne changent pas, et sans réponse ou sans connexion il reste vide. - **`tablette/tests/questionnaireParents.test.ts`** : un nouveau test vérifie : - le pré-remplissage avec chacune des variantes d'intitulé ; - le champ vide quand la question est absente ou sans réponse ; - la saisie de l'ergothérapeute conservée quand les parents n'ont pas répondu ; - les autres âges du développement inchangés. - **`formulaire/README.md`** : j'ai documenté ces variantes reconnues.
+
 ## [1.6.15] - 2026-11-06
 <!-- planifikateur:92c75659-d4c4-4528-81a2-30651af8fe98 -->
 
