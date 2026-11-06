@@ -536,6 +536,27 @@ describe('questionnaire des parents', () => {
       .toEqual([[], '', '', 'sans forceps', ''])
   })
 
+  it('pré-remplit l\'âge d\'acquisition de la propreté avec le texte des parents', () => {
+    const titres = [QUESTIONS.ageProprete, 'La propreté (diurne/ nocturne) :', 'la proprete (diurne/ nocturne)',
+      'La propreté (diurne/nocturne)', 'La propreté (diurne/ nocture)', 'Développement : la propreté (diurne/ nocturne)']
+    for (const titre of titres) {
+      const { bilan } = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+        { titre, reponse: '  Jour à 3 ans, nuit à 4 ans (quelques accidents)  ' },
+      ] })
+      expect(bilan.ageProprete).toBe('Jour à 3 ans, nuit à 4 ans (quelques accidents)')
+      // Les autres champs pré-remplis ne changent pas.
+      expect([bilan.ageMarche, bilan.ageLangage, bilan.ageRetournement]).toEqual(['', '', ''])
+    }
+    // Sans réponse (question absente ou laissée vide) : le champ reste vide.
+    expect(preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [] }).bilan.ageProprete).toBe('')
+    expect(preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
+      { titre: QUESTIONS.ageProprete, reponse: '' },
+    ] }).bilan.ageProprete).toBe('')
+    // La saisie de l'ergothérapeute est conservée sans réponse des parents.
+    const saisi = { ...nouveauBilan(), ageProprete: '3 ans' }
+    expect(preRemplir(saisi, { envoi: reponse.envoi, questions: [] }).bilan.ageProprete).toBe('3 ans')
+  })
+
   it('reconnaît les intitulés des formulaires créés par l\'ancien creer-formulaire.gs', () => {
     const { bilan } = preRemplir(nouveauBilan(), { envoi: reponse.envoi, questions: [
       { titre: 'Déroulement de la grossesse ?', reponse: ['quelques complications (médicales ou autres)'] },
