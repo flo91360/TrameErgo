@@ -26,7 +26,9 @@ permissions:
 
 jobs:
   tablette:
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 fixé : ubuntu-latest (26.04) n'est pas pris en charge par
+    # Playwright 1.56 (« playwright install --with-deps » échoue).
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -172,7 +174,7 @@ jobs:
   publier:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: tablette
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
