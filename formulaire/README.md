@@ -22,7 +22,8 @@ formulaire.
 2. Coller l'adresse de modification du formulaire (celle qui finit par
    `/edit`) dans `ADRESSE_FORMULAIRE`, enregistrer.
 3. Choisir `installer`, puis « Exécuter », et autoriser l'accès. Le journal
-   d'exécution affiche le titre du formulaire et son nombre de réponses.
+   d'exécution affiche le titre du formulaire et son nombre de réponses, puis
+   le nombre d'enfants rangés dans l'index (voir plus bas).
 4. « Déployer » > « Nouveau déploiement » > type « Application web » :
    exécuter en tant que « Moi », accès « Tout le monde ».
 5. Choisir `lienDeLiaison`, puis « Exécuter » : le journal affiche le **lien
@@ -42,7 +43,9 @@ enregistrer et exécuter `installer` ; le lien de liaison ne change pas.
 
 Mettre à jour le script : remplacer son code, enregistrer, puis « Déployer » >
 « Gérer les déploiements » > crayon > Version : « Nouvelle version » >
-« Déployer ». L'adresse et le lien de liaison ne changent pas.
+« Déployer ». L'adresse et le lien de liaison ne changent pas. Si la
+nouvelle version apporte l'index (version 1.6.19), exécuter aussi `installer`
+une fois.
 
 ## Ce que voit l'application
 
@@ -53,11 +56,22 @@ clé et affiche le nouveau lien : les appareils qui avaient l'ancien perdent
 l'accès.
 
 La recherche se fait en deux temps, pour rester rapide même avec beaucoup de
-réponses : TrameErgo demande d'abord les questionnaires au nom de l'enfant (le
-script ne lit alors que le nom dans chaque réponse), puis, au clic sur
+réponses : TrameErgo demande d'abord les questionnaires au nom de l'enfant,
+puis, au clic sur
 « Importer et pré-remplir », toutes les réponses du questionnaire choisi
 (« Importation des réponses… »). Un script pas encore mis à jour renvoie tout
 dès la recherche : TrameErgo l'accepte aussi, mais c'est plus lent.
+
+Pour la recherche, le script lit un **index** rangé dans ses propriétés (une
+propriété `ENFANT_…` par enfant, avec l'identifiant et la date de ses
+réponses), sans ouvrir le formulaire : Google Forms charge toutes les réponses
+en entier avant de pouvoir lire un nom, ce qui prend plusieurs secondes.
+`installer` (ou `indexer`) range les réponses déjà reçues et crée le
+déclencheur `indexerReponse`, qui ajoute chaque nouvelle réponse. Une réponse
+supprimée du formulaire est retirée de l'index à la première tentative
+d'importation. Relancer `indexer` si le nom d'un enfant a été corrigé à la
+main dans les réponses. Sans index pour le formulaire relié, le script cherche
+dans les réponses, comme avant.
 
 Le nom est lu dans la question « Nom et Prénom de l'enfant », ou dans les
 questions « Nom » et « Prénom » placées sous un titre « Enfant ». Chaque

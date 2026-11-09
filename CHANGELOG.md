@@ -9,6 +9,19 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.19] - 2026-11-09
+
+- **Questionnaire des parents : recherche quasi immédiate** : le script
+  `formulaire/questionnaire-parents.gs` range les réponses dans un index par
+  enfant (nom → identifiant et date des réponses), dans ses propriétés. La
+  recherche lit cet index sans ouvrir le formulaire, au lieu de charger toutes
+  les réponses de Google Forms. Le déclencheur `indexerReponse` ajoute chaque
+  nouvelle réponse ; une réponse supprimée est retirée de l'index à la première
+  tentative d'importation. Rien ne change dans l'application. Pour en
+  profiter : remplacer le code du script, exécuter `installer` une fois (il
+  construit l'index), puis « Déployer » > « Gérer les déploiements » > crayon >
+  « Nouvelle version ».
+
 ## [1.6.18] - 2026-11-09
 
 - **Questionnaire des parents : recherche en deux temps, plus rapide** :
