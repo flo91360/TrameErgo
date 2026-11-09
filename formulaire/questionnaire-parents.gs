@@ -51,10 +51,16 @@ const QUESTION_NOM = "Nom et Prénom de l'enfant";
 const PARTIE_ENFANT = 'Enfant';
 
 /**
- * Réponse à TrameErgo : …/exec?cle=…&prenom=…&nom=…
- * Renvoie { reponses: [{ envoi, questions: [{ titre, partie?, reponse, lignes? }] }] },
- * les questionnaires de cet enfant seulement, ou { erreur }. partie : titre de
- * l'encadré ou de la section où se trouve la question (« Parent 1 »…).
+ * Réponse à TrameErgo, en deux temps :
+ * - recherche : …/exec?cle=…&prenom=…&nom=…&etape=recherche renvoie
+ *   { envois: [{ id, envoi }] }, les questionnaires de cet enfant. Seul le nom
+ *   de l'enfant est lu dans chaque réponse : la recherche reste rapide.
+ * - importation : …/exec?cle=…&prenom=…&nom=…&id=… renvoie
+ *   { reponses: [{ envoi, questions: [{ titre, partie?, reponse, lignes? }] }] },
+ *   ce questionnaire seulement, s'il est bien au nom de cet enfant.
+ * Sans etape ni id (TrameErgo avant la version 1.6.18) : toutes les réponses de
+ * cet enfant, au format de l'importation. En cas de problème : { erreur }.
+ * partie : titre de l'encadré ou de la section où se trouve la question (« Parent 1 »…).
  */
 function doGet(e) {
   const parametres = e.parameter || {};
@@ -69,22 +75,77 @@ function doGet(e) {
   if (!recherche[0]) return enJson({ erreur: 'nom' });
 
   const form = FormApp.openById(proprietes.getProperty('FORMULAIRE'));
-  // Titre, partie et lignes de chaque question lus une seule fois, et non pour
-  // chaque réponse : avec beaucoup de réponses, le script restait trop lent.
+  const champsNom = questionsDuNom(form);
+  const deLEnfant = function (reponse) {
+    return recherche.indexOf(comparable(nomDeLaReponse(reponse, champsNom))) !== -1;
+  };
+
+  if (parametres.id) {
+    let reponse = null;
+    try {
+      reponse = form.getResponse(parametres.id);
+    } catch (erreur) {
+      reponse = null; // Réponse supprimée du formulaire.
+    }
+    if (!reponse || !deLEnfant(reponse)) return enJson({ reponses: [] });
+    return enJson({ reponses: [lireReponse(reponse, descriptionDesQuestions(form))] });
+  }
+
+  const trouvees = form.getResponses().filter(deLEnfant);
+  if (parametres.etape === 'recherche') {
+    return enJson({ envois: trouvees.map(function (reponse) {
+      return { id: reponse.getId(), envoi: reponse.getTimestamp().toISOString() };
+    }) });
+  }
   const questions = descriptionDesQuestions(form);
-  const reponses = [];
-  form.getResponses().forEach(function (reponse) {
-    const lues = reponse.getItemResponses().map(function (r) {
+  return enJson({ reponses: trouvees.map(function (reponse) { return lireReponse(reponse, questions); }) });
+}
+
+/** Toutes les réponses d'un questionnaire, au format attendu par TrameErgo. */
+function lireReponse(reponse, questions) {
+  return {
+    envoi: reponse.getTimestamp().toISOString(),
+    questions: reponse.getItemResponses().map(function (r) {
       const description = questions[r.getItem().getId()] || { titre: r.getItem().getTitle() };
       const question = { titre: description.titre, reponse: r.getResponse() };
       if (description.partie) question.partie = description.partie;
       if (description.lignes) question.lignes = description.lignes;
       return question;
-    });
-    if (recherche.indexOf(comparable(nomDeLEnfant(lues))) === -1) return;
-    reponses.push({ envoi: reponse.getTimestamp().toISOString(), questions: lues });
+    }),
+  };
+}
+
+/**
+ * Les questions qui portent le nom de l'enfant : « Nom et Prénom de l'enfant »
+ * (complet), ou « Prénom » et « Nom » sous le titre « Enfant ».
+ */
+function questionsDuNom(form) {
+  const champs = { complet: null, prenom: null, nom: null };
+  let partie = '';
+  form.getItems().forEach(function (item) {
+    const type = item.getType();
+    if (type === FormApp.ItemType.SECTION_HEADER || type === FormApp.ItemType.PAGE_BREAK) {
+      partie = item.getTitle();
+      return;
+    }
+    // Comparaison sans majuscules, accents ni ponctuation : « Nom et Prénom de l’enfant : » convient.
+    const titre = comparable(item.getTitle());
+    if (titre === comparable(QUESTION_NOM) && !champs.complet) champs.complet = item;
+    if (comparable(partie) === comparable(PARTIE_ENFANT)) {
+      if (titre === 'prenom' && !champs.prenom) champs.prenom = item;
+      if (titre === 'nom' && !champs.nom) champs.nom = item;
+    }
   });
-  return enJson({ reponses: reponses });
+  return champs;
+}
+
+/** Nom de l'enfant dans une réponse, en ne lisant que les questions du nom. */
+function nomDeLaReponse(reponse, champs) {
+  const texte = function (item) {
+    const r = item ? reponse.getResponseForItem(item) : null;
+    return r ? String(r.getResponse()) : '';
+  };
+  return texte(champs.complet) || texte(champs.prenom) + texte(champs.nom);
 }
 
 /**
@@ -106,17 +167,6 @@ function descriptionDesQuestions(form) {
     questions[item.getId()] = question;
   });
   return questions;
-}
-
-function nomDeLEnfant(questions) {
-  const texte = function (titre, partie) {
-    const question = questions.filter(function (q) {
-      // Comparaison sans majuscules, accents ni ponctuation : « Nom et Prénom de l’enfant : » convient.
-      return comparable(q.titre) === comparable(titre) && (!partie || comparable(q.partie || '') === comparable(partie));
-    })[0];
-    return question ? String(question.reponse) : '';
-  };
-  return texte(QUESTION_NOM) || texte('Prénom', PARTIE_ENFANT) + texte('Nom', PARTIE_ENFANT);
 }
 
 /** « Léa  DUPONT-Martin » et « lea dupont martin » se valent. */

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { nouveauBilan, type Bilan } from '../bilan'
-import { chercher, configure, preRemplir, type Recherche } from '../questionnaireParents'
+import { chercher, configure, importer, preRemplir, type Recherche } from '../questionnaireParents'
 
 const emit = defineEmits<{ commencer: [bilan: Bilan, activites?: number]; reglages: [] }>()
 
@@ -9,10 +9,13 @@ const prenom = ref('')
 const nom = ref('')
 const recherche = ref<Recherche | null>(null)
 const enCours = ref(false)
+/** Importation des réponses du questionnaire choisi, après la recherche. */
+const importation = ref(false)
+const erreurImport = ref('')
 /** Questionnaire choisi quand les parents en ont envoyé plusieurs. */
 const choisi = ref(0)
 const complet = computed(() => !!prenom.value.trim() && !!nom.value.trim())
-const trouves = computed(() => recherche.value?.etat === 'trouve' ? recherche.value.questionnaires : [])
+const trouves = computed(() => recherche.value?.etat === 'trouve' ? recherche.value.envois : [])
 
 let minuteur: ReturnType<typeof setTimeout> | undefined
 /** Numéro de la dernière recherche : une réponse arrivée pour un nom déjà changé est ignorée. */
@@ -25,9 +28,12 @@ watch([prenom, nom], () => {
   enCours.value = false
   recherche.value = null
   choisi.value = 0
+  importation.value = false
+  erreurImport.value = ''
   if (configure.value && complet.value) minuteur = setTimeout(verifier, 600)
 })
 onBeforeUnmount(() => clearTimeout(minuteur))
+watch(choisi, () => { erreurImport.value = '' })
 
 async function verifier() {
   const demande = ++numero
@@ -45,8 +51,18 @@ function depart(): Bilan {
   return { ...nouveauBilan(), prenom: prenom.value.trim(), nom: nom.value.trim() }
 }
 
-function importer() {
-  const { bilan, activites } = preRemplir(depart(), trouves.value[choisi.value])
+async function importerReponses() {
+  const demande = numero
+  importation.value = true
+  erreurImport.value = ''
+  const resultat = await importer(trouves.value[choisi.value], prenom.value, nom.value)
+  if (demande !== numero) return
+  importation.value = false
+  if (resultat.etat !== 'importe') {
+    erreurImport.value = resultat.raison
+    return
+  }
+  const { bilan, activites } = preRemplir(depart(), resultat.questionnaire)
   emit('commencer', bilan, activites)
 }
 </script>
@@ -86,14 +102,26 @@ function importer() {
     </p>
 
     <label v-if="trouves.length > 1">Questionnaire à importer
-      <select v-model="choisi">
+      <select v-model="choisi" :disabled="importation">
         <option v-for="(q, i) in trouves" :key="q.envoi" :value="i">Envoyé le {{ envoi(q.envoi) }}</option>
       </select>
     </label>
 
+    <p v-if="importation" class="questionnaire" role="status">
+      <span class="indicateur attente" aria-hidden="true">…</span> Importation des réponses…
+    </p>
+    <p v-else-if="erreurImport" class="questionnaire" role="alert">
+      <span class="indicateur injoignable" aria-hidden="true">?</span>
+      Réponses non importées : {{ erreurImport }}.
+      <button type="button" class="lien" @click="importerReponses">Réessayer</button>
+    </p>
+
     <div class="boutons">
-      <button v-if="trouves.length" type="button" class="principal" @click="importer">Importer et pré-remplir</button>
-      <button type="button" :class="trouves.length ? 'secondaire' : 'principal'" @click="emit('commencer', depart())">
+      <button v-if="trouves.length" type="button" class="principal" :disabled="importation" @click="importerReponses">
+        Importer et pré-remplir
+      </button>
+      <button type="button" :class="trouves.length ? 'secondaire' : 'principal'" :disabled="importation"
+        @click="emit('commencer', depart())">
         {{ trouves.length ? 'Commencer sans le questionnaire' : 'Commencer le bilan' }}
       </button>
     </div>

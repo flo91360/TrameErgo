@@ -9,6 +9,23 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.18] - 2026-11-09
+
+- **Questionnaire des parents : recherche en deux temps, plus rapide** :
+  TrameErgo cherche d'abord le questionnaire sur le nom de l'enfant seulement
+  (le script ne lit que le nom dans chaque réponse), affiche « Questionnaire
+  des parents trouvé » comme avant, puis, au clic sur « Importer et
+  pré-remplir », affiche « Importation des réponses… » le temps de récupérer
+  toutes les réponses de ce questionnaire. En cas d'échec de l'importation,
+  un message et « Réessayer ».
+- **Script `formulaire/questionnaire-parents.gs`** : nouvelles demandes
+  `etape=recherche` (identifiants et dates des questionnaires de l'enfant) et
+  `id=…` (réponses d'un questionnaire, s'il est bien au nom de l'enfant). Il
+  répond toujours comme avant aux versions précédentes de TrameErgo, et
+  TrameErgo accepte toujours l'ancien script. Pour profiter de la vitesse :
+  remplacer le code du script puis « Déployer » > « Gérer les déploiements »
+  > crayon > « Nouvelle version ».
+
 ## [1.6.17] - 2026-11-09
 
 - **Questionnaire des parents : recherche qui n'abandonne plus trop tôt** :
