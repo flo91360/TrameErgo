@@ -21,6 +21,11 @@ et ajoute ici sa section, datée.
   profiter : remplacer le code du script, exécuter `installer` une fois (il
   construit l'index), puis « Déployer » > « Gérer les déploiements » > crayon >
   « Nouvelle version ».
+- **Importation des réponses plus rapide et visible** : dès qu'un
+  questionnaire est trouvé (ou choisi dans la liste), TrameErgo importe ses
+  réponses en arrière-plan ; au clic sur « Importer et pré-remplir », elles
+  sont souvent déjà arrivées. Pendant la recherche et l'importation, un rond
+  qui tourne remplace les points de suspension.
 
 ## [1.6.18] - 2026-11-09
 

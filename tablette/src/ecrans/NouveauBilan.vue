@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { nouveauBilan, type Bilan } from '../bilan'
-import { chercher, configure, importer, preRemplir, type Recherche } from '../questionnaireParents'
+import { chercher, configure, importer, preRemplir, type Importation, type Recherche } from '../questionnaireParents'
 
 const emit = defineEmits<{ commencer: [bilan: Bilan, activites?: number]; reglages: [] }>()
 
@@ -18,6 +18,11 @@ const complet = computed(() => !!prenom.value.trim() && !!nom.value.trim())
 const trouves = computed(() => recherche.value?.etat === 'trouve' ? recherche.value.envois : [])
 
 let minuteur: ReturnType<typeof setTimeout> | undefined
+/**
+ * Importation lancée en arrière-plan dès qu'un questionnaire est trouvé (ou
+ * choisi) : au clic sur « Importer et pré-remplir », elle est souvent finie.
+ */
+let prechargement: { numero: number; choisi: number; promesse: Promise<Importation> } | null = null
 /** Numéro de la dernière recherche : une réponse arrivée pour un nom déjà changé est ignorée. */
 let numero = 0
 
@@ -30,10 +35,14 @@ watch([prenom, nom], () => {
   choisi.value = 0
   importation.value = false
   erreurImport.value = ''
+  prechargement = null
   if (configure.value && complet.value) minuteur = setTimeout(verifier, 600)
 })
 onBeforeUnmount(() => clearTimeout(minuteur))
-watch(choisi, () => { erreurImport.value = '' })
+watch(choisi, () => {
+  erreurImport.value = ''
+  precharger()
+})
 
 async function verifier() {
   const demande = ++numero
@@ -42,6 +51,16 @@ async function verifier() {
   if (demande !== numero) return
   enCours.value = false
   recherche.value = resultat
+  precharger()
+}
+
+function precharger(): Promise<Importation> | undefined {
+  const envoi = trouves.value[choisi.value]
+  if (!envoi) return undefined
+  if (prechargement?.numero !== numero || prechargement.choisi !== choisi.value) {
+    prechargement = { numero, choisi: choisi.value, promesse: importer(envoi, prenom.value, nom.value) }
+  }
+  return prechargement.promesse
 }
 
 const envoi = (iso: string) =>
@@ -55,10 +74,11 @@ async function importerReponses() {
   const demande = numero
   importation.value = true
   erreurImport.value = ''
-  const resultat = await importer(trouves.value[choisi.value], prenom.value, nom.value)
-  if (demande !== numero) return
+  const resultat = await precharger()
+  if (demande !== numero || !resultat) return
   importation.value = false
   if (resultat.etat !== 'importe') {
+    prechargement = null // « Réessayer » relance l'importation.
     erreurImport.value = resultat.raison
     return
   }
@@ -84,7 +104,7 @@ async function importerReponses() {
         Saisir le prénom et le nom pour chercher le questionnaire des parents.
       </span>
       <template v-else-if="enCours || !recherche">
-        <span class="indicateur attente" aria-hidden="true">…</span> Recherche du questionnaire des parents…
+        <span class="indicateur chargement" aria-hidden="true"></span> Recherche du questionnaire des parents…
       </template>
       <template v-else-if="recherche.etat === 'trouve'">
         <span class="indicateur trouve" aria-hidden="true">✓</span>
@@ -108,7 +128,7 @@ async function importerReponses() {
     </label>
 
     <p v-if="importation" class="questionnaire" role="status">
-      <span class="indicateur attente" aria-hidden="true">…</span> Importation des réponses…
+      <span class="indicateur chargement" aria-hidden="true"></span> Importation des réponses…
     </p>
     <p v-else-if="erreurImport" class="questionnaire" role="alert">
       <span class="indicateur injoignable" aria-hidden="true">?</span>

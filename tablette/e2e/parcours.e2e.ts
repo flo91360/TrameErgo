@@ -37,7 +37,8 @@ const SCRIPT = 'https://script.google.com/macros/s/essai/exec'
  * Script du questionnaire des parents relié, qui connaît le questionnaire de
  * Léa Petit : recherche sur le nom, puis importation des réponses.
  */
-async function avecQuestionnaire(page: Page) {
+async function avecQuestionnaire(page: Page): Promise<{ importations: number }> {
+  const compte = { importations: 0 }
   await page.route(`${SCRIPT}?*`, async (route) => {
     const parametres = new URL(route.request().url()).searchParams
     const lea = parametres.get('cle') === 'cle-essai' && parametres.get('prenom') === 'Léa'
@@ -47,7 +48,8 @@ async function avecQuestionnaire(page: Page) {
       return route.fulfill({ headers, json: { envois: lea ? [{ id: 'r-lea', envoi: '2026-10-12T08:30:00.000Z' }] : [] } })
     }
     // Importation un peu lente, pour voir le message d'attente.
-    await new Promise((fin) => setTimeout(fin, 500))
+    compte.importations += 1
+    await new Promise((fin) => setTimeout(fin, 1500))
     return route.fulfill({ headers, json: { reponses: lea && parametres.get('id') === 'r-lea' ? [{
       envoi: '2026-10-12T08:30:00.000Z',
       questions: [
@@ -62,6 +64,7 @@ async function avecQuestionnaire(page: Page) {
   await page.evaluate((adresse) => localStorage.setItem('trameergo.questionnaireParents',
     JSON.stringify({ adresse, cle: 'cle-essai' })), SCRIPT)
   await page.reload()
+  return compte
 }
 
 test.beforeEach(async ({ page }) => {
@@ -314,7 +317,7 @@ test('les flèches du clavier changent le choix d\'un groupe de segments', async
 })
 
 test('le questionnaire des parents trouvé au nom de l\'enfant pré-remplit le bilan', async ({ page }) => {
-  await avecQuestionnaire(page)
+  const compte = await avecQuestionnaire(page)
   await expect(page.getByText('Questionnaire des parents : relié.')).toBeVisible()
   await page.getByRole('button', { name: /Nouveau bilan/ }).tap()
   await page.getByLabel('Prénom').fill('Léa')
@@ -326,6 +329,8 @@ test('le questionnaire des parents trouvé au nom de l\'enfant pré-remplit le b
   await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
   await expect(page.getByLabel('Prénom')).toHaveValue('Léa')
   await expect(page.getByLabel('Classe')).toHaveValue('CE2')
+  // Importation lancée dès le questionnaire trouvé, et pas relancée au clic.
+  expect(compte.importations).toBe(1)
   await expect(page.getByText(/Pré-rempli avec le questionnaire des parents \(1 activité OT Hope reprise\)/))
     .toBeVisible()
   await page.getByText('Réponses des parents au questionnaire').tap()
