@@ -9,6 +9,24 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.19] - 2026-11-09
+
+- **Questionnaire des parents : recherche quasi immédiate** : le script
+  `formulaire/questionnaire-parents.gs` range les réponses dans un index par
+  enfant (nom → identifiant et date des réponses), dans ses propriétés. La
+  recherche lit cet index sans ouvrir le formulaire, au lieu de charger toutes
+  les réponses de Google Forms. Le déclencheur `indexerReponse` ajoute chaque
+  nouvelle réponse ; une réponse supprimée est retirée de l'index à la première
+  tentative d'importation. Rien ne change dans l'application. Pour en
+  profiter : remplacer le code du script, exécuter `installer` une fois (il
+  construit l'index), puis « Déployer » > « Gérer les déploiements » > crayon >
+  « Nouvelle version ».
+- **Importation des réponses plus rapide et visible** : dès qu'un
+  questionnaire est trouvé (ou choisi dans la liste), TrameErgo importe ses
+  réponses en arrière-plan ; au clic sur « Importer et pré-remplir », elles
+  sont souvent déjà arrivées. Pendant la recherche et l'importation, un rond
+  qui tourne remplace les points de suspension.
+
 ## [1.6.18] - 2026-11-09
 
 - **Questionnaire des parents : recherche en deux temps, plus rapide** :

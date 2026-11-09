@@ -19,7 +19,82 @@ function installer() {
   proprietes.setProperty('FORMULAIRE', form.getId());
   if (!proprietes.getProperty('CLE')) proprietes.setProperty('CLE', Utilities.getUuid());
   Logger.log('Formulaire : ' + form.getTitle() + ' (' + form.getResponses().length + ' réponses)');
+  indexer();
   Logger.log('Déployer maintenant le script en application web, puis exécuter lienDeLiaison.');
+}
+
+// Index des réponses par enfant, dans les propriétés du script : une propriété
+// par enfant (ENFANT_ suivi de son nom comparable), qui liste ses réponses
+// [identifiant, date d'envoi]. La recherche lit l'index sans ouvrir le
+// formulaire : Google Forms charge toutes les réponses en entier, ce qui est lent.
+const PREFIXE_INDEX = 'ENFANT_';
+// Formulaire dont les réponses sont dans l'index (un autre : l'index ne sert pas).
+const FORMULAIRE_INDEXE = 'INDEX_FORMULAIRE';
+
+/**
+ * Range dans l'index toutes les réponses déjà reçues, et l'y tient à jour à
+ * chaque nouvelle réponse (déclencheur « à l'envoi du formulaire »). Exécuté
+ * par installer ; à relancer seulement si une réponse a été modifiée à la main.
+ */
+function indexer() {
+  const proprietes = PropertiesService.getScriptProperties();
+  const id = proprietes.getProperty('FORMULAIRE');
+  if (!id) throw new Error("Exécuter d'abord installer.");
+  const form = FormApp.openById(id);
+  const champs = questionsDuNom(form);
+  const index = {};
+  form.getResponses().forEach(function (reponse) {
+    const cle = comparable(nomDeLaReponse(reponse, champs));
+    if (!cle) return;
+    (index[PREFIXE_INDEX + cle] = index[PREFIXE_INDEX + cle] || []).push(entreeDIndex(reponse));
+  });
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    Object.keys(proprietes.getProperties()).forEach(function (nom) {
+      if (nom.indexOf(PREFIXE_INDEX) === 0) proprietes.deleteProperty(nom);
+    });
+    const valeurs = {};
+    Object.keys(index).forEach(function (nom) { valeurs[nom] = JSON.stringify(index[nom]); });
+    valeurs[FORMULAIRE_INDEXE] = id;
+    proprietes.setProperties(valeurs);
+  } finally {
+    lock.releaseLock();
+  }
+  ScriptApp.getProjectTriggers().forEach(function (declencheur) {
+    if (declencheur.getHandlerFunction() === 'indexerReponse') ScriptApp.deleteTrigger(declencheur);
+  });
+  ScriptApp.newTrigger('indexerReponse').forForm(form).onFormSubmit().create();
+  Logger.log('Index : ' + Object.keys(index).length + ' enfant(s). Les nouvelles réponses y seront ajoutées.');
+}
+
+/** Déclencheur « à l'envoi du formulaire » : ajoute la réponse à l'index. */
+function indexerReponse(e) {
+  const proprietes = PropertiesService.getScriptProperties();
+  const cle = comparable(nomDeLaReponse(e.response, questionsDuNom(FormApp.openById(proprietes.getProperty('FORMULAIRE')))));
+  if (!cle) return;
+  modifierIndex(PREFIXE_INDEX + cle, function (liste) {
+    return liste.filter(function (entree) { return entree[0] !== e.response.getId(); })
+      .concat([entreeDIndex(e.response)]);
+  });
+}
+
+function entreeDIndex(reponse) {
+  return [reponse.getId(), reponse.getTimestamp().toISOString()];
+}
+
+/** Modifie la liste d'un enfant dans l'index, une modification à la fois. */
+function modifierIndex(nom, modification) {
+  const proprietes = PropertiesService.getScriptProperties();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const liste = modification(JSON.parse(proprietes.getProperty(nom) || '[]'));
+    if (liste.length) proprietes.setProperty(nom, JSON.stringify(liste));
+    else proprietes.deleteProperty(nom);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -53,8 +128,8 @@ const PARTIE_ENFANT = 'Enfant';
 /**
  * Réponse à TrameErgo, en deux temps :
  * - recherche : …/exec?cle=…&prenom=…&nom=…&etape=recherche renvoie
- *   { envois: [{ id, envoi }] }, les questionnaires de cet enfant. Seul le nom
- *   de l'enfant est lu dans chaque réponse : la recherche reste rapide.
+ *   { envois: [{ id, envoi }] }, les questionnaires de cet enfant, lus dans
+ *   l'index (voir indexer) ; sans index, dans le nom de chaque réponse.
  * - importation : …/exec?cle=…&prenom=…&nom=…&id=… renvoie
  *   { reponses: [{ envoi, questions: [{ titre, partie?, reponse, lignes? }] }] },
  *   ce questionnaire seulement, s'il est bien au nom de cet enfant.
@@ -74,6 +149,20 @@ function doGet(e) {
   ];
   if (!recherche[0]) return enJson({ erreur: 'nom' });
 
+  // Index à jour pour ce formulaire : la recherche ne l'ouvre même pas.
+  const indexe = proprietes.getProperty(FORMULAIRE_INDEXE) === proprietes.getProperty('FORMULAIRE');
+  const noms = recherche.map(function (cle) { return PREFIXE_INDEX + cle; })
+    .filter(function (nom, i, tous) { return tous.indexOf(nom) === i; });
+  if (parametres.etape === 'recherche' && indexe) {
+    const envois = [];
+    noms.forEach(function (nom) {
+      JSON.parse(proprietes.getProperty(nom) || '[]').forEach(function (entree) {
+        if (!envois.some(function (envoi) { return envoi.id === entree[0]; })) envois.push({ id: entree[0], envoi: entree[1] });
+      });
+    });
+    return enJson({ envois: envois });
+  }
+
   const form = FormApp.openById(proprietes.getProperty('FORMULAIRE'));
   const champsNom = questionsDuNom(form);
   const deLEnfant = function (reponse) {
@@ -85,7 +174,14 @@ function doGet(e) {
     try {
       reponse = form.getResponse(parametres.id);
     } catch (erreur) {
-      reponse = null; // Réponse supprimée du formulaire.
+      reponse = null; // Réponse supprimée du formulaire : retirée de l'index.
+      if (indexe) {
+        noms.forEach(function (nom) {
+          modifierIndex(nom, function (liste) {
+            return liste.filter(function (entree) { return entree[0] !== parametres.id; });
+          });
+        });
+      }
     }
     if (!reponse || !deLEnfant(reponse)) return enJson({ reponses: [] });
     return enJson({ reponses: [lireReponse(reponse, descriptionDesQuestions(form))] });

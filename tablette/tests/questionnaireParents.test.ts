@@ -316,6 +316,94 @@ describe('questionnaire des parents', () => {
     expect(await importer(resultat.envois[0], 'Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable' })
   })
 
+  it('le script cherche dans son index, sans ouvrir les réponses, et le tient à jour', () => {
+    const element = (id: string, type: string, titre: string) => ({ getId: () => id, getType: () => type, getTitle: () => titre })
+    const items = [element('e', 'SECTION_HEADER', 'Enfant'), element('n', 'TEXT', 'Nom'), element('p', 'TEXT', 'Prénom')]
+    const reponseDe = (id: string, date: string, valeurs: Record<string, string>) => ({
+      getId: () => id,
+      getTimestamp: () => new Date(date),
+      getResponseForItem: (item: ReturnType<typeof element>) =>
+        item.getId() in valeurs ? { getResponse: () => valeurs[item.getId()] } : null,
+      getItemResponses: () => items.filter((item) => item.getId() in valeurs)
+        .map((item) => ({ getItem: () => item, getResponse: () => valeurs[item.getId()] })),
+    })
+    let reponses = [
+      reponseDe('r1', '2026-10-01T08:00:00Z', { n: 'Petit', p: 'Léa' }),
+      reponseDe('r2', '2026-10-02T08:00:00Z', { n: 'Martin', p: 'Tom' }),
+    ]
+    let lectures = 0
+    const form = {
+      getId: () => 'f',
+      getItems: () => items,
+      getResponses: () => { lectures += 1; return reponses },
+      getResponse: (id: string) => {
+        const trouvee = reponses.find((r) => r.getId() === id)
+        if (!trouvee) throw new Error('introuvable')
+        return trouvee
+      },
+    }
+    const proprietes: Record<string, string> = { CLE: 'k', FORMULAIRE: 'f', ENFANT_ancien: '[]' }
+    const declencheurs: string[] = []
+    const globales = {
+      FormApp: { ItemType: Object.fromEntries(['SECTION_HEADER', 'PAGE_BREAK', 'GRID', 'TEXT'].map((t) => [t, t])),
+        openById: () => form },
+      PropertiesService: { getScriptProperties: () => ({
+        getProperty: (cle: string) => proprietes[cle] ?? null,
+        getProperties: () => ({ ...proprietes }),
+        setProperty: (cle: string, valeur: string) => { proprietes[cle] = valeur },
+        setProperties: (valeurs: Record<string, string>) => { Object.assign(proprietes, valeurs) },
+        deleteProperty: (cle: string) => { delete proprietes[cle] },
+      }) },
+      ContentService: { createTextOutput: (texte: string) => ({ setMimeType: () => JSON.parse(texte) }), MimeType: { JSON: 'json' } },
+      ScriptApp: {
+        getProjectTriggers: () => declencheurs.map((nom) => ({ getHandlerFunction: () => nom })),
+        deleteTrigger: (d: { getHandlerFunction: () => string }) => { declencheurs.splice(declencheurs.indexOf(d.getHandlerFunction()), 1) },
+        newTrigger: (nom: string) => ({ forForm: () => ({ onFormSubmit: () => ({ create: () => { declencheurs.push(nom) } }) }) }),
+      },
+      LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) },
+      Logger: { log: () => {} },
+    }
+    const { doGet, indexer, indexerReponse } = new Function(...Object.keys(globales),
+      `${script('questionnaire-parents.gs')}\nreturn { doGet, indexer, indexerReponse };`)(...Object.values(globales)) as {
+      doGet: (e: { parameter: Record<string, string> }) => unknown
+      indexer: () => void
+      indexerReponse: (e: { response: ReturnType<typeof reponseDe> }) => void
+    }
+    const chercherLea = () => doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', etape: 'recherche' } })
+
+    indexer()
+    indexer() // Relancé : un seul déclencheur, l'ancien index remplacé.
+    expect(declencheurs).toEqual(['indexerReponse'])
+    expect(proprietes).toMatchObject({ INDEX_FORMULAIRE: 'f', ENFANT_leapetit: '[["r1","2026-10-01T08:00:00.000Z"]]' })
+    expect(proprietes.ENFANT_ancien).toBeUndefined()
+
+    lectures = 0
+    expect(chercherLea()).toEqual({ envois: [{ id: 'r1', envoi: '2026-10-01T08:00:00.000Z' }] })
+    expect(lectures).toBe(0)
+
+    // Nouvelle réponse : ajoutée par le déclencheur.
+    const nouvelle = reponseDe('r3', '2026-11-01T08:00:00Z', { n: 'PETIT', p: 'Lea' })
+    reponses = [...reponses, nouvelle]
+    indexerReponse({ response: nouvelle })
+    indexerReponse({ response: nouvelle }) // Réponse modifiée par les parents : pas de doublon.
+    expect(chercherLea()).toEqual({ envois: [
+      { id: 'r1', envoi: '2026-10-01T08:00:00.000Z' }, { id: 'r3', envoi: '2026-11-01T08:00:00.000Z' },
+    ] })
+    expect(lectures).toBe(0)
+
+    // Réponse supprimée du formulaire : rien à importer, et retirée de l'index.
+    reponses = reponses.filter((r) => r.getId() !== 'r1')
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', id: 'r1' } })).toEqual({ reponses: [] })
+    expect(chercherLea()).toEqual({ envois: [{ id: 'r3', envoi: '2026-11-01T08:00:00.000Z' }] })
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', id: 'r3' } }))
+      .toMatchObject({ reponses: [{ envoi: '2026-11-01T08:00:00.000Z' }] })
+
+    // Formulaire changé (installer), pas encore indexé : recherche dans les réponses.
+    proprietes.FORMULAIRE = 'g'
+    expect(chercherLea()).toEqual({ envois: [{ id: 'r3', envoi: '2026-11-01T08:00:00.000Z' }] })
+    expect(lectures).toBe(1)
+  })
+
   it('le script cherche sur le nom seul, puis renvoie le questionnaire demandé de cet enfant', () => {
     const element = (id: string, type: string, titre: string, lignes?: string[]) => ({
       getId: () => id, getType: () => type, getTitle: () => titre, asGridItem: () => ({ getRows: () => lignes }),
