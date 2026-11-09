@@ -9,6 +9,23 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.17] - 2026-11-09
+
+- **Questionnaire des parents : recherche qui n'abandonne plus trop tôt** :
+  avec plusieurs réponses dans le Google Forms, le script mettait plus de
+  15 secondes à répondre et TrameErgo affichait « pas de connexion, ou adresse
+  du script incorrecte ». L'application attend maintenant jusqu'à une minute.
+  Chaque échec a son propre message : script trop lent, script non accessible
+  (déploiement pas ouvert à « Tout le monde »), ou page d'erreur Google à la
+  place des réponses.
+- **Script `formulaire/questionnaire-parents.gs` plus rapide** : le titre, la
+  partie et les lignes de chaque question sont lus une seule fois, et non pour
+  chaque réponse. Pour en profiter, remplacer le code du script puis
+  « Déployer » > « Gérer les déploiements » > crayon > « Nouvelle version ».
+- **Lien de liaison** : un lien copié avec plusieurs comptes Google ouverts
+  (`…/macros/u/1/s/…/exec`) est corrigé à l'enregistrement : `/u/1/` exige
+  d'être connecté à ce compte Google, ce que l'application n'est pas.
+
 ## [1.6.16] - 2026-11-06
 <!-- planifikateur:02b0f5a8-0ae8-4c85-83cd-110d487c063d -->
 

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AUTRE_AMENAGEMENT, champs, libellesCaractere, nouveauBilan, phraseCaractereParents, questionnaire } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 import {
-  activiteOtHope, chercher, coordonnees, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
+  activiteOtHope, chercher, coordonnees, DELAI_SCRIPT, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
   frequenceSuivi, OPTIONS_FORMULAIRE, preRemplir, professionnelSuivi, QUESTIONS, rapproche, semblable, type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
@@ -77,6 +77,9 @@ describe('questionnaire des parents', () => {
     expect(lireLien('http://script.google.com/macros/s/AKfy-1/exec#cle=k')).toBeNull()
     expect(lireLien('https://script.google.com/macros/s/AKfy-1/dev#cle=k')).toBeNull()
     expect(lireLien('3f2a-9c1e')).toBeNull()
+    // Lien copié avec plusieurs comptes Google ouverts : « /u/1/ » est retiré.
+    expect(lireLien('https://script.google.com/macros/u/1/s/AKfy-1/exec#cle=k'))
+      .toEqual({ adresse: 'https://script.google.com/macros/s/AKfy-1/exec', cle: 'k' })
   })
 
   it('lit les dates de naissance saisies librement', () => {
@@ -309,7 +312,20 @@ describe('questionnaire des parents', () => {
     vi.stubGlobal('fetch', async () => new Response(JSON.stringify({ erreur: 'cle' })))
     expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable', raison: /clé/ })
     vi.stubGlobal('fetch', async () => { throw new TypeError('Failed to fetch') })
-    expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable' })
+    expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable', raison: /Tout le monde/ })
+    // Page d'erreur ou de connexion Google à la place des réponses.
+    vi.stubGlobal('fetch', async () => new Response('<html>Erreur de script</html>'))
+    expect(await chercher('Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable', raison: /page d'erreur/ })
+  })
+
+  it('attend une minute le script avant d\'abandonner, et le dit', async () => {
+    const reglages = { adresse: 'https://script.google.com/macros/s/x/exec', cle: 'k' }
+    vi.stubGlobal('fetch', (_url: URL, { signal }: RequestInit) => new Promise((_resolve, rejeter) => {
+      signal?.addEventListener('abort', () => rejeter(new DOMException('abandon', 'AbortError')))
+    }))
+    expect(await chercher('Léa', 'Petit', reglages, 10))
+      .toEqual({ etat: 'injoignable', raison: "le script n'a pas répondu en 0 secondes" })
+    expect(DELAI_SCRIPT).toBeGreaterThanOrEqual(60000)
   })
 
   it('reprend les activités renommées d\'après le document « modification TramErgo »', () => {
