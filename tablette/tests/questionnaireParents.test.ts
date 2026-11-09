@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AUTRE_AMENAGEMENT, champs, libellesCaractere, nouveauBilan, phraseCaractereParents, questionnaire } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 import {
-  activiteOtHope, chercher, coordonnees, DELAI_SCRIPT, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
+  activiteOtHope, chercher, coordonnees, DELAI_SCRIPT, importer, dateDeNaissance, enLignes, EQUIVALENCES, lienDeLiaison, lireLien,
   frequenceSuivi, OPTIONS_FORMULAIRE, preRemplir, professionnelSuivi, QUESTIONS, rapproche, semblable, type QuestionnaireParents,
 } from '../src/questionnaireParents'
 
@@ -290,19 +290,107 @@ describe('questionnaire des parents', () => {
     expect(bilan.classe).toBe('CE2')
   })
 
-  it('cherche les questionnaires d\'un enfant auprès du script, avec la clé', async () => {
-    const appel = vi.fn(async (_url: URL) => new Response(JSON.stringify({
-      reponses: [{ ...reponse, envoi: '2026-09-01T10:00:00.000Z' }, reponse],
-    })))
+  it('cherche les questionnaires d\'un enfant auprès du script, avec la clé, puis importe le choisi', async () => {
+    const reglages = { adresse: 'https://script.google.com/macros/s/x/exec', cle: 'k' }
+    const appel = vi.fn(async (url: URL) => new Response(JSON.stringify(url.searchParams.get('etape') === 'recherche'
+      ? { envois: [{ id: 'r1', envoi: '2026-09-01T10:00:00.000Z' }, { id: 'r2', envoi: reponse.envoi }] }
+      : { reponses: [reponse] })))
     vi.stubGlobal('fetch', appel)
-    const resultat = await chercher(' Léa ', 'Petit', { adresse: 'https://script.google.com/macros/s/x/exec', cle: 'k' })
+    const resultat = await chercher(' Léa ', 'Petit', reglages)
     const url = appel.mock.calls[0][0]
     expect(url.searchParams.get('cle')).toBe('k')
     expect(url.searchParams.get('prenom')).toBe('Léa')
     expect(url.searchParams.get('nom')).toBe('Petit')
+    expect(url.searchParams.get('etape')).toBe('recherche')
+    expect(resultat).toEqual({ etat: 'trouve', envois: [
+      { id: 'r2', envoi: reponse.envoi }, { id: 'r1', envoi: '2026-09-01T10:00:00.000Z' },
+    ] })
+    if (resultat.etat !== 'trouve') return
+    expect(await importer(resultat.envois[0], ' Léa ', 'Petit', reglages)).toEqual({ etat: 'importe', questionnaire: reponse })
+    const importation = appel.mock.calls[1][0]
+    expect(importation.searchParams.get('id')).toBe('r2')
+    expect(importation.searchParams.get('cle')).toBe('k')
+    expect(importation.searchParams.get('prenom')).toBe('Léa')
+    // Réponse supprimée du formulaire entre la recherche et l'importation.
+    vi.stubGlobal('fetch', async () => new Response(JSON.stringify({ reponses: [] })))
+    expect(await importer(resultat.envois[0], 'Léa', 'Petit', reglages)).toMatchObject({ etat: 'injoignable' })
+  })
+
+  it('le script cherche sur le nom seul, puis renvoie le questionnaire demandé de cet enfant', () => {
+    const element = (id: string, type: string, titre: string, lignes?: string[]) => ({
+      getId: () => id, getType: () => type, getTitle: () => titre, asGridItem: () => ({ getRows: () => lignes }),
+    })
+    const items = [
+      element('e', 'SECTION_HEADER', 'Enfant'), element('n', 'TEXT', 'Nom'), element('p', 'TEXT', 'Prénom'),
+      element('c', 'TEXT', 'Classe'), element('g', 'GRID', 'Activités', ['Balayer']),
+      element('f', 'SECTION_HEADER', 'Parent 1'), element('n1', 'TEXT', 'Nom'),
+    ]
+    const lues: string[] = []
+    const reponseDe = (id: string, date: string, valeurs: Record<string, unknown>) => ({
+      getId: () => id,
+      getTimestamp: () => new Date(date),
+      getResponseForItem: (item: ReturnType<typeof element>) => {
+        lues.push(`${id}:${item.getId()}`)
+        return item.getId() in valeurs ? { getResponse: () => valeurs[item.getId()] } : null
+      },
+      getItemResponses: () => items.filter((item) => item.getId() in valeurs)
+        .map((item) => ({ getItem: () => item, getResponse: () => valeurs[item.getId()] })),
+    })
+    const reponses = [
+      reponseDe('r1', '2026-10-01T08:00:00Z', { n: 'Petit', p: 'Léa', c: 'CE2', g: ['Avec aide'], n1: 'Durand' }),
+      reponseDe('r2', '2026-10-02T08:00:00Z', { n: 'Martin', p: 'Tom', c: 'CM1', n1: 'Petit' }),
+    ]
+    const form = {
+      getItems: () => items,
+      getResponses: () => reponses,
+      getResponse: (id: string) => {
+        const trouvee = reponses.find((r) => r.getId() === id)
+        if (!trouvee) throw new Error('introuvable')
+        return trouvee
+      },
+    }
+    const types = Object.fromEntries(['SECTION_HEADER', 'PAGE_BREAK', 'GRID', 'TEXT'].map((t) => [t, t]))
+    const doGet = new Function('FormApp', 'PropertiesService', 'ContentService',
+      `${script('questionnaire-parents.gs')}\nreturn doGet;`)(
+      { ItemType: types, openById: () => form },
+      { getScriptProperties: () => ({ getProperty: (cle: string) => ({ CLE: 'k', FORMULAIRE: 'f' })[cle] }) },
+      { createTextOutput: (texte: string) => ({ setMimeType: () => JSON.parse(texte) }), MimeType: { JSON: 'json' } },
+    ) as (e: { parameter: Record<string, string> }) => unknown
+
+    expect(doGet({ parameter: { cle: 'faux', prenom: 'Léa', nom: 'Petit' } })).toEqual({ erreur: 'cle' })
+    // Recherche : seulement le nom et le prénom de l'enfant de chaque réponse.
+    expect(doGet({ parameter: { cle: 'k', prenom: 'lea', nom: 'PETIT', etape: 'recherche' } }))
+      .toEqual({ envois: [{ id: 'r1', envoi: '2026-10-01T08:00:00.000Z' }] })
+    expect(lues.every((l) => /:(n|p)$/.test(l))).toBe(true)
+    // Importation : le questionnaire demandé, s'il est bien au nom de cet enfant.
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', id: 'r1' } })).toEqual({ reponses: [{
+      envoi: '2026-10-01T08:00:00.000Z',
+      questions: [
+        { titre: 'Nom', partie: 'Enfant', reponse: 'Petit' },
+        { titre: 'Prénom', partie: 'Enfant', reponse: 'Léa' },
+        { titre: 'Classe', partie: 'Enfant', reponse: 'CE2' },
+        { titre: 'Activités', partie: 'Enfant', reponse: ['Avec aide'], lignes: ['Balayer'] },
+        { titre: 'Nom', partie: 'Parent 1', reponse: 'Durand' },
+      ],
+    }] })
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', id: 'r2' } })).toEqual({ reponses: [] })
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Léa', nom: 'Petit', id: 'r9' } })).toEqual({ reponses: [] })
+    // Ancien TrameErgo, sans étape ni identifiant : toutes les réponses de l'enfant.
+    expect(doGet({ parameter: { cle: 'k', prenom: 'Tom', nom: 'Martin' } }))
+      .toMatchObject({ reponses: [{ envoi: '2026-10-02T08:00:00.000Z' }] })
+  })
+
+  it('accepte un script pas encore mis à jour, qui renvoie toutes les réponses dès la recherche', async () => {
+    const appel = vi.fn(async (_url: URL) => new Response(JSON.stringify({
+      reponses: [{ ...reponse, envoi: '2026-09-01T10:00:00.000Z' }, reponse],
+    })))
+    vi.stubGlobal('fetch', appel)
+    const resultat = await chercher('Léa', 'Petit', { adresse: 'https://script.google.com/macros/s/x/exec', cle: 'k' })
     expect(resultat.etat).toBe('trouve')
-    if (resultat.etat === 'trouve')
-      expect(resultat.questionnaires.map((q) => q.envoi)).toEqual([reponse.envoi, '2026-09-01T10:00:00.000Z'])
+    if (resultat.etat !== 'trouve') return
+    expect(resultat.envois.map((e) => e.envoi)).toEqual([reponse.envoi, '2026-09-01T10:00:00.000Z'])
+    expect(await importer(resultat.envois[0], 'Léa', 'Petit')).toEqual({ etat: 'importe', questionnaire: reponse })
+    expect(appel).toHaveBeenCalledTimes(1)
   })
 
   it('distingue l\'absence de questionnaire d\'un script injoignable ou d\'une clé refusée', async () => {

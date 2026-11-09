@@ -33,13 +33,22 @@ async function nouveauBilan(page: Page) {
 
 const SCRIPT = 'https://script.google.com/macros/s/essai/exec'
 
-/** Script du questionnaire des parents relié, qui connaît le questionnaire de Léa Petit. */
+/**
+ * Script du questionnaire des parents relié, qui connaît le questionnaire de
+ * Léa Petit : recherche sur le nom, puis importation des réponses.
+ */
 async function avecQuestionnaire(page: Page) {
-  await page.route(`${SCRIPT}?*`, (route) => {
+  await page.route(`${SCRIPT}?*`, async (route) => {
     const parametres = new URL(route.request().url()).searchParams
     const lea = parametres.get('cle') === 'cle-essai' && parametres.get('prenom') === 'Léa'
       && parametres.get('nom') === 'Petit'
-    return route.fulfill({ headers: { 'Access-Control-Allow-Origin': '*' }, json: { reponses: lea ? [{
+    const headers = { 'Access-Control-Allow-Origin': '*' }
+    if (parametres.get('etape') === 'recherche') {
+      return route.fulfill({ headers, json: { envois: lea ? [{ id: 'r-lea', envoi: '2026-10-12T08:30:00.000Z' }] : [] } })
+    }
+    // Importation un peu lente, pour voir le message d'attente.
+    await new Promise((fin) => setTimeout(fin, 500))
+    return route.fulfill({ headers, json: { reponses: lea && parametres.get('id') === 'r-lea' ? [{
       envoi: '2026-10-12T08:30:00.000Z',
       questions: [
         { titre: "Nom et Prénom de l'enfant", reponse: 'Petit Léa' },
@@ -312,6 +321,7 @@ test('le questionnaire des parents trouvé au nom de l\'enfant pré-remplit le b
   await page.getByLabel('Nom', { exact: true }).fill('Petit')
   await expect(page.getByRole('status')).toContainText('Questionnaire des parents trouvé, envoyé le 12 octobre 2026')
   await page.getByRole('button', { name: 'Importer et pré-remplir' }).tap()
+  await expect(page.getByText('Importation des réponses…')).toBeVisible()
 
   await expect(page.getByRole('heading', { name: 'Patient' })).toBeVisible()
   await expect(page.getByLabel('Prénom')).toHaveValue('Léa')

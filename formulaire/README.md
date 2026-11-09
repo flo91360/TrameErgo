@@ -52,6 +52,13 @@ accents ni espaces, dans les deux ordres). `changerCle` crée une nouvelle
 clé et affiche le nouveau lien : les appareils qui avaient l'ancien perdent
 l'accès.
 
+La recherche se fait en deux temps, pour rester rapide même avec beaucoup de
+réponses : TrameErgo demande d'abord les questionnaires au nom de l'enfant (le
+script ne lit alors que le nom dans chaque réponse), puis, au clic sur
+« Importer et pré-remplir », toutes les réponses du questionnaire choisi
+(« Importation des réponses… »). Un script pas encore mis à jour renvoie tout
+dès la recherche : TrameErgo l'accepte aussi, mais c'est plus lent.
+
 Le nom est lu dans la question « Nom et Prénom de l'enfant », ou dans les
 questions « Nom » et « Prénom » placées sous un titre « Enfant ». Chaque
 réponse est envoyée avec le titre de l'encadré ou de la section où elle se

@@ -24,10 +24,24 @@ export interface QuestionnaireParents {
   questions: Question[]
 }
 
+/** Questionnaire trouvé au nom de l'enfant, avant l'importation de ses réponses. */
+export interface Envoi {
+  /** Date et heure d'envoi (ISO). */
+  envoi: string
+  /** Identifiant de la réponse dans le formulaire, pour l'importer ensuite. */
+  id?: string
+  /** Réponses déjà reçues (script d'avant la recherche en deux temps). */
+  questionnaire?: QuestionnaireParents
+}
+
+export type Injoignable = { etat: 'injoignable'; raison: string }
+
 export type Recherche =
-  | { etat: 'trouve'; questionnaires: QuestionnaireParents[] }
+  | { etat: 'trouve'; envois: Envoi[] }
   | { etat: 'absent' }
-  | { etat: 'injoignable'; raison: string }
+  | Injoignable
+
+export type Importation = { etat: 'importe'; questionnaire: QuestionnaireParents } | Injoignable
 
 export interface Reglages {
   /** Adresse de l'application web du script (…/exec). */
@@ -102,14 +116,14 @@ function estQuestionnaire(valeur: unknown): valeur is QuestionnaireParents {
  */
 export const DELAI_SCRIPT = 60000
 
-/** Questionnaires envoyés pour cet enfant, du plus récent au plus ancien. */
-export async function chercher(prenom: string, nom: string, { adresse, cle } = reglages.value,
-  delai = DELAI_SCRIPT): Promise<Recherche> {
+/** Appel du script : sa réponse JSON, ou la raison de l'échec. */
+async function appeler(parametres: Record<string, string>, adresse: string, delai: number):
+  Promise<{ donnees: Record<string, unknown> } | Injoignable> {
   const url = new URL(adresse)
-  url.search = new URLSearchParams({ cle, prenom: prenom.trim(), nom: nom.trim() }).toString()
+  url.search = new URLSearchParams(parametres).toString()
   const abandon = new AbortController()
   const minuteur = setTimeout(() => abandon.abort(), delai)
-  const tropLent: Recherche = { etat: 'injoignable', raison: `le script n'a pas répondu en ${Math.round(delai / 1000)} secondes` }
+  const tropLent: Injoignable = { etat: 'injoignable', raison: `le script n'a pas répondu en ${Math.round(delai / 1000)} secondes` }
   let donnees: unknown
   try {
     let reponse: Response
@@ -135,11 +149,53 @@ export async function chercher(prenom: string, nom: string, { adresse, cle } = r
   } finally {
     clearTimeout(minuteur)
   }
-  const { erreur, reponses } = (donnees ?? {}) as { erreur?: unknown; reponses?: unknown }
-  if (erreur === 'cle') return { etat: 'injoignable', raison: 'clé refusée par le script' }
+  if (typeof donnees !== 'object' || donnees === null) return { etat: 'injoignable', raison: 'réponse du script illisible' }
+  if ((donnees as { erreur?: unknown }).erreur === 'cle') return { etat: 'injoignable', raison: 'clé refusée par le script' }
+  return { donnees: donnees as Record<string, unknown> }
+}
+
+function estEnvoi(valeur: unknown): valeur is Required<Pick<Envoi, 'envoi' | 'id'>> {
+  if (typeof valeur !== 'object' || valeur === null) return false
+  const { envoi, id } = valeur as Record<string, unknown>
+  return typeof envoi === 'string' && typeof id === 'string' && !!id
+}
+
+/**
+ * Questionnaires envoyés pour cet enfant, du plus récent au plus ancien. Le
+ * script ne lit que le nom de l'enfant dans chaque réponse : rapide, même avec
+ * beaucoup de réponses. Les réponses elles-mêmes viennent ensuite (importer).
+ */
+export async function chercher(prenom: string, nom: string, { adresse, cle } = reglages.value,
+  delai = DELAI_SCRIPT): Promise<Recherche> {
+  const appel = await appeler({ cle, prenom: prenom.trim(), nom: nom.trim(), etape: 'recherche' }, adresse, delai)
+  if (!('donnees' in appel)) return appel
+  const { envois, reponses } = appel.donnees
+  let trouves: Envoi[]
+  if (Array.isArray(envois)) {
+    trouves = envois.filter(estEnvoi).map(({ envoi, id }) => ({ envoi, id }))
+  } else if (Array.isArray(reponses)) {
+    // Script pas encore mis à jour : il renvoie déjà toutes les réponses.
+    trouves = reponses.filter(estQuestionnaire).map((questionnaire) => ({ envoi: questionnaire.envoi, questionnaire }))
+  } else {
+    return { etat: 'injoignable', raison: 'réponse du script illisible' }
+  }
+  trouves.sort((a, b) => b.envoi.localeCompare(a.envoi))
+  return trouves.length ? { etat: 'trouve', envois: trouves } : { etat: 'absent' }
+}
+
+/** Réponses du questionnaire trouvé par chercher, pour cet enfant. */
+export async function importer(envoi: Envoi, prenom: string, nom: string, { adresse, cle } = reglages.value,
+  delai = DELAI_SCRIPT): Promise<Importation> {
+  if (envoi.questionnaire) return { etat: 'importe', questionnaire: envoi.questionnaire }
+  if (!envoi.id) return { etat: 'injoignable', raison: 'questionnaire sans identifiant' }
+  const appel = await appeler({ cle, prenom: prenom.trim(), nom: nom.trim(), id: envoi.id }, adresse, delai)
+  if (!('donnees' in appel)) return appel
+  const { reponses } = appel.donnees
   if (!Array.isArray(reponses)) return { etat: 'injoignable', raison: 'réponse du script illisible' }
-  const questionnaires = reponses.filter(estQuestionnaire).sort((a, b) => b.envoi.localeCompare(a.envoi))
-  return questionnaires.length ? { etat: 'trouve', questionnaires } : { etat: 'absent' }
+  const questionnaire = reponses.find(estQuestionnaire)
+  return questionnaire
+    ? { etat: 'importe', questionnaire }
+    : { etat: 'injoignable', raison: "ce questionnaire n'est plus dans le formulaire" }
 }
 
 /** Intitulés des questions du formulaire (formulaire/creer-formulaire.gs) reprises dans le bilan. */
