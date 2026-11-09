@@ -69,34 +69,43 @@ function doGet(e) {
   if (!recherche[0]) return enJson({ erreur: 'nom' });
 
   const form = FormApp.openById(proprietes.getProperty('FORMULAIRE'));
-  const parties = partiesDesQuestions(form);
-  const reponses = form.getResponses().map(function (reponse) {
-    return {
-      envoi: reponse.getTimestamp().toISOString(),
-      questions: reponse.getItemResponses().map(function (r) {
-        const item = r.getItem();
-        const question = { titre: item.getTitle(), reponse: r.getResponse() };
-        if (parties[item.getId()]) question.partie = parties[item.getId()];
-        if (item.getType() === FormApp.ItemType.GRID) question.lignes = item.asGridItem().getRows();
-        return question;
-      }),
-    };
-  }).filter(function (reponse) {
-    return recherche.indexOf(comparable(nomDeLEnfant(reponse.questions))) !== -1;
+  // Titre, partie et lignes de chaque question lus une seule fois, et non pour
+  // chaque réponse : avec beaucoup de réponses, le script restait trop lent.
+  const questions = descriptionDesQuestions(form);
+  const reponses = [];
+  form.getResponses().forEach(function (reponse) {
+    const lues = reponse.getItemResponses().map(function (r) {
+      const description = questions[r.getItem().getId()] || { titre: r.getItem().getTitle() };
+      const question = { titre: description.titre, reponse: r.getResponse() };
+      if (description.partie) question.partie = description.partie;
+      if (description.lignes) question.lignes = description.lignes;
+      return question;
+    });
+    if (recherche.indexOf(comparable(nomDeLEnfant(lues))) === -1) return;
+    reponses.push({ envoi: reponse.getTimestamp().toISOString(), questions: lues });
   });
   return enJson({ reponses: reponses });
 }
 
-/** Pour chaque question, le titre du dernier encadré ou début de section placé au-dessus. */
-function partiesDesQuestions(form) {
-  const parties = {};
+/**
+ * Pour chaque question (par identifiant) : son titre, le titre du dernier
+ * encadré ou début de section placé au-dessus (partie), et les lignes d'une grille.
+ */
+function descriptionDesQuestions(form) {
+  const questions = {};
   let partie = '';
   form.getItems().forEach(function (item) {
     const type = item.getType();
-    if (type === FormApp.ItemType.SECTION_HEADER || type === FormApp.ItemType.PAGE_BREAK) partie = item.getTitle();
-    else if (partie) parties[item.getId()] = partie;
+    if (type === FormApp.ItemType.SECTION_HEADER || type === FormApp.ItemType.PAGE_BREAK) {
+      partie = item.getTitle();
+      return;
+    }
+    const question = { titre: item.getTitle() };
+    if (partie) question.partie = partie;
+    if (type === FormApp.ItemType.GRID) question.lignes = item.asGridItem().getRows();
+    questions[item.getId()] = question;
   });
-  return parties;
+  return questions;
 }
 
 function nomDeLEnfant(questions) {

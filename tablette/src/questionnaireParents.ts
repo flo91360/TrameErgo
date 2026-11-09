@@ -77,6 +77,9 @@ export function lireLien(lien: string): Reglages | null {
   if (url.protocol !== 'https:' || !url.pathname.endsWith('/exec') || !cle) return null
   url.hash = ''
   url.search = ''
+  // « …/macros/u/1/s/… » : lien copié avec plusieurs comptes Google ouverts ; il
+  // exige d'être connecté à ce compte, ce que l'application n'est pas.
+  url.pathname = url.pathname.replace(/\/u\/\d+\//, '/')
   return { adresse: url.toString(), cle }
 }
 
@@ -93,20 +96,42 @@ function estQuestionnaire(valeur: unknown): valeur is QuestionnaireParents {
     && questions.every((q) => typeof q === 'object' && q !== null && typeof (q as Question).titre === 'string')
 }
 
+/**
+ * Attente maximale de la réponse du script : Google peut mettre plusieurs
+ * dizaines de secondes à lire un formulaire qui a beaucoup de réponses.
+ */
+export const DELAI_SCRIPT = 60000
+
 /** Questionnaires envoyés pour cet enfant, du plus récent au plus ancien. */
 export async function chercher(prenom: string, nom: string, { adresse, cle } = reglages.value,
-  delai = 15000): Promise<Recherche> {
+  delai = DELAI_SCRIPT): Promise<Recherche> {
   const url = new URL(adresse)
   url.search = new URLSearchParams({ cle, prenom: prenom.trim(), nom: nom.trim() }).toString()
   const abandon = new AbortController()
   const minuteur = setTimeout(() => abandon.abort(), delai)
+  const tropLent: Recherche = { etat: 'injoignable', raison: `le script n'a pas répondu en ${Math.round(delai / 1000)} secondes` }
   let donnees: unknown
   try {
-    const reponse = await fetch(url, { signal: abandon.signal, cache: 'no-store' })
+    let reponse: Response
+    try {
+      reponse = await fetch(url, { signal: abandon.signal, cache: 'no-store' })
+    } catch {
+      if (abandon.signal.aborted) return tropLent
+      return {
+        etat: 'injoignable',
+        raison: 'pas de connexion, ou script non accessible (adresse incorrecte, ou déploiement pas ouvert à « Tout le monde »)',
+      }
+    }
     if (!reponse.ok) return { etat: 'injoignable', raison: `le script a répondu ${reponse.status}` }
-    donnees = await reponse.json()
-  } catch {
-    return { etat: 'injoignable', raison: 'pas de connexion, ou adresse du script incorrecte' }
+    try {
+      donnees = JSON.parse(await reponse.text())
+    } catch {
+      if (abandon.signal.aborted) return tropLent
+      return {
+        etat: 'injoignable',
+        raison: "le script a renvoyé une page d'erreur Google au lieu des réponses (script à vérifier)",
+      }
+    }
   } finally {
     clearTimeout(minuteur)
   }
