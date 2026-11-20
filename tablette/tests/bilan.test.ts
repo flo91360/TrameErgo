@@ -4,8 +4,10 @@ import Docxtemplater from 'docxtemplater'
 import PizZip from 'pizzip'
 import { describe, expect, it } from 'vitest'
 import {
-  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, aRenseigner, calculerAge, champs, copieNumerotee, datesIncoherentes, nomDuFichier, nouveauBilan, obligatoires,
-  objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, type Bilan,
+  AUTRE_AMENAGEMENT, AUTRE_PERSONNE_DEMANDEUSE, aRenseigner, arrondi2, calculerAge, champs, copieNumerotee, coteDeLaMain,
+  coteDominant, datesIncoherentes, ecartCalcule, niveauDeLaMain, niveauDeLEcart, nomDuFichier, normeDeLaMain,
+  nouveauBilan, obligatoires, objectifsPossibles, objectifsRetenus, questionnaire, reevaluation, trancheNormes,
+  type Bilan,
 } from '../src/bilan'
 import { remplirModele } from '../src/generer'
 
@@ -447,5 +449,151 @@ describe('grossesse, accouchement et petite enfance', () => {
     const nouveau = reevaluation(avecGrossesse())
     expect([nouveau.typesGrossesse, nouveau.terme, nouveau.voie, nouveau.forceps, nouveau.ageRetournement])
       .toEqual([['classique', 'dépression prénatale'], 'à terme', 'voie basse', 'sans forceps', '4 mois'])
+  })
+})
+
+describe('Box and Blocks', () => {
+  /** Florian, garçon de 12 ans, droitier : l'exemple de bilan rempli. */
+  function florian(): Bilan {
+    const bilan = lucas()
+    Object.assign(bilan, { prenom: 'Florian', dateNaissance: '2014-01-10', lateralite: 0 })
+    bilan.boxAndBlocks.dominante = {
+      blocs: 56, douleur: 0, localisationDouleur: '',
+      observations: ['Prise : tridigitale', 'Prise : bidigitale', 'Présence de gestes compensatoires : élévation du coude',
+        "Présence de gestes compensatoires : élévation de l'épaule", 'Absence de la poursuite oculaire = mémorisation gestuelle'],
+    }
+    bilan.boxAndBlocks.nonDominante = {
+      blocs: 58, douleur: 3, localisationDouleur: ' du poignet ',
+      observations: ['Il se cogne plusieurs fois dans la paroi centrale', 'Prise : bidigitale'],
+    }
+    return bilan
+  }
+
+  it('prend la moyenne et l\'écart-type des normes selon l\'âge, le sexe et le côté', () => {
+    const bilan = florian()
+    expect(trancheNormes(bilan)).toMatchObject({ ageMin: 12, ageMax: 13 })
+    expect(normeDeLaMain(bilan, 'dominante')).toEqual({ moyenne: 74.6, ecartType: 8.3 })
+    expect(normeDeLaMain(bilan, 'nonDominante')).toEqual({ moyenne: 72.4, ecartType: 8.2 })
+    // Gaucher : la main dominante prend les normes de la main gauche.
+    bilan.lateralite = 1
+    expect(coteDominant(bilan)).toBe('gauche')
+    expect(normeDeLaMain(bilan, 'dominante')).toEqual({ moyenne: 72.4, ecartType: 8.2 })
+    // Fille : normes des filles.
+    bilan.sexe = 'Femme'
+    expect(normeDeLaMain(bilan, 'nonDominante')).toEqual({ moyenne: 73.6, ecartType: 8.1 })
+    // Ambidextre : la main dominante se choisit à l'écran.
+    bilan.lateralite = 2
+    expect(coteDominant(bilan)).toBe('')
+    expect(normeDeLaMain(bilan, 'dominante')).toBeUndefined()
+    bilan.boxAndBlocks.cote = 'droite'
+    expect(coteDeLaMain(bilan, 'nonDominante')).toBe('gauche')
+    // Tranche 6-7 ans : de 6 ans tout juste à la veille des 8 ans.
+    Object.assign(bilan, { dateNaissance: '2020-10-14', datePassation: '2026-10-14' })
+    expect(trancheNormes(bilan)).toMatchObject({ ageMin: 6, ageMax: 7 })
+    bilan.dateNaissance = '2018-10-15'
+    expect(trancheNormes(bilan)).toMatchObject({ ageMin: 6, ageMax: 7 })
+  })
+
+  it('calcule l\'écart-type arrondi à 2 décimales', () => {
+    const bilan = florian()
+    expect(ecartCalcule(bilan, 'dominante')).toBe(-2.24)
+    expect(ecartCalcule(bilan, 'nonDominante')).toBe(-1.76)
+    expect(arrondi2(-1.505)).toBe(-1.51)
+    expect(arrondi2(1.505)).toBe(1.51)
+    expect(arrondi2(-0.001)).toBe(0)
+    expect(Object.is(arrondi2(-0.001), -0)).toBe(false)
+    bilan.boxAndBlocks.dominante.blocs = null
+    expect(ecartCalcule(bilan, 'dominante')).toBeNull()
+  })
+
+  it('classe le score selon les limites de couleur', () => {
+    expect(niveauDeLEcart(1.51)).toBe('performant')
+    expect(niveauDeLEcart(1.504)).toBe('correct')
+    expect(niveauDeLEcart(1.5)).toBe('correct')
+    expect(niveauDeLEcart(0)).toBe('correct')
+    expect(niveauDeLEcart(-1.5)).toBe('correct')
+    expect(niveauDeLEcart(-1.504)).toBe('correct')
+    expect(niveauDeLEcart(-1.505)).toBe('fragile')
+    expect(niveauDeLEcart(-1.51)).toBe('fragile')
+    expect(niveauDeLEcart(-1.99)).toBe('fragile')
+    expect(niveauDeLEcart(-1.995)).toBe('deficitaire')
+    expect(niveauDeLEcart(-2)).toBe('deficitaire')
+    expect(niveauDeLEcart(-3.4)).toBe('deficitaire')
+    const bilan = florian()
+    expect(niveauDeLaMain(bilan, 'dominante')).toBe('deficitaire')
+    expect(niveauDeLaMain(bilan, 'nonDominante')).toBe('fragile')
+    bilan.boxAndBlocks.dominante.blocs = 90 // (90 - 74,6) / 8,3 = 1,86
+    expect(niveauDeLaMain(bilan, 'dominante')).toBe('performant')
+    bilan.boxAndBlocks.dominante.blocs = 70
+    expect(niveauDeLaMain(bilan, 'dominante')).toBe('correct')
+  })
+
+  it('écrit le score dans le champ de sa couleur, et l\'écart-type calculé', () => {
+    const valeurs = champs(florian())
+    expect(valeurs).toMatchObject({
+      bb_cote_dominante: 'Droite', bb_cote_non_dominante: 'Gauche',
+      bb_blocs_dominante_deficitaire: '56', bb_blocs_dominante_fragile: '', bb_blocs_dominante_correct: '',
+      bb_blocs_dominante_performant: '',
+      bb_blocs_non_dominante_fragile: '58', bb_blocs_non_dominante_deficitaire: '',
+      bb_moyenne_dominante: '74,6', bb_ecart_type_dominante: '8,3', bb_ecart_calcule_dominante: '-2,24',
+      bb_moyenne_non_dominante: '72,4', bb_ecart_type_non_dominante: '8,2', bb_ecart_calcule_non_dominante: '-1,76',
+      bb_douleur_dominante: '0/10', bb_douleur_non_dominante: '3/10',
+    })
+    expect(valeurs.bb_observations_dominante).toBe('- Prise tridigitale et bidigitale\n'
+      + "- Présence de gestes compensatoires : élévation du coude et élévation de l'épaule = effort cognitif important\n"
+      + '- Absence de la poursuite oculaire = mémorisation gestuelle\n- Aucune douleur')
+    expect(valeurs.bb_observations_non_dominante).toBe('- Prise bidigitale\n'
+      + '- Il se cogne plusieurs fois dans la paroi centrale\n'
+      + "- Présence d'une douleur évaluée à EN = 3/10 au niveau du poignet")
+    const bilan = florian()
+    bilan.sexe = 'Femme'
+    expect(champs(bilan).bb_observations_non_dominante).toContain('Elle se cogne plusieurs fois')
+  })
+
+  it('remplit les tableaux du Word, avec les scores en couleur', () => {
+    const docx = remplirModele(modele, champs(florian()))
+    const texte = texteDuBilan(docx)
+    expect(texte).not.toMatch(/[{}]/)
+    const debut = texte.indexOf('Motricité globale')
+    expect(debut).toBeGreaterThan(texte.indexOf('Activités pendant le temps libre'))
+    const partie = texte.slice(debut)
+    expect(partie).toContain('Box and Blocks')
+    expect(partie).toContain('Main dominanteDroite56')
+    expect(partie).toContain('74,68,3-2,240/10')
+    expect(partie).toContain('Main non dominanteGauche58')
+    expect(partie).toContain('72,48,2-1,763/10')
+    expect(partie).toContain('Prise tridigitale et bidigitale')
+    const xml = new PizZip(docx).file('word/document.xml')!.asText()
+    // 56 en rouge (main dominante), 58 en orange (main non dominante).
+    expect(xml).toMatch(/<w:color w:val="FF0000"\/>(?:(?!<\/w:r>).)*<w:t[^>]*>56<\/w:t>/)
+    expect(xml).toMatch(/<w:color w:val="FF8C00"\/>(?:(?!<\/w:r>).)*<w:t[^>]*>58<\/w:t>/)
+  })
+
+  it('reste vide dans le Word quand le test n\'est pas fait', () => {
+    const bilan = lucas()
+    expect(obligatoires.boxAndBlocks(bilan)).toEqual([])
+    const valeurs = champs(bilan)
+    expect(valeurs.bb_ecart_calcule_dominante).toBe('')
+    expect(valeurs.bb_observations_dominante).toBe('')
+    // Normes pré-remplies : Lucas, 14 ans, gaucher.
+    expect(valeurs.bb_moyenne_dominante).toBe('74,6')
+    expect(valeurs.bb_cote_dominante).toBe('Gauche')
+    expect(valeurs.bb_blocs_dominante_correct).toBe('')
+    expect(texteDuBilan(remplirModele(modele, valeurs))).not.toMatch(/[{}]/)
+  })
+
+  it('demande la main dominante et un âge couvert pour un score saisi', () => {
+    const bilan = florian()
+    expect(obligatoires.boxAndBlocks(bilan)).toEqual([])
+    bilan.lateralite = 2
+    expect(obligatoires.boxAndBlocks(bilan)).toEqual(['la main dominante (Box and Blocks)'])
+    bilan.boxAndBlocks.cote = 'gauche'
+    expect(obligatoires.boxAndBlocks(bilan)).toEqual([])
+    bilan.dateNaissance = '2022-01-01'
+    expect(obligatoires.boxAndBlocks(bilan)).toEqual(['un âge couvert par les normes du Box and Blocks'])
+  })
+
+  it('n\'est pas repris dans une réévaluation', () => {
+    expect(reevaluation(florian()).boxAndBlocks).toEqual(nouveauBilan().boxAndBlocks)
   })
 })

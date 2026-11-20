@@ -9,6 +9,11 @@ l'installateur Windows.
 Chaque PR fusionnée publie une nouvelle version : elle augmente le numéro
 et ajoute ici sa section, datée.
 
+## [1.6.20] - 2026-11-20
+<!-- planifikateur:32b29c13-a5d1-4f1d-b1d0-c7f51378b4a9 -->
+
+- **Ajouter l'étape « Test de motricité : Box and Blocks » avec couleurs et Word** : J'ai corrigé la cause la plus probable de l'échec, mais je n'ai pas pu la confirmer. Les journaux de la CI ne sont pas accessibles d'ici et les navigateurs de Playwright ne sont pas installés, donc je n'ai pas pu lancer les tests de parcours. Je l'ai trouvée en relisant le test de parcours que j'avais ajouté, la seule vérification que je n'avais pas pu lancer la première fois. **Cause probable** : Playwright cherche le nom d'un groupe de boutons par morceau de texte, sans tenir compte des majuscules. « Main dominante » désignait donc deux groupes à la fois : le choix de la main dominante et « Douleur, main dominante ». Dans ce cas, Playwright arrête le test (mode strict), sur Chromium comme sur WebKit (iPad). **Correction** : seule `tablette/e2e/parcours.e2e.ts` change, l'application et le Word ne bougent pas. J'ai ajouté `exact: true` à la recherche du groupe « Main dominante ». Par précaution, je l'ai aussi ajouté aux groupes de douleur, à leurs boutons de chiffre et au bouton « tridigitale ». Les tests unitaires (101), la vérification des types et la construction passent toujours. Si la CI échoue encore, il faudra me transmettre le message d'erreur du job pour aller plus loin.
+
 ## [1.6.19] - 2026-11-09
 
 - **Questionnaire des parents : recherche quasi immédiate** : le script

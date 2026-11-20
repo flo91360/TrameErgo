@@ -7,6 +7,7 @@ import Historique from './ecrans/Historique.vue'
 import NouveauBilan from './ecrans/NouveauBilan.vue'
 import Reglages from './ecrans/Reglages.vue'
 import Amenagements from './etapes/Amenagements.vue'
+import BoxAndBlocks from './etapes/BoxAndBlocks.vue'
 import Caractere from './etapes/Caractere.vue'
 import Demande from './etapes/Demande.vue'
 import Generation from './etapes/Generation.vue'
@@ -42,6 +43,8 @@ const etapes: Etape[] = [
   })),
   { titre: 'Objectifs', composant: Objectifs, manquants: obligatoires.objectifs },
   { titre: 'Aménagements et loisirs', composant: Amenagements, manquants: obligatoires.amenagements },
+  // Premier test, après l'introduction du bilan (étapes précédentes) ; facultatif.
+  { titre: 'Test de motricité : Box and Blocks', composant: BoxAndBlocks, manquants: obligatoires.boxAndBlocks },
   { titre: 'Bilan', composant: Generation },
 ]
 

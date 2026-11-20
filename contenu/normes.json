@@ -1,0 +1,84 @@
+{
+  "boxAndBlocks": {
+    "source": "Calcul-DS.xlsx, feuille « Box-Blocks » : moyenne et écart-type attendus par tranche d'âge (en années révolues), par sexe (Homme : garçons, Femme : filles) et par main (droite, gauche).",
+    "tranches": [
+      {
+        "ageMin": 6, "ageMax": 7,
+        "Homme": {
+          "droite": { "moyenne": 54.4, "ecartType": 6.6 },
+          "gauche": { "moyenne": 50.7, "ecartType": 6.3 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 57.9, "ecartType": 5.3 },
+          "gauche": { "moyenne": 54.2, "ecartType": 5.6 }
+        }
+      },
+      {
+        "ageMin": 8, "ageMax": 9,
+        "Homme": {
+          "droite": { "moyenne": 63.4, "ecartType": 4.3 },
+          "gauche": { "moyenne": 60.1, "ecartType": 4.9 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 62.8, "ecartType": 5.2 },
+          "gauche": { "moyenne": 60.4, "ecartType": 5.1 }
+        }
+      },
+      {
+        "ageMin": 10, "ageMax": 11,
+        "Homme": {
+          "droite": { "moyenne": 68.4, "ecartType": 6.9 },
+          "gauche": { "moyenne": 65.9, "ecartType": 6.8 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 70.0, "ecartType": 7.6 },
+          "gauche": { "moyenne": 67.6, "ecartType": 8.6 }
+        }
+      },
+      {
+        "ageMin": 12, "ageMax": 13,
+        "Homme": {
+          "droite": { "moyenne": 74.6, "ecartType": 8.3 },
+          "gauche": { "moyenne": 72.4, "ecartType": 8.2 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 73.6, "ecartType": 8.1 },
+          "gauche": { "moyenne": 70.5, "ecartType": 6.2 }
+        }
+      },
+      {
+        "ageMin": 14, "ageMax": 15,
+        "Homme": {
+          "droite": { "moyenne": 76.6, "ecartType": 8.7 },
+          "gauche": { "moyenne": 74.6, "ecartType": 7.9 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 75.4, "ecartType": 8.5 },
+          "gauche": { "moyenne": 72.1, "ecartType": 7.6 }
+        }
+      },
+      {
+        "ageMin": 16, "ageMax": 17,
+        "Homme": {
+          "droite": { "moyenne": 80.3, "ecartType": 8.7 },
+          "gauche": { "moyenne": 77.6, "ecartType": 5.1 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 77.0, "ecartType": 9.0 },
+          "gauche": { "moyenne": 74.3, "ecartType": 9.1 }
+        }
+      },
+      {
+        "ageMin": 18, "ageMax": 19,
+        "Homme": {
+          "droite": { "moyenne": 79.9, "ecartType": 8.9 },
+          "gauche": { "moyenne": 79.2, "ecartType": 8.8 }
+        },
+        "Femme": {
+          "droite": { "moyenne": 77.9, "ecartType": 9.4 },
+          "gauche": { "moyenne": 76.0, "ecartType": 8.5 }
+        }
+      }
+    ]
+  }
+}

@@ -111,6 +111,14 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--bleu-pale);
 .activite.signalee { background: #fff8ec; }
 @media (max-width: 760px) { .activite { grid-template-columns: 1fr; } }
 
+/* Box and Blocks : le nombre de blocs prend la couleur de son niveau (même code que le bilan Word). */
+.box-and-blocks h4 { margin: 18px 0 8px; font-size: 1rem; }
+.box-and-blocks input.blocs { font-size: 1.6rem; font-weight: 700; border-width: 3px; max-width: 200px; }
+.normes { font-weight: 400; min-height: var(--toucher); display: flex; align-items: center; }
+.niveau-bb { font-weight: 700; }
+.observation { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.observation .libelle { color: var(--gris); }
+
 .resume { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 0; }
 .resume dt { color: var(--gris); }
 .resume dd { margin: 0; font-weight: 600; }

@@ -2,7 +2,10 @@
 // Les réponses sont retrouvées par leur libellé : une option renommée ou
 // supprimée dans questionnaire.json est retirée du bilan et signalée, au lieu
 // d'aller dans le Word sans apparaître à l'écran.
-import { lateralites, libellesCaractere, NOMBRE_AUTRES_PROFESSIONNELS, nouveauBilan, questionnaire, type Bilan } from './bilan'
+import {
+  COTES, lateralites, libellesCaractere, MAINS, NOMBRE_AUTRES_PROFESSIONNELS, nouveauBilan, nouvelleMesure,
+  observationsPossibles, questionnaire, type Bilan, type BoxAndBlocks, type Cote, type MesureMain,
+} from './bilan'
 
 /** Format du brouillon ; l'augmenter (et adapter reprendre) si une réponse change de forme. */
 export const VERSION_BROUILLON = 2
@@ -30,6 +33,35 @@ function memeForme(valeur: unknown, depart: unknown): boolean {
   if (depart === null) return valeur === null || Number.isInteger(valeur) // latéralité
   if (estObjet(depart)) return estObjet(valeur)
   return typeof valeur === typeof depart
+}
+
+/** Entier entre min et max, sinon null. */
+function entier(valeur: unknown, min: number, max: number): number | null {
+  return Number.isInteger(valeur) && (valeur as number) >= min && (valeur as number) <= max ? valeur as number : null
+}
+
+/** Box and Blocks enregistré : chaque mesure est vérifiée, les observations disparues sont signalées. */
+function repriseBoxAndBlocks(enregistre: unknown, retirees: string[]): BoxAndBlocks {
+  const valeur = estObjet(enregistre) ? enregistre : {}
+  const possibles = observationsPossibles()
+  const mesure = (main: Objet | undefined, titre: string): MesureMain => {
+    if (!main) return nouvelleMesure()
+    const observations = Array.isArray(main.observations)
+      ? main.observations.filter((o): o is string => typeof o === 'string') : []
+    for (const o of observations.filter((o) => !possibles.includes(o))) retirees.push(`${o} (Box and Blocks, ${titre})`)
+    return {
+      blocs: entier(main.blocs, 0, 999),
+      douleur: entier(main.douleur, 0, 10),
+      localisationDouleur: typeof main.localisationDouleur === 'string' ? main.localisationDouleur : '',
+      observations: possibles.filter((o) => observations.includes(o)),
+    }
+  }
+  const [dominante, nonDominante] = MAINS.map((main) => estObjet(valeur[main]) ? valeur[main] as Objet : undefined)
+  return {
+    cote: COTES.includes(valeur.cote as Cote) ? valeur.cote as Cote : '',
+    dominante: mesure(dominante, 'main dominante'),
+    nonDominante: mesure(nonDominante, 'main non dominante'),
+  }
 }
 
 function dateValide(date: string): boolean {
@@ -168,6 +200,8 @@ export function reprendre(texte: string, date = new Date()): Reprise | null {
   const activites = otHope.domaines.flatMap((d) => d.activites)
   bilan.objectifsFinaux = bilan.objectifsFinaux.filter((o) => activites.includes(o))
   bilan.objectifsParents = bilan.objectifsParents.filter((o) => activites.includes(o))
+
+  bilan.boxAndBlocks = repriseBoxAndBlocks(enregistre.boxAndBlocks, retirees)
 
   return { bilan, retirees: [...new Set(retirees)] }
 }

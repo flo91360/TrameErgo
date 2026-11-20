@@ -635,5 +635,33 @@
     "Texte plus grand et/ou bien espacé",
     "Polycopier à trou",
     "Autre / aménagement scolaire"
-  ]
+  ],
+  "boxAndBlocks": {
+    "observations": [
+      { "libelle": "Prise", "choix": ["tridigitale", "bidigitale", "pleine main"], "phrase": "Prise {choix}" },
+      {
+        "libelle": "Présence de gestes compensatoires",
+        "choix": [
+          "élévation du coude", "élévation de l'épaule",
+          "buste légèrement penché à gauche", "buste légèrement penché à droite",
+          "buste fortement penché à gauche", "buste fortement penché à droite",
+          "syncinésie en miroir", "syncinésie bucco-faciale"
+        ],
+        "phrase": "Présence de gestes compensatoires : {choix} = effort cognitif important"
+      },
+      { "libelle": "Aucun geste compensatoire" },
+      { "libelle": "Le geste est saccadé" },
+      { "libelle": "Utilisation de la poursuite oculaire" },
+      { "libelle": "Absence de la poursuite oculaire = mémorisation gestuelle" },
+      {
+        "libelle": "Il se cogne plusieurs fois dans la paroi centrale",
+        "feminin": "Elle se cogne plusieurs fois dans la paroi centrale"
+      }
+    ],
+    "douleur": {
+      "aucune": "Aucune douleur",
+      "presente": "Présence d'une douleur évaluée à EN = {douleur}/10",
+      "localisee": "Présence d'une douleur évaluée à EN = {douleur}/10 au niveau {localisation}"
+    }
+  }
 }

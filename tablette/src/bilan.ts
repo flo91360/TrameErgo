@@ -1,7 +1,8 @@
 // Réponses du questionnaire et champs {…} du modèle contenu/bilan.docx.
+import normes from '@contenu/normes.json'
 import questionnaire from '@contenu/questionnaire.json'
 
-export { questionnaire }
+export { normes, questionnaire }
 
 export type Sexe = 'Femme' | 'Homme'
 export type TrancheAge = 'Enfant' | 'Ado'
@@ -10,6 +11,33 @@ export type TrancheAge = 'Enfant' | 'Ado'
 export interface AutreProfessionnel {
   nom: string
   frequence: string
+}
+
+/** Côté d'une main ; les normes du Box and Blocks sont données pour chaque côté. */
+export type Cote = 'droite' | 'gauche'
+export const COTES: readonly Cote[] = ['droite', 'gauche']
+
+/** Main testée au Box and Blocks, par rapport à la latéralité. */
+export type Main = 'dominante' | 'nonDominante'
+export const MAINS: readonly Main[] = ['dominante', 'nonDominante']
+
+/** Box and Blocks : mesures d'une main, saisies pendant le test. */
+export interface MesureMain {
+  /** Blocs déplacés en une minute (null : non saisi). */
+  blocs: number | null
+  /** Douleur sur l'échelle numérique, de 0 à 10 (null : non saisie). */
+  douleur: number | null
+  /** Où se situe la douleur, en texte libre (écrit seulement si la douleur dépasse 0). */
+  localisationDouleur: string
+  /** Observations cochées : libellés de questionnaire.boxAndBlocks.observations (voir observationsPossibles). */
+  observations: string[]
+}
+
+export interface BoxAndBlocks {
+  /** Côté de la main dominante choisi à l'écran ('' : celui de la latéralité, droitier ou gaucher). */
+  cote: Cote | ''
+  dominante: MesureMain
+  nonDominante: MesureMain
 }
 
 /** Nombre maximal de thérapeutes « Autre ». */
@@ -93,6 +121,8 @@ export interface Bilan {
   activitesExtraScolaires: string
   activitesTempsLibre: string
   difficultesLoisirs: string
+  /** Test de motricité Box and Blocks, rempli pendant le test. */
+  boxAndBlocks: BoxAndBlocks
   /** Réponses du questionnaire des parents, « Question : réponse », montrées pendant la saisie. */
   reponsesParents: string[]
 }
@@ -167,8 +197,17 @@ export function nouveauBilan(date = new Date()): Bilan {
     activitesExtraScolaires: '',
     activitesTempsLibre: '',
     difficultesLoisirs: '',
+    boxAndBlocks: nouveauBoxAndBlocks(),
     reponsesParents: [],
   }
+}
+
+export function nouvelleMesure(): MesureMain {
+  return { blocs: null, douleur: null, localisationDouleur: '', observations: [] }
+}
+
+export function nouveauBoxAndBlocks(): BoxAndBlocks {
+  return { cote: '', dominante: nouvelleMesure(), nonDominante: nouvelleMesure() }
 }
 
 /** Date de naissance postérieure à la date de passation : l'âge ne peut pas être calculé. */
@@ -176,14 +215,20 @@ export function datesIncoherentes(bilan: Bilan): boolean {
   return !!bilan.dateNaissance && !!bilan.datePassation && bilan.dateNaissance > bilan.datePassation
 }
 
-/** Âge en années et mois révolus à la date de référence (dates AAAA-MM-JJ). */
-export function calculerAge(naissance: string, reference: string): string {
-  if (!naissance || !reference) return ''
+/** Âge en mois révolus à la date de référence (dates AAAA-MM-JJ), null s'il ne peut pas être calculé. */
+export function ageEnMois(naissance: string, reference: string): number | null {
+  if (!naissance || !reference) return null
   const [an1, mois1, jour1] = naissance.split('-').map(Number)
   const [an2, mois2, jour2] = reference.split('-').map(Number)
   let mois = (an2 - an1) * 12 + mois2 - mois1
   if (jour2 < jour1) mois -= 1 // Le mois en cours n'est pas encore révolu
-  if (mois < 0) return '' // Naissance après la référence : signalé par datesIncoherentes
+  return mois < 0 ? null : mois // Naissance après la référence : signalé par datesIncoherentes
+}
+
+/** Âge en années et mois révolus à la date de référence (dates AAAA-MM-JJ). */
+export function calculerAge(naissance: string, reference: string): string {
+  const mois = ageEnMois(naissance, reference)
+  if (mois === null) return ''
   const ans = Math.floor(mois / 12)
   return `${ans} ${ans > 1 ? 'ans' : 'an'} et ${mois % 12} mois`
 }
@@ -387,6 +432,166 @@ export function personneDemandeuse(bilan: Bilan): string {
   return deuxieme && deuxieme !== premiere ? `${premiere} et ${deuxieme}` : premiere
 }
 
+// Box and Blocks ------------------------------------------------------------
+
+/** Côté de la main dominante : celui choisi à l'écran, sinon celui de la latéralité ('' : ambidextre, à choisir). */
+export function coteDominant(bilan: Bilan): Cote | '' {
+  if (bilan.boxAndBlocks.cote) return bilan.boxAndBlocks.cote
+  const lateralite = bilan.lateralite === null ? '' : lateralites(bilan.sexe)[bilan.lateralite] ?? ''
+  if (/^droiti/.test(lateralite)) return 'droite'
+  if (/^gauch/.test(lateralite)) return 'gauche'
+  return ''
+}
+
+/** Côté de la main testée ('' : main dominante inconnue). */
+export function coteDeLaMain(bilan: Bilan, main: Main): Cote | '' {
+  const dominant = coteDominant(bilan)
+  if (!dominant || main === 'dominante') return dominant
+  return dominant === 'droite' ? 'gauche' : 'droite'
+}
+
+export type TrancheNormes = (typeof normes.boxAndBlocks.tranches)[number]
+
+/** Tranche d'âge des normes (âge en années révolues à la passation), undefined hors normes. */
+export function trancheNormes(bilan: Bilan): TrancheNormes | undefined {
+  const mois = ageEnMois(bilan.dateNaissance, bilan.datePassation)
+  if (mois === null) return undefined
+  const ans = Math.floor(mois / 12)
+  return normes.boxAndBlocks.tranches.find((t) => t.ageMin <= ans && ans <= t.ageMax)
+}
+
+export interface Norme {
+  moyenne: number
+  ecartType: number
+}
+
+/** Moyenne et écart-type attendus pour une main, selon l'âge, le sexe et le côté (undefined : inconnus). */
+export function normeDeLaMain(bilan: Bilan, main: Main): Norme | undefined {
+  const tranche = trancheNormes(bilan)
+  const cote = coteDeLaMain(bilan, main)
+  return tranche && cote ? tranche[bilan.sexe][cote] : undefined
+}
+
+/** Arrondi à 2 décimales, au plus proche (0,005 s'arrondit en s'éloignant de zéro, comme Excel). */
+export function arrondi2(nombre: number): number {
+  const centiemes = Math.round(Number((Math.abs(nombre) * 100).toFixed(6)))
+  return Math.sign(nombre) * centiemes / 100 + 0 // + 0 : pas de « -0 »
+}
+
+/** Écart-type calculé : (score − moyenne attendue) ÷ écart-type attendu, arrondi à 2 décimales. */
+export function ecartCalcule(bilan: Bilan, main: Main): number | null {
+  const { blocs } = bilan.boxAndBlocks[main]
+  const norme = normeDeLaMain(bilan, main)
+  if (blocs === null || !norme) return null
+  return arrondi2((blocs - norme.moyenne) / norme.ecartType)
+}
+
+export type NiveauBB = 'performant' | 'correct' | 'fragile' | 'deficitaire'
+
+/**
+ * Niveaux du Box and Blocks selon l'écart-type calculé, arrondi à 2 décimales :
+ * même code couleur à l'écran et dans le bilan Word (couleurs des champs du modèle).
+ */
+export const NIVEAUX_BB: readonly { id: NiveauBB; libelle: string; couleur: string }[] = [
+  { id: 'performant', libelle: 'performant', couleur: '#00B0F0' }, // bleu clair : supérieur à +1,5
+  { id: 'correct', libelle: 'correct', couleur: '#00B050' }, // vert : de -1,5 à +1,5 inclus
+  { id: 'fragile', libelle: 'fragile', couleur: '#FF8C00' }, // orange : de -1,51 à -1,99
+  { id: 'deficitaire', libelle: 'déficitaire', couleur: '#FF0000' }, // rouge : -2 ou moins
+]
+
+export function niveauDeLEcart(ecart: number): NiveauBB {
+  const arrondi = arrondi2(ecart)
+  if (arrondi > 1.5) return 'performant'
+  if (arrondi >= -1.5) return 'correct'
+  if (arrondi > -2) return 'fragile'
+  return 'deficitaire'
+}
+
+/** Niveau du score d'une main (null : score ou normes manquants). */
+export function niveauDeLaMain(bilan: Bilan, main: Main): NiveauBB | null {
+  const ecart = ecartCalcule(bilan, main)
+  return ecart === null ? null : niveauDeLEcart(ecart)
+}
+
+/** Nombre à la française : virgule décimale. */
+export function nombreFrancais(nombre: number, decimales?: number): string {
+  return (decimales === undefined ? String(nombre) : nombre.toFixed(decimales)).replace('.', ',')
+}
+
+/** Observation du Box and Blocks : simple, ou à préciser par des choix (« Prise » : tridigitale…). */
+export interface ObservationBB {
+  libelle: string
+  /** Libellé au féminin (« Elle se cogne… »), s'il change. */
+  feminin?: string
+  choix?: string[]
+  /** Phrase du bilan, {choix} : les choix cochés (« Prise tridigitale et bidigitale »). */
+  phrase?: string
+}
+
+export const OBSERVATIONS_BB = questionnaire.boxAndBlocks.observations as readonly ObservationBB[]
+
+/** Valeur enregistrée d'un choix d'observation : « Prise : tridigitale ». */
+export function choixObservation(observation: ObservationBB, choix: string): string {
+  return `${observation.libelle} : ${choix}`
+}
+
+/** Toutes les observations qui peuvent être cochées, dans l'ordre du questionnaire. */
+export function observationsPossibles(): string[] {
+  return OBSERVATIONS_BB.flatMap((o) => o.choix ? o.choix.map((c) => choixObservation(o, c)) : [o.libelle])
+}
+
+/** Phrase de la douleur (vide si elle n'est pas saisie). */
+export function phraseDouleur(mesure: MesureMain): string {
+  const { douleur: phrases } = questionnaire.boxAndBlocks
+  if (mesure.douleur === null) return ''
+  if (mesure.douleur === 0) return phrases.aucune
+  const localisation = mesure.localisationDouleur.trim()
+  return (localisation ? phrases.localisee : phrases.presente)
+    .replace('{douleur}', String(mesure.douleur)).replace('{localisation}', localisation)
+}
+
+/** Observations d'une main pour le bilan : cochées dans l'ordre du questionnaire, puis la douleur. */
+export function observationsDeLaMain(bilan: Bilan, main: Main): string[] {
+  const mesure = bilan.boxAndBlocks[main]
+  const lignes = OBSERVATIONS_BB.flatMap((observation) => {
+    if (!observation.choix) {
+      if (!mesure.observations.includes(observation.libelle)) return []
+      return [accord(bilan, observation.libelle, observation.feminin ?? observation.libelle)]
+    }
+    const choisis = observation.choix.filter((c) => mesure.observations.includes(choixObservation(observation, c)))
+    if (!choisis.length) return []
+    return [(observation.phrase ?? `${observation.libelle} : {choix}`).replace('{choix}', enumeration(choisis))]
+  })
+  return [...lignes, phraseDouleur(mesure)].filter(Boolean)
+}
+
+/** « Droite », « Gauche » ('' : inconnu). */
+function coteEnTitre(cote: Cote | ''): string {
+  return cote && cote[0].toUpperCase() + cote.slice(1)
+}
+
+/** Champs du Box and Blocks : {bb_…_dominante} et {bb_…_non_dominante}. */
+function champsBoxAndBlocks(bilan: Bilan): Record<string, string> {
+  const valeurs: Record<string, string> = {}
+  for (const main of MAINS) {
+    const suffixe = main === 'dominante' ? 'dominante' : 'non_dominante'
+    const mesure = bilan.boxAndBlocks[main]
+    const norme = normeDeLaMain(bilan, main)
+    const ecart = ecartCalcule(bilan, main)
+    const niveau = niveauDeLaMain(bilan, main)
+    valeurs[`bb_cote_${suffixe}`] = coteEnTitre(coteDeLaMain(bilan, main))
+    // Le score va dans le champ de la couleur de son niveau ; les trois autres restent vides.
+    for (const { id } of NIVEAUX_BB)
+      valeurs[`bb_blocs_${suffixe}_${id}`] = niveau === id && mesure.blocs !== null ? String(mesure.blocs) : ''
+    valeurs[`bb_moyenne_${suffixe}`] = norme ? nombreFrancais(norme.moyenne) : ''
+    valeurs[`bb_ecart_type_${suffixe}`] = norme ? nombreFrancais(norme.ecartType) : ''
+    valeurs[`bb_ecart_calcule_${suffixe}`] = ecart === null ? '' : nombreFrancais(ecart, 2)
+    valeurs[`bb_douleur_${suffixe}`] = mesure.douleur === null ? '' : `${mesure.douleur}/10`
+    valeurs[`bb_observations_${suffixe}`] = enListe(observationsDeLaMain(bilan, main))
+  }
+  return valeurs
+}
+
 type Manquants = (bilan: Bilan) => string[]
 
 function presents(liste: (string | false)[]): string[] {
@@ -398,7 +603,8 @@ function presents(liste: (string | false)[]): string[] {
  * pas à l'écran suivant. Le modèle Word peut ainsi écrire ses phrases sans
  * conditions ({#champ}…{/champ}), et rester lisible.
  */
-export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs' | 'amenagements', Manquants> = {
+export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs' | 'amenagements' | 'boxAndBlocks',
+  Manquants> = {
   patient: (bilan) => presents([
     !bilan.prenom.trim() && 'le prénom',
     !bilan.nom.trim() && 'le nom',
@@ -445,6 +651,14 @@ export const obligatoires: Record<'patient' | 'demande' | 'suivis' | 'objectifs'
     bilan.amenagements.includes(AUTRE_AMENAGEMENT) && !bilan.autreAmenagement.trim()
       && "l'aménagement scolaire « Autre » à préciser",
   ]),
+  // Étape facultative ; un score saisi doit pouvoir être comparé aux normes (et coloré).
+  boxAndBlocks: (bilan) => {
+    const scores = MAINS.some((main) => bilan.boxAndBlocks[main].blocs !== null)
+    return presents([
+      scores && !coteDominant(bilan) && 'la main dominante (Box and Blocks)',
+      scores && !trancheNormes(bilan) && 'un âge couvert par les normes du Box and Blocks',
+    ])
+  },
 }
 
 /** Toutes les réponses obligatoires encore absentes : le bilan Word ne peut pas être créé. */
@@ -555,6 +769,8 @@ export function champs(bilan: Bilan): Record<string, string> {
     difficultes_loisirs: bilan.difficultesLoisirs.trim()
       ? `- difficultés pendant les loisirs : ${bilan.difficultesLoisirs.trim()}`
       : '',
+
+    ...champsBoxAndBlocks(bilan),
   }
   // OT Hope : {niveau_domaine} (aide_maison…) et {objectifs_domaine}.
   for (const domaine of otHope.domaines) {

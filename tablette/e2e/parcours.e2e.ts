@@ -370,3 +370,59 @@ test('le lien de liaison collé une fois relie le questionnaire des parents', as
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('trameergo.questionnaireParents') ?? '{}')))
     .toEqual({ adresse: SCRIPT, cle: 'cle-essai' })
 })
+
+test('le Box and Blocks colore le nombre de blocs et écrit le tableau du Word', async ({ page }) => {
+  // Léa, 11 ans, droitière : normes des filles de 10 à 11 ans.
+  await avecBrouillon(page, { aucunProfessionnel: true, accordParents: 'Oui' })
+  await page.getByRole('button', { name: /Reprendre le bilan en cours/ }).tap()
+  // Juste après les étapes de l'introduction, avant le bilan Word.
+  const titres = await page.getByRole('navigation', { name: 'Étapes du bilan' }).getByRole('button').allInnerTexts()
+  const position = titres.findIndex((t) => t.includes('Test de motricité : Box and Blocks'))
+  expect(titres[position - 1]).toContain('Aménagements et loisirs')
+  expect(titres[position + 1]).toMatch(/Bilan$/)
+  await etape(page, 'Test de motricité : Box and Blocks')
+  await expect(page.getByRole('heading', { name: 'Test de motricité : Box and Blocks' })).toBeVisible()
+  await expect(page.getByText('Filles de 10 à 11 ans')).toBeVisible()
+  await expect(page.getByRole('radiogroup', { name: 'Main dominante', exact: true })
+    .getByRole('radio', { name: 'Droite', exact: true }))
+    .toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByText('moyenne 70 blocs, écart-type 7,6')).toBeVisible()
+  await expect(page.getByText('moyenne 67,6 blocs, écart-type 8,6')).toBeVisible()
+
+  // (54 - 70) / 7,6 = -2,11 : rouge ; (55 - 67,6) / 8,6 = -1,47 : vert.
+  const dominante = page.getByLabel('Blocs en 1 minute (main dominante)')
+  const nonDominante = page.getByLabel('Blocs en 1 minute (main non dominante)')
+  await dominante.fill('54')
+  await nonDominante.fill('55')
+  await expect(dominante).toHaveCSS('color', 'rgb(255, 0, 0)')
+  await expect(nonDominante).toHaveCSS('color', 'rgb(0, 176, 80)')
+  await expect(page.getByText(/-2,11|-1,47/)).toHaveCount(0)
+  await nonDominante.fill('54') // -1,58 : orange
+  await expect(nonDominante).toHaveCSS('color', 'rgb(255, 140, 0)')
+
+  const carteDominante = page.locator('.carte', { hasText: 'Main dominante (droite)' })
+  await page.getByRole('radiogroup', { name: 'Douleur, main dominante', exact: true }).getByRole('radio', { name: '3', exact: true }).tap()
+  await page.getByLabel('Localisation de la douleur (main dominante)').fill('du poignet')
+  await page.getByRole('radiogroup', { name: 'Douleur, main non dominante', exact: true }).getByRole('radio', { name: '0', exact: true }).tap()
+  await carteDominante.getByRole('button', { name: 'tridigitale', exact: true }).tap()
+  await carteDominante.getByRole('button', { name: 'Elle se cogne plusieurs fois dans la paroi centrale' }).tap()
+  expect((await brouillon(page)).boxAndBlocks).toEqual({
+    cote: '',
+    dominante: { blocs: 54, douleur: 3, localisationDouleur: 'du poignet',
+      observations: ['Prise : tridigitale', 'Il se cogne plusieurs fois dans la paroi centrale'] },
+    nonDominante: { blocs: 54, douleur: 0, localisationDouleur: '', observations: [] },
+  })
+
+  await page.getByRole('button', { name: 'Suivant' }).tap()
+  const [telechargement] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Créer le bilan Word' }).tap(),
+  ])
+  const docx = await readFile(await telechargement.path())
+  const texte = new Docxtemplater(new PizZip(docx), { paragraphLoop: true, linebreaks: true }).getFullText()
+  expect(texte).toContain('Main dominanteDroite54707,6-2,113/10')
+  expect(texte).toContain('Main non dominanteGauche5467,68,6-1,580/10')
+  expect(texte).toContain('- Prise tridigitale- Elle se cogne plusieurs fois dans la paroi centrale'
+    + "- Présence d'une douleur évaluée à EN = 3/10 au niveau du poignet")
+  expect(texte).not.toMatch(/[{}]/)
+})
