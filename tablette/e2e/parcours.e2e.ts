@@ -383,7 +383,8 @@ test('le Box and Blocks colore le nombre de blocs et écrit le tableau du Word',
   await etape(page, 'Test de motricité : Box and Blocks')
   await expect(page.getByRole('heading', { name: 'Test de motricité : Box and Blocks' })).toBeVisible()
   await expect(page.getByText('Filles de 10 à 11 ans')).toBeVisible()
-  await expect(page.getByRole('radiogroup', { name: 'Main dominante' }).getByRole('radio', { name: 'Droite' }))
+  await expect(page.getByRole('radiogroup', { name: 'Main dominante', exact: true })
+    .getByRole('radio', { name: 'Droite', exact: true }))
     .toHaveAttribute('aria-checked', 'true')
   await expect(page.getByText('moyenne 70 blocs, écart-type 7,6')).toBeVisible()
   await expect(page.getByText('moyenne 67,6 blocs, écart-type 8,6')).toBeVisible()
@@ -400,10 +401,10 @@ test('le Box and Blocks colore le nombre de blocs et écrit le tableau du Word',
   await expect(nonDominante).toHaveCSS('color', 'rgb(255, 140, 0)')
 
   const carteDominante = page.locator('.carte', { hasText: 'Main dominante (droite)' })
-  await page.getByRole('radiogroup', { name: 'Douleur, main dominante' }).getByRole('radio', { name: '3', exact: true }).tap()
+  await page.getByRole('radiogroup', { name: 'Douleur, main dominante', exact: true }).getByRole('radio', { name: '3', exact: true }).tap()
   await page.getByLabel('Localisation de la douleur (main dominante)').fill('du poignet')
-  await page.getByRole('radiogroup', { name: 'Douleur, main non dominante' }).getByRole('radio', { name: '0', exact: true }).tap()
-  await carteDominante.getByRole('button', { name: 'tridigitale' }).tap()
+  await page.getByRole('radiogroup', { name: 'Douleur, main non dominante', exact: true }).getByRole('radio', { name: '0', exact: true }).tap()
+  await carteDominante.getByRole('button', { name: 'tridigitale', exact: true }).tap()
   await carteDominante.getByRole('button', { name: 'Elle se cogne plusieurs fois dans la paroi centrale' }).tap()
   expect((await brouillon(page)).boxAndBlocks).toEqual({
     cote: '',
