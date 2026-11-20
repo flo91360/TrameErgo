@@ -2,7 +2,7 @@
 // dans le fichier (doublon, liste vide, identifiant mal formé) est signalée
 // ici plutôt que découverte dans un bilan.
 import { describe, expect, it } from 'vitest'
-import { questionnaire } from '../src/bilan'
+import { normes, observationsPossibles, OBSERVATIONS_BB, questionnaire } from '../src/bilan'
 
 const { identite, demande, suivis, scolarite, caractere, otHope, objectifs, amenagements } = questionnaire
 
@@ -73,5 +73,46 @@ describe('questionnaire.json', () => {
     // Les objectifs finaux sont retrouvés par le libellé de l'activité.
     for (const domaine of otHope.domaines) listeValide(domaine.activites)
     listeValide(otHope.domaines.flatMap((d) => d.activites))
+  })
+
+  it('a des observations du Box and Blocks utilisables', () => {
+    listeValide(OBSERVATIONS_BB.map((o) => o.libelle))
+    listeValide(observationsPossibles())
+    for (const observation of OBSERVATIONS_BB) {
+      if (observation.choix) listeValide(observation.choix)
+      if (observation.phrase) expect(observation.phrase, observation.libelle).toContain('{choix}')
+      if (observation.feminin) expect(observation.feminin.trim(), observation.libelle).toBeTruthy()
+    }
+    const { douleur } = questionnaire.boxAndBlocks
+    expect(douleur.aucune.trim()).not.toBe('')
+    expect(douleur.presente).toContain('{douleur}')
+    expect(douleur.localisee).toContain('{localisation}')
+  })
+})
+
+describe('normes.json', () => {
+  it('couvre le Box and Blocks de 6 à 19 ans, sans trou ni chevauchement', () => {
+    const { tranches } = normes.boxAndBlocks
+    expect(tranches[0].ageMin).toBe(6)
+    expect(tranches[tranches.length - 1].ageMax).toBe(19)
+    tranches.forEach((tranche, i) => {
+      expect(tranche.ageMax).toBeGreaterThanOrEqual(tranche.ageMin)
+      if (i > 0) expect(tranche.ageMin).toBe(tranches[i - 1].ageMax + 1)
+      for (const sexe of ['Homme', 'Femme'] as const) {
+        for (const cote of ['droite', 'gauche'] as const) {
+          const { moyenne, ecartType } = tranche[sexe][cote]
+          expect(moyenne, `${tranche.ageMin}-${tranche.ageMax} ${sexe} ${cote}`).toBeGreaterThan(0)
+          expect(ecartType, `${tranche.ageMin}-${tranche.ageMax} ${sexe} ${cote}`).toBeGreaterThan(0)
+        }
+      }
+    })
+  })
+
+  it('reprend les valeurs du fichier Calcul-DS.xlsx', () => {
+    const [six, , , douze, , , dixHuit] = normes.boxAndBlocks.tranches
+    expect(six.Homme).toEqual({ droite: { moyenne: 54.4, ecartType: 6.6 }, gauche: { moyenne: 50.7, ecartType: 6.3 } })
+    expect(six.Femme).toEqual({ droite: { moyenne: 57.9, ecartType: 5.3 }, gauche: { moyenne: 54.2, ecartType: 5.6 } })
+    expect(douze.Homme.droite).toEqual({ moyenne: 74.6, ecartType: 8.3 })
+    expect(dixHuit.Femme.gauche).toEqual({ moyenne: 76, ecartType: 8.5 })
   })
 })

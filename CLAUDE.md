@@ -12,6 +12,9 @@ Textes visibles, commentaires et messages de commit en français.
     Changer une liste ne demande que de modifier ce fichier. Un trait de
     `caractere` formulé avec un verbe (« teste souvent le cadre ») porte un
     `infinitif` : le bilan l'écrit alors sans « est » ni « d'être ».
+  - `normes.json` : normes intégrées à l'application (Box and Blocks, reprises
+    du fichier Excel `Calcul-DS.xlsx` : moyenne et écart-type par tranche d'âge,
+    sexe et côté droite/gauche). Les changer demande une nouvelle version.
   - `bilan.docx` : modèle Word unique du bilan, lisible par un humain :
     champs simples `{champ}` (syntaxe docxtemplater), sans conditions
     `{#…}` (un test les refuse), mots accordés au sexe par des champs (`{il_elle}`,
@@ -56,6 +59,13 @@ Textes visibles, commentaires et messages de commit en français.
     (nom de l'enfant, questionnaire des parents), réglages et historique.
   - `src/reprise.ts` : relit le brouillon (format `VERSION_BROUILLON`) et
     retire, en les signalant, les réponses absentes du questionnaire.
+  - Étape « Test de motricité : Box and Blocks » (`src/etapes/BoxAndBlocks.vue`),
+    après l'introduction du bilan : blocs par main, douleur (EN 0 à 10) et
+    observations (`questionnaire.boxAndBlocks`). La main dominante vient de la
+    latéralité (à choisir si ambidextre) ; la norme suit son côté. L'écart-type
+    calculé, arrondi à 2 décimales, n'est écrit que dans le Word ; il donne la
+    couleur du nombre de blocs (`NIVEAUX_BB`), à l'écran et dans le Word, où le
+    score va dans le champ coloré de son niveau (`{bb_blocs_dominante_correct}`…).
   - `src/etapes/` : un écran par étape, `src/composants/` : puces, segments,
     choix ordonnés (grosses cibles tactiles).
   - `tests/bilan.test.ts` : vérifie que `champs` fournit exactement les champs

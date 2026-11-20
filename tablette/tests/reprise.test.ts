@@ -81,6 +81,35 @@ describe('reprise du brouillon', () => {
     expect(sansCaractere.retirees).toEqual([])
   })
 
+  it('relit le Box and Blocks et vérifie chaque mesure', () => {
+    const bilan = nouveauBilan(date)
+    bilan.boxAndBlocks = {
+      cote: 'gauche',
+      dominante: { blocs: 56, douleur: 2, localisationDouleur: 'poignet', observations: ['Prise : bidigitale'] },
+      nonDominante: { blocs: null, douleur: null, localisationDouleur: '', observations: ['Le geste est saccadé'] },
+    }
+    const reprise = reprendre(enregistrement(bilan), date)!
+    expect(reprise.retirees).toEqual([])
+    expect(reprise.bilan.boxAndBlocks).toEqual(bilan.boxAndBlocks)
+
+    const ancien = JSON.parse(enregistrement(bilan))
+    ancien.bilan.boxAndBlocks = {
+      cote: 'milieu',
+      dominante: { blocs: -3, douleur: 12, observations: ['Observation disparue', 'Prise : bidigitale'] },
+      nonDominante: 'rien',
+    }
+    const corrige = reprendre(JSON.stringify(ancien), date)!
+    expect(corrige.retirees).toEqual(['Observation disparue (Box and Blocks, main dominante)'])
+    expect(corrige.bilan.boxAndBlocks).toEqual({
+      cote: '',
+      dominante: { blocs: null, douleur: null, localisationDouleur: '', observations: ['Prise : bidigitale'] },
+      nonDominante: { blocs: null, douleur: null, localisationDouleur: '', observations: [] },
+    })
+    // Brouillon d'avant le Box and Blocks.
+    delete ancien.bilan.boxAndBlocks
+    expect(reprendre(JSON.stringify(ancien), date)!.bilan.boxAndBlocks).toEqual(nouveauBilan(date).boxAndBlocks)
+  })
+
   it('reprend un brouillon de la version 1 (réponses à la racine)', () => {
     const ancien = { ...nouveauBilan(date), prenom: 'Lucas', entente: 'Bonne', dossierMdph: 'Actif', lateralite: 0 }
     const reprise = reprendre(JSON.stringify(ancien), date)!
